@@ -17,8 +17,11 @@ Tillgänglighet är inte en feature i det här projektet — det är premissen.
 | [TECH.md](TECH.md) | Teknikval, arkitektur, fysikmodell, färdiga byggblock |
 | [ACCESSIBILITY.md](ACCESSIBILITY.md) | Tillgänglighetskrav, inställningsmatris, testprotokoll |
 | [PROJECTPLAN.md](PROJECTPLAN.md) | Faser, milstolpar, tidsuppskattning, risker, finansiering |
+| [DECISIONS.md](DECISIONS.md) | Beslutslogg — vad som är låst och varför |
 
 ## Status
 
-Förprojekt. Inga tekniska beslut är låsta ännu — se "Öppna frågor" längst ner i
-[PROJECTPLAN.md](PROJECTPLAN.md).
+Förprojekt. Låst: **Godot 4, GDScript, webben som förstahandsplattform, eget repo
+`robo-ball`, ca 90 minuters speltid i första utgåvan, fyra förmågor.** Se
+[DECISIONS.md](DECISIONS.md). Kvarvarande frågor — bemanning, testare, finansiering —
+längst ner i [PROJECTPLAN.md](PROJECTPLAN.md).

@@ -2,13 +2,21 @@
 
 ## 1. Mål
 
-Ett färdigt, säljbart 2D-metroidvania på 3–4 timmars speltid som går att spela med en
-enda signal, med grafik och fysikkänsla som håller kommersiell nivå, och med
-tillgänglighetsinställningar som gör att målgruppen faktiskt kan spela det själva —
-inte titta på när någon annan gör det.
+Ett färdigt, säljbart 2D-metroidvania på **ca 90 minuters speltid**, spelbart **i
+webbläsaren utan installation**, som går att ta sig igenom med en enda signal — med
+grafik och fysikkänsla som håller kommersiell nivå, och med tillgänglighetsinställningar
+som gör att målgruppen faktiskt kan spela det själva i stället för att titta på när
+någon annan gör det.
+
+Den korta speltiden är ett medvetet val: den halverar tiden till release och når barnen
+ett år tidigare. Världen byggs så att den går att förlänga — v1 är en förkortning av
+planen, inte en annan design.
 
 Sekundärt mål: att inställningslagret och inputlagret är återanvändbart och öppet, så
 att andra utvecklare kan göra samma sak billigare.
+
+Låsta beslut: **Godot 4, GDScript, webben först, eget repo `robo-ball`, ca 90 minuter,
+fyra förmågor.** Se DECISIONS.md.
 
 ## 2. Arbetssätt
 
@@ -24,14 +32,18 @@ att andra utvecklare kan göra samma sak billigare.
 ### Fas 0 — Beslut och känsla (3–4 veckor)
 Syfte: ta reda på om kärnan är rolig innan vi bygger något runt den.
 
-* Låsa motor och språk (se "Öppna frågor").
+* Sätta upp repot `robo-ball`, Godot-projektet och CI som exporterar ett webbygge.
+* **Verifiera webbkedjan tidigt:** bygge på riktig hosting med rätt COOP/COEP-headers,
+  test på Chromebook och surfplatta, tangentbordsfokus i inbäddad spelare. Går inte det
+  att lösa i fas 0 är det bättre att veta nu än i fas 4.
 * Gråboxprototyp: auto-gång, vändning, siktläge med pendelpil, slow motion,
   ballistiskt hopp, landning. Ingen grafik, en enda testbana.
 * WorldClock och InputSignal på plats från början — det är dessa två som allt annat
   bygger på.
 * En hink med lådor att krossa, för att känna på Angry Birds-biten.
 * **Milstolpe:** någon som aldrig sett spelet kan ta sig genom en hinderbana med
-  mellanslag som enda knapp, och tycker det är kul. Första speltestet med 1–2 barn.
+  mellanslag som enda knapp — i en webbläsare, via en länk — och tycker det är kul.
+  Första speltestet med 1–2 barn.
 * **Beslutspunkt:** känns hoppet bra? Om pendelpilen är frustrerande måste vi lösa det
   här, inte i fas 3.
 
@@ -48,44 +60,45 @@ Syfte: bygga det som är dyrt att lägga till i efterhand.
 * **Milstolpe:** hela inställningsmatrisen i ACCESSIBILITY.md går att ändra i spelet och
   påverkar något synligt. Genomgång mot Game Accessibility Guidelines.
 
-### Fas 2 — Vertikal skiva (3–4 månader)
+### Fas 2 — Vertikal skiva (2–3 månader)
 Syfte: ett område i färdig kvalitet, som också blir vårt visningsmaterial.
 
-* Kraschplatsen + början av grottorna, 20–30 minuters spel.
-* Förmåga 3 (spikar) och 5 (ficklampan) med sina grindar.
+* Kraschplatsen + grottorna, 25–30 minuters spel — alltså en tredjedel av hela v1.
+* Förmåga 3 (spikar) och 4 (ficklampan) med sina grindar.
 * Färdig grafik i konceptskissernas stil, animerad RB, ljudbild, en mellansekvens.
 * Två fiendetyper, en minichef.
 * **Milstolpe:** speltest med hela referensgruppen (5–8 barn). Trailer-dugligt material.
 * **Beslutspunkt:** här vet vi vad ett område kostar i tid, och kan räkna om resten av
   planen på riktiga siffror i stället för gissningar.
 
-### Fas 3 — Världen (6–9 månader)
-* Resterande biotoper: skrotupplaget, rörsystemet, rampdalen.
-* Förmåga 4, 6, 7, 8 med tillhörande grindar och genvägar.
-* Kartsystem, snabbresa, samlarföremål.
-* Fiendegalleri, 2–3 chefer.
-* Löpande speltest varje kvartal.
+### Fas 3 — Resten av världen (3–4 månader)
+* Två biotoper till: skrotupplaget (mycket förstörbar fysik) och rampdalen (fart).
+* Genvägar tillbaka, kartsystem, samlarföremål.
+* Fiendegalleri, en chef.
+* Löpande speltest.
 
-### Fas 4 — Tornet och polering (3–4 månader)
+### Fas 4 — Tornet och polering (2 månader)
 * Sluttornet: sammanfattar alla förmågor, slutchef, avslutning.
 * Balansering av alla assistlägen — varje läge ska klara hela spelet.
 * Prestandaarbete mot budgeten i TECH.md.
 * Lokalisering svenska/engelska, uppläst text.
 * Vuxenläget (inställningsguide för föräldrar och personal).
 
-### Fas 5 — Release och efter (2 månader + löpande)
-* Steam- och itch-sidor med konkret tillgänglighetsbeskrivning, webbversion om möjlig.
+### Fas 5 — Release och efter (1–2 månader + löpande)
+* Webbversionen är huvudutgåvan: egen sida eller itch, med en länk som går att skicka
+  till en lärare och som fungerar direkt. Desktop-bygget på Steam och itch.
+* Butikssidor med konkret tillgänglighetsbeskrivning — för den här målgruppen är det
+  köpbeslutet.
 * Pressarbete riktat mot både speltidningar och funktionsrättsrörelsen — det här är en
   berättelse som har publik.
-* Efter release: ögonstyrning som riktad input, fler styrningsvarianter, ev. banredigerare
-  för pedagoger.
+* Efter release: v2 med resterande förmågor och biotoper, ögonstyrning som riktad input,
+  fler styrningsvarianter, ev. banredigerare för pedagoger.
 
 ### Total tidsuppskattning
-Cirka **18–24 månader på heltid för en person**, väsentligt längre på fritiden. Med en
-deltidsartist och en deltidsljudperson i fas 2–4 kan det pressas mot 12–15 månader
-kalendertid. Det är en ärlig siffra för ambitionen "riktigt spel med snygg grafik";
-den kan halveras genom att korta speltiden till 90 minuter, vilket är en fullt rimlig
-första utgåva.
+Cirka **10–14 månader på heltid för en person** för 90-minutersutgåvan, väsentligt
+längre på fritiden. Med deltidsgrafiker och deltidsljud i fas 2–4 pressas kalendertiden
+mot 8–10 månader. Den fulla världen (3–4 timmar, alla åtta förmågor) är en fortsättning
+på samma kodbas och samma karta — räkna ytterligare 8–12 månader för den, som v2.
 
 ## 4. Roller
 
@@ -126,25 +139,25 @@ tillgänglighetsrådgivaren — den rollen sparar mest omarbete.
 * Kombinationen "socialt uppdrag + kommersiellt spel" är stark i ansökningar, men kräver
   att man är tydlig med båda delarna. Verifiera aktuella villkor innan ansökan.
 
-## 7. Öppna frågor att besluta
+## 7. Kvarvarande öppna frågor
 
-1. **Var ska koden bo?** Det här repot är en fork av TiXL (ett C#-verktyg för motion
-   graphics). Ett Godot-spel hör inte hemma i samma repo. Förslag: eget repo
-   `robo-ball`. Denna dokumentation ligger tills vidare här.
-2. **Plattformsmål:** Windows först, eller webb från början? Webb ger enorm räckvidd i
-   skola och habilitering (ingen installation), men styr språkvalet i motorn.
-3. **Språk:** GDScript eller C#? Beror på fråga 2 och på hur mycket du vill återanvända
-   din C#-vana.
-4. **Ambition för v1:** 3–4 timmar (planen ovan) eller 90 minuter (halva tiden, tidigare
-   i händerna på barnen)?
-5. **Ensam eller med hjälp?** Grafik och ljud är de områden där extern hjälp ger mest
-   per krona.
-6. **Speltestare:** vilka kontakter finns redan från ditt arbete med barnen? Det är
-   projektets mest värdefulla tillgång.
+Motor, språk, plattform, repo och omfattning är beslutade (DECISIONS.md). Kvar:
+
+1. **Ensam eller med hjälp?** Grafik och ljud är där extern hjälp ger mest per krona.
+   Den viktigaste externa personen är ändå en arbetsterapeut som rådgivare — den rollen
+   sparar mest omarbete.
+2. **Speltestare:** vilka kontakter finns redan från ditt arbete med barnen? Det är
+   projektets mest värdefulla tillgång, och det som avgör om tillgängligheten blir
+   riktig eller påhittad.
+3. **Finansiering:** ska vi söka Arvsfonden? I så fall behövs en förening som huvudman,
+   och det tar tid att ordna — beslutet bör tas under fas 0, inte efter.
+4. **Affärsmodell:** gratis på webben och betalt på Steam, eller betalt överallt? Påverkar
+   både räckvidd och vilka bidrag som är möjliga.
 
 ## 8. Nästa konkreta steg
 
-1. Besluta fråga 1–3 ovan.
-2. Sätta upp repo, Godot-projekt, CI som exporterar ett bygge.
-3. Bygga fas 0-prototypen (auto-gång, sikte, hopp, en hög lådor).
-4. Boka första speltestet innan prototypen ens är klar — datumet driver arbetet.
+1. Skapa repot `robo-ball`, flytta över dessa dokument.
+2. Godot 4-projekt + CI som bygger webbexport och Windows-export på varje push.
+3. Verifiera webbkedjan på riktig hosting (headers, Chromebook, surfplatta, fokus).
+4. Bygga fas 0-prototypen: auto-gång, siktläge, ballistiskt hopp, en hög lådor.
+5. Boka första speltestet innan prototypen ens är klar — datumet driver arbetet.

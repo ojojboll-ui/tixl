@@ -118,9 +118,12 @@ synlig tidigare, och (c) gå att förstå utan text.
 | 7 | **Gummiskal** *(förslag)* | studsar i stället för att stanna, kedjehopp | höga schakt, studsbanepussel |
 | 8 | **Turbon** *(förslag)* | högre grundfart → loopar och korkskruvar går att klara | Sonic-sektionerna, rampbanor |
 
-Ordningen är inte huggen i sten, men 1→2→3 bör vara första timmen: rulla, ben, spikar
-täcker horisontell, vertikal och "utanför golvet"-rörelse och gör kartan tre gånger
-större utan att lägga till en enda knapp.
+**I v1 (ca 90 minuter) ingår 1, 2, 3 och 5:** rulla, strutsbenen, spikar och ficklampan.
+De täcker horisontell, vertikal och "utanför golvet"-rörelse plus en synlig ljusgrind,
+och gör kartan tre gånger större utan att lägga till en enda knapp. Hårt skal, kroken,
+gummiskalet och turbon flyttas till v2 — notera att den förstörbara fysiken finns i
+spelet ändå från start, eftersom saker går sönder av rörelseenergi; det hårda skalet
+höjer bara tröskeln, det skapar den inte.
 
 **Regel:** ingen förmåga får göra styrningen svårare. En förmåga som kräver att man
 trycker "i rätt ögonblick under hoppet" bryter mot premissen. Förmågor ändrar
@@ -131,9 +134,9 @@ trycker "i rätt ögonblick under hoppet" bryter mot premissen. Förmågor ändr
 * **Struktur:** sammanhängande 2D-karta i Metroid-anda, uppdelad i 5–6 biotoper som
   möts i en central hubb (kraschplatsen). Tornet i mitten är synligt från nästan
   överallt och blir slutmålet.
-* **Biotoper (utkast):** kraschplatsen (tutorial), grottorna (ficklampan), skrotupplaget
-  (hårt skal, mycket förstörbar fysik), rörsystemet (spikar, vertikalt), rampdalen
-  (Sonic-fart), tornet (allt, i tur och ordning).
+* **Biotoper i v1:** kraschplatsen (tutorial, benen), grottorna (ficklampan), rörsystemet
+  (spikar, vertikalt), skrotupplaget (förstörbar fysik), och en kort tornsektion som
+  avslutning. Rampdalen, det fulla tornet och resterande biotoper är v2.
 * **Backtracking:** ska alltid vara kortare än första resan — genvägar som låses upp
   inifrån, och snabbresa mellan hittade laddstationer.
 * **Sparning:** kontinuerlig autosparning, inte sparrum. Spelet ska kunna stängas av

@@ -1,10 +1,14 @@
 # Robo Ball — teknik
 
-## 1. Rekommendation i en mening
+## 1. Beslutat
 
-**Godot 4, 2D, med Godots inbyggda fysik för världen och en handskriven markkontroller
-för RB.** Skriptspråk: GDScript om webbexport ska vara ett förstahandsmål, C# om
-Windows/Steam räcker.
+**Godot 4, GDScript, webben som förstahandsplattform.** Godots inbyggda 2D-fysik för
+världen, en handskriven markkontroller för RB. Se DECISIONS.md.
+
+Webbvalet är det som styr allt annat i det här dokumentet: inget kräver installation,
+spelet startar från en länk i skolan eller på habiliteringen, och därför är GDScript
+språket (webbexport för C#/.NET har legat efter) och inbyggd fysik fysiken (GDExtensions
+är krångligare i webbygget).
 
 ## 2. Motorval — varför Godot
 
@@ -19,17 +23,14 @@ Windows/Steam räcker.
 Arvsfonden är "resultatet blir fritt tillgängligt och går att vidareutveckla av andra"
 inte en teknikdetalj utan en del av ansökan.
 
-### GDScript eller C#?
-Du har C#-vana (det här repot är ett C#-projekt). C# i Godot är ett fullgott
-förstahandsspråk och passar en stor kodbas som ska leva i flera år. **Men:**
-webbexport för C#/.NET har historiskt legat efter GDScript-exporten. Om spelet ska
-gå att spela direkt i webbläsaren — vilket är ett tungt tillgänglighetsargument, eftersom
-skolor och habiliteringar sällan får installera program — så verifiera att C#-webbexport
-fungerar i den Godot-version vi väljer *innan* vi låser språket. Gör den inte det:
-GDScript.
+### GDScript, inte C#
+Din C#-vana talar för C#, och C# i Godot är i sig ett fullgott förstahandsspråk. Men
+webben är valt, och där är GDScript det mogna spåret. Beslutet är taget för att slippa
+ett omtag mitt i projektet — prototypen skrivs alltså direkt i GDScript.
 
-Prototypen bör skrivas i det språk vi ska behålla. Att skriva om senare är dyrare än
-att ta beslutet nu.
+Praktiskt är övergången mindre än den låter: GDScript är statiskt typat när man vill
+(`var x: float`), har klasser, signaler och samma nodträd. Skriv typat från början —
+det ger både bättre prestanda och den kompilatorhjälp du är van vid.
 
 ## 3. Fysikarkitektur
 
@@ -65,16 +66,12 @@ stenblock, trapetser (`PinJoint2D`), vippbrädor. Skörhet modelleras som
 mot sina bitar med ärvd rörelsemängd. Det är samma trick som Angry Birds använder och
 det är billigt.
 
-### Godots fysik eller Box2D?
-Godots inbyggda 2D-fysik räcker med god marginal för det här. Om vi någon gång behöver
-mer stabila staplar eller determinism finns färdiga GDExtensions som byter ut hela
-fysikservern mot **Box2D** eller **Rapier2D** — ett rader i projektinställningarna,
-inte en omskrivning. Det är alltså inget vi behöver bestämma nu, vilket är precis vad
-man vill av ett sådant beslut.
-
-Determinism är värt en tanke: om vi vill ha "spela upp ditt bästa hopp"-funktioner eller
-automatiska regressionstester av banor behöver fysiken vara reproducerbar, och där är
-Rapier/Box2D-extensionerna starkare än inbyggda. Inte ett krav för v1.
+### Godots fysik, inte Box2D
+Godots inbyggda 2D-fysik räcker med god marginal för det här, och den är dessutom det
+säkra kortet i webbygget: GDExtensions (som `godot-box2d` och `godot-rapier2d`) är
+mer bräckliga där. Vi håller dem som reservplan om ett desktop-spår någon gång behöver
+stabilare staplar eller determinism — bytet är rader i projektinställningarna, inte en
+omskrivning.
 
 ### Slow motion
 Använd **inte** `Engine.time_scale` rakt av — den saktar ner allt, inklusive UI, ljud
@@ -153,9 +150,35 @@ robo-ball/
   itch.io (butler) — testbygge i händerna på testarna samma dag som en ändring görs.
 * Källfiler (Krita, ljudprojekt) i repo eller i molnmapp, men *versionera* dem.
 
-## 7. Prestandabudget
+## 7. Webbexport — vad valet faktiskt kostar
 
-Måltak: 60 fps på en sju år gammal bärbar dator med integrerad grafik, och på
-Chromebook via webben. Det är målgruppens hårdvara, inte en speldator. Det betyder:
+Webben är rätt beslut, men den har sina egna fällor. Ta dem i fas 0, inte i fas 4:
+
+* **Headers.** Godots webbygge vill ha `SharedArrayBuffer`, vilket kräver
+  `Cross-Origin-Opener-Policy: same-origin` och `Cross-Origin-Embedder-Policy:
+  require-corp` från servern. itch.io har en inställning för detta; egen hosting måste
+  sätta dem själv. Verifiera på riktig hosting i fas 0 — inte lokalt.
+* **Fokus i iframe.** I en inbäddad spelare måste sidan klickas innan tangentbordet når
+  spelet. För ett enknappsspel är det ett tillgänglighetsproblem, inte en detalj: se till
+  att spelet tar fokus automatiskt, att klick var som helst räknas som signal, och att
+  helskärmsläget är lätt att nå.
+* **Startstorlek.** Bygget ska vara litet nog att ladda på ett skolnätverk. Sikta under
+  50 MB totalt, komprimera bilder och ljud, och visa en laddningsskärm som inte kräver
+  läsning.
+* **Sparning.** `user://` hamnar i webbläsarens IndexedDB och kan rensas av användaren
+  eller av skolans IT. Därför måste profiler gå att **exportera som fil** (nedladdning)
+  och importera igen — det är också vad som gör att en arbetsterapeut kan ställa in
+  hemma och skicka med filen till skolan.
+* **Skärmläsare ser ingenting.** En canvas är en svart låda för webbläsarens
+  tillgänglighetsverktyg. Vi kan alltså inte luta oss mot webbens inbyggda stöd — vårt
+  eget scanning-UI och den uppläsning vi bygger själva är hela tillgängligheten.
+* **Desktop-bygget följer med gratis.** Samma projekt exporterar till Windows, macOS och
+  Linux. Ta med Windows-bygget i CI från dag ett, som reserv när webben strular hos en
+  testare.
+
+## 8. Prestandabudget
+
+Måltak: 60 fps i webbläsaren på en Chromebook och på en sju år gammal bärbar dator med
+integrerad grafik. Det är målgruppens hårdvara, inte en speldator. Det betyder:
 tak för antal aktiva stelkroppar per skärm (~80), destruktionsbitar med livslängd, och
 partiklar som är avstängbara (vilket ändå krävs av tillgänglighetsskäl).
