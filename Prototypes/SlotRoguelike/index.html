@@ -125,12 +125,14 @@ button.chip.sel { border-color: var(--brass); }
   background: linear-gradient(to bottom, transparent 72%, #17121f 72%, #17121f 74%, #251d35 74%),
     repeating-linear-gradient(90deg, #1b1529 0 30px, #1f182e 30px 32px), #1b1529; }
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 10%, rgba(240,140,60,0.14), transparent 55%); }
-.ehead { position: absolute; top: 6px; right: 8px; left: 52%; z-index: 2; display: grid; gap: 3px; }
-.ename { font-size: 14px; text-align: right; font-weight: 600; line-height: 1.1; }
+.ehead { position: absolute; top: 6px; right: 8px; left: 56%; z-index: 2; display: grid; gap: 3px; }
+.ename { font-size: 12px; text-align: right; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hpbar { position: relative; height: 15px; background: #0b0812; border: 2px solid #000; border-radius: 2px; }
 .hpbar i { position: absolute; inset: 0 auto 0 0; background: var(--blood); transition: width 0.25s steps(5); }
 .hpbar b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mono); font-size: 9px; font-weight: 400; color: #fff; text-shadow: 1px 1px 0 #000; }
-.intent { justify-self: end; display: flex; align-items: center; gap: 5px; background: rgba(10,8,18,0.85); border: 1px solid var(--line);
+.intentwrap { position: absolute; left: 29%; right: 33%; bottom: 8px; z-index: 2; display: flex; justify-content: center; pointer-events: none; }
+.intentwrap.ruled { bottom: 26px; }
+.intent { display: flex; align-items: center; gap: 4px; max-width: 100%; font-size: 11px !important; background: rgba(10,8,18,0.85); border: 1px solid var(--line);
   border-radius: 3px; padding: 2px 6px; font-size: 12px; line-height: 1.15; }
 .intent img { width: 18px; height: 18px; }
 .intent b { color: var(--blood); font-family: var(--mono); font-weight: 400; font-size: 12px; }
@@ -138,11 +140,11 @@ button.chip.sel { border-color: var(--brass); }
 .pips i { width: 6px; height: 6px; background: var(--blood); }
 .pips i.off { background: var(--line); }
 .intent.now { border-color: var(--blood); animation: throb 0.5s steps(2) infinite; }
-.actor { position: absolute; bottom: 16%; z-index: 1; }
-.actor img { width: clamp(64px, 19vw, 84px); height: auto; }
+.actor { position: absolute; bottom: 12%; z-index: 1; }
+.actor img { width: clamp(52px, min(19vw, 11vh), 84px); height: auto; }
 .hero { left: 7%; }
-.enemy { right: 8%; }
-.enemy.big img { width: clamp(84px, 26vw, 110px); }
+.enemy { right: 5%; }
+.enemy.big img { width: clamp(60px, min(26vw, 12vh), 110px); }
 .actor .sprite { animation: bob 1s steps(2) infinite; }
 .enemy .sprite { animation-delay: 0.5s; }
 .blockbadge { position: absolute; left: -4px; top: -16px; display: flex; align-items: center; gap: 2px; font-family: var(--mono); font-size: 12px;
@@ -1033,7 +1035,7 @@ const ENEMIES = {
   bigslime: { name: 'Giant Slime',     sprite: 'slime',    hp: 80,  plan: [['sticky', 0, 2], ['heavy', 155, 3], ['attack', 45, 1]], big: true, filter: 'hue-rotate(250deg)' },
   shaman:   { name: 'Goblin Shaman',   sprite: 'goblin',   hp: 50,  plan: [['hex', 0, 2], ['attack', 30, 1], ['heal', 12, 1]], filter: 'hue-rotate(160deg)' },
   orc:      { name: 'Orc Chieftain',   sprite: 'orc',      hp: 86,  plan: [['attack', 55, 2], ['rage', 20, 1], ['heavy', 155, 3]], big: true, breaker: true, rule: 'Shieldbreaker: your block is halved.' },
-  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 185, plan: [['attack', 65, 2], ['guard', 0, 1], ['heavy', 195, 3], ['hex', 0, 2], ['attack', 65, 2]], armor: true, enrage: 30, big: true, rule: 'Armor. Enrages at half health.' },
+  dragon:   { name: 'Glowmaw', sprite: 'dragon', hp: 185, plan: [['attack', 65, 2], ['guard', 0, 1], ['heavy', 195, 3], ['hex', 0, 2], ['attack', 65, 2]], armor: true, enrage: 30, big: true, rule: 'Armor. Enrages at half health.' },
 };
 const INTENT = {
   attack: { name: 'Attack',     icon: 'sword',  desc: v => `−${v} gold` },
@@ -1529,8 +1531,8 @@ function renderFight() {
         <div class="ehead">
           <div class="ename">${kindLbl ? `<span class="lbl">${kindLbl} · </span>` : ''}${e.name}</div>
           <div class="hpbar"><i id="hpFill" style="width:${(e.hp / e.maxHp) * 100}%"></i><b id="hpTxt">${e.hp}/${e.maxHp}</b></div>
-          <div class="intent" id="intent"></div>
         </div>
+        <div class="intentwrap ${e.rule ? 'ruled' : ''}"><div class="intent" id="intent"></div></div>
         ${e.rule ? `<div class="rule">${e.rule}</div>` : ''}
         <div class="actor hero" id="hero">
           <div class="blockbadge" id="blockBadge" hidden>${px('shield')}<span id="blockN"></span></div>
