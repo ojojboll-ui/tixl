@@ -42,8 +42,14 @@ Nothing in the run touches the payouts. Everything below is combat:
 - **Free spins** freeze the enemy. **Hold & Spin** coins also pelt the enemy.
 - **Special:** each class has one, ready at 10 charge (Berserk, Meteor, Lucky Break).
 - **Charms** (5 slots, 18 in total) change those rules, in the style of Balatro's jokers. Forge boosts improve the attack row.
-- **Elites and bosses bend the rules:** armor, a reel that stays put, wilds that don't expand, halved block.
+- **Enemies telegraph their plans** (Slay the Spire style): attacks and heavy blows with a countdown, guarding (half damage), healing, enraging, hexing wilds, sticking a reel. The next step is shown too. Some also have a permanent rule (armor, halved block).
+
+### Your moves
+
+- **Respin a reel:** after a paid spin, respin one reel while the other four stay; their attack row strikes again. Price = expected win ÷ RTP, at least half a bet, so it never beats the house (simulated: overall RTP 71–92% depending on how you use it). One respin per spin.
+- **Gamble:** after a base-game win, guess red or black. Right doubles the gold and repeats its line hits; wrong loses the gold and the enemy heals those hits. Exactly 50/50, up to 3 times, so the RTP does not move.
+- **Pocket:** hold back the next attack row's strikes, release them later at double strength. Carries over between fights.
 
 ## Balance
 
-The logic sits between `// ===== LOGIC START =====` and `// ===== LOGIC END =====` and runs in Node for simulation. A simple bot (no bonus buys, greedy charm picks) beats the dragon in about 40–47% of runs.
+The logic sits between `// ===== LOGIC START =====` and `// ===== LOGIC END =====` and runs in Node for simulation. A simple bot (greedy charm picks, no respins, gambles or pocket) beats the dragon in about 38–47% of runs; a bot that uses the pocket against guards and heavy blows, respins strong attack rows and gambles for kills wins 51–55%.

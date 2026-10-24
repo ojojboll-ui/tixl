@@ -120,8 +120,8 @@ button.chip.sel { border-color: var(--brass); }
 .legend img { width: 18px; height: 18px; }
 
 /* ---------- Fight: stage ---------- */
-.fight { gap: 8px; }
-.stage { position: relative; height: clamp(150px, 24vh, 200px); flex: none; border: 2px solid var(--line); border-radius: 6px; overflow: hidden;
+.fight { gap: 6px; }
+.stage { position: relative; height: clamp(124px, 21vh, 200px); flex: none; border: 2px solid var(--line); border-radius: 6px; overflow: hidden;
   background: linear-gradient(to bottom, transparent 72%, #17121f 72%, #17121f 74%, #251d35 74%),
     repeating-linear-gradient(90deg, #1b1529 0 30px, #1f182e 30px 32px), #1b1529; }
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 10%, rgba(240,140,60,0.14), transparent 55%); }
@@ -170,7 +170,7 @@ button.chip.sel { border-color: var(--brass); }
 .led span { display: flex; flex-direction: column; align-items: center; font-family: var(--mono); font-size: 8px; color: #8a5a4a; letter-spacing: 0.08em; line-height: 1.1; }
 .led b { font-family: var(--mono); font-weight: 400; font-size: 15px; color: var(--led); text-shadow: 0 0 6px rgba(255,90,60,0.6); font-variant-numeric: tabular-nums; }
 .led b.hot { color: #ffd23c; text-shadow: 0 0 8px rgba(255,210,60,0.8); }
-.reels { position: relative; height: clamp(170px, 33vh, 300px); display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.reels { position: relative; height: clamp(150px, 30vh, 300px); display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
 .reel + .reel { margin-left: 3px; }
 .reel { position: relative; overflow: hidden; background: #f3e6c9; border-radius: 3px; box-shadow: inset 0 0 0 2px #000; }
 .reel::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
@@ -235,7 +235,27 @@ button.chip.sel { border-color: var(--brass); }
 .log { flex: 1; font-size: 13px; color: var(--muted); min-height: 0; overflow-y: auto; line-height: 1.35; text-align: center; }
 .log b { color: var(--parch); font-weight: 600; }
 .log .d { color: var(--blood); } .log .g { color: var(--brass); } .log .bl { color: var(--mana); }
-.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: stretch; }
+.controls { display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 6px; align-items: stretch; }
+.respins { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; min-height: 22px; }
+.respin { font-family: var(--mono); font-size: 10px; padding: 3px 0; background: #1a120a; color: var(--brass); border: 1px solid var(--brass-dk); border-radius: 3px; visibility: hidden; }
+.respins.live .respin { visibility: visible; }
+.respin:disabled { opacity: 0.35; }
+.reel.kept { box-shadow: inset 0 0 0 3px var(--brass); }
+.gamble { display: flex; align-items: center; gap: 6px; background: var(--stone-2); border: 2px solid var(--brass); border-radius: 4px; padding: 4px 6px; }
+.gamble span { flex: 1; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.gamble span b { color: var(--brass); font-weight: 400; }
+.gbtn { font-family: var(--mono); font-size: 11px; padding: 7px 10px; border: 0; border-radius: 3px; color: #fff; }
+.gbtn.red { background: #b13e53; } .gbtn.black { background: #1a1c2c; border: 1px solid #555; }
+.pocketbtn { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 3px 6px; text-align: left; background: var(--stone); border: 2px dashed var(--line); border-radius: 4px; font-size: 10px; line-height: 1.2; color: var(--muted); }
+.pocketbtn .lbl { font-size: 8px; color: var(--leaf); }
+.pocketbtn.full { border-style: solid; border-color: var(--leaf); color: var(--parch); }
+.pocketbtn.armed { border-style: solid; border-color: var(--leaf); background: #1f3a1a; color: var(--parch); animation: throb 0.7s steps(2) infinite; }
+.pocketbtn:disabled { opacity: 0.6; }
+.tag.pk { background: var(--leaf); color: var(--ink); }
+.float.heal { color: var(--leaf); }
+.intent small { display: block; font-size: 9px; color: var(--muted); }
+.intent b.heavy { color: #ff7a3c; } .intent b.guard, .intent b.hex, .intent b.sticky { color: var(--mana); } .intent b.heal { color: var(--leaf); } .intent b.rage { color: #ff7a3c; }
+.intent.heavy { border-color: #ff7a3c; box-shadow: 0 0 8px rgba(255,122,60,0.5); }
 .special { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 4px 8px; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; text-align: left; }
 .special .lbl { font-size: 9px; color: var(--parch); }
 .special .meter { height: 8px; background: #0b0812; border: 1px solid #000; }
@@ -264,7 +284,7 @@ button.chip.sel { border-color: var(--brass); }
 .nudges b { font-family: var(--mono); font-weight: 400; font-size: 20px; color: var(--leaf); }
 .nudges.live { border-color: var(--leaf); animation: throb 0.7s steps(2) infinite; }
 .nudges.pop, #nudges.pop { animation: pop 0.3s steps(3); }
-.bet { display: grid; grid-template-columns: 40px 1fr 40px; align-items: stretch; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; }
+.bet { display: grid; grid-template-columns: 30px 1fr 30px; align-items: stretch; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; }
 .bet button { background: var(--stone-2); border: 0; font-family: var(--mono); font-size: 20px; color: var(--brass); }
 .bet button:disabled { opacity: 0.3; }
 .bet div { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
@@ -882,6 +902,24 @@ const PAR = { rtp: 0.9601, base: 0.6512, free: 0.1992, hold: 0.1097, hit: 0.242,
 const BONUS_BUY_X = 24;                      // price of buying 10 free spins, in total bets (average return 22.6×)
 
 function rollStops() { return STRIPS.map(s => ri(0, s.length - 1)); }
+// Respin pricing: the average return of the new outcome, divided by the RTP. A respin never beats the house.
+const FS_EV_PER_SPIN = 2.26;                 // one awarded free spin, incl. retriggers and features (PAR sim)
+const HS_EV = 45.1;                          // average Hold & Spin, in total bets (PAR sim)
+function outcomeX(stops, wilds) {
+  const g = gridFrom(stops), raw = g.map(r => r.slice());
+  expandWilds(g, wilds);
+  let x = evalLines(g).reduce((a, w) => a + w.pay, 0);
+  const sc = countSym(g, 'star');
+  if (sc >= 3) x += FREE_SPINS[Math.min(5, sc)] * FS_EV_PER_SPIN;
+  if (countSym(raw, 'coin') >= HS_TRIGGER) x += HS_EV;
+  return x;
+}
+function respinEV(stops, c, wilds) {
+  const s = stops.slice(), n = STRIPS[c].length;
+  let ev = 0;
+  for (let i = 0; i < n; i++) { s[c] = i; ev += outcomeX(s, wilds); }
+  return ev / n;
+}
 function gridFrom(stops) {
   const g = [[], [], []];
   for (let c = 0; c < REELS; c++) { const s = STRIPS[c], n = s.length; for (let r = 0; r < ROWS; r++) g[r][c] = s[mod(stops[c] - 1 + r, n)]; }
@@ -933,9 +971,10 @@ function playHoldSpin(g) {
   const total = cells.flat().reduce((a, x) => a + (x ? x.v : 0), 0) + (full ? HS_GRAND : 0);
   return { start: g.map(row => row.map(t => t === 'coin')), cells, steps, full, total };
 }
-// One paid or free spin of the machine. Pure slot math, no combat.
+// One paid or free spin of the machine. Pure slot math, no combat. opts.keep lists reels that stay on opts.base.
 function machineSpin(opts = {}) {
   const stops = rollStops();
+  if (opts.keep) for (const c of opts.keep) stops[c] = opts.base[c];
   const g = gridFrom(stops);
   const raw = g.map(r => r.slice());
   const ex = expandWilds(g, opts.wilds !== false);
@@ -985,39 +1024,62 @@ const CHARMS = {
   volley:    { name: 'Coin Volley',    icon: 'coin',   desc: 'Hold & Spin coins deal double damage.' },
 };
 const CHARM_SLOTS = 5;
+// Enemies telegraph their plans, Slay the Spire style. Each step: [intent, value, spins].
 const ENEMIES = {
-  slime:    { name: 'Slime',           sprite: 'slime',    hp: 34,  atk: 40,  every: 2 },
-  bat:      { name: 'Cave Bat',        sprite: 'bat',      hp: 24,  atk: 25,  every: 1 },
-  goblin:   { name: 'Goblin',          sprite: 'goblin',   hp: 42,  atk: 50,  every: 2 },
-  skeleton: { name: 'Skeleton Knight', sprite: 'skeleton', hp: 52,  atk: 60,  every: 2, armor: true, rule: 'Armor: swords deal half damage.' },
-  bigslime: { name: 'Giant Slime',     sprite: 'slime',    hp: 72,  atk: 90, every: 3, big: true, filter: 'hue-rotate(250deg)', sticky: true, rule: 'Sticky: reel 5 stays put every other spin.' },
-  shaman:   { name: 'Goblin Shaman',   sprite: 'goblin',   hp: 46,  atk: 30,  every: 1, filter: 'hue-rotate(160deg)', hex: true, rule: 'Hex: wilds do not expand.' },
-  orc:      { name: 'Orc Chieftain',   sprite: 'orc',      hp: 78, atk: 70,  every: 2, big: true, breaker: true, rule: 'Shieldbreaker: your block is halved.' },
-  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 165, atk: 80, every: 2, armor: true, enrage: 30, big: true, rule: 'Armor. Enrages at half health.' },
+  slime:    { name: 'Slime',           sprite: 'slime',    hp: 38,  plan: [['attack', 35, 2], ['guard', 0, 1]] },
+  bat:      { name: 'Cave Bat',        sprite: 'bat',      hp: 26,  plan: [['attack', 20, 1], ['attack', 20, 1], ['heal', 8, 1]] },
+  goblin:   { name: 'Goblin',          sprite: 'goblin',   hp: 46,  plan: [['attack', 40, 2], ['heavy', 115, 3]] },
+  skeleton: { name: 'Skeleton Knight', sprite: 'skeleton', hp: 58,  plan: [['attack', 50, 2], ['guard', 0, 2]], armor: true, rule: 'Armor: swords deal half damage.' },
+  bigslime: { name: 'Giant Slime',     sprite: 'slime',    hp: 80,  plan: [['sticky', 0, 2], ['heavy', 155, 3], ['attack', 45, 1]], big: true, filter: 'hue-rotate(250deg)' },
+  shaman:   { name: 'Goblin Shaman',   sprite: 'goblin',   hp: 50,  plan: [['hex', 0, 2], ['attack', 30, 1], ['heal', 12, 1]], filter: 'hue-rotate(160deg)' },
+  orc:      { name: 'Orc Chieftain',   sprite: 'orc',      hp: 86,  plan: [['attack', 55, 2], ['rage', 20, 1], ['heavy', 155, 3]], big: true, breaker: true, rule: 'Shieldbreaker: your block is halved.' },
+  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 185, plan: [['attack', 65, 2], ['guard', 0, 1], ['heavy', 195, 3], ['hex', 0, 2], ['attack', 65, 2]], armor: true, enrage: 30, big: true, rule: 'Armor. Enrages at half health.' },
+};
+const INTENT = {
+  attack: { name: 'Attack',     icon: 'sword',  desc: v => `−${v} gold` },
+  heavy:  { name: 'Heavy blow', icon: 'skull',  desc: v => `−${v} gold` },
+  guard:  { name: 'Guarding',   icon: 'shield', desc: () => 'takes half damage' },
+  heal:   { name: 'Healing',    icon: 'potion', desc: v => `+${v} health` },
+  rage:   { name: 'Enraging',   icon: 'fire',   desc: v => `attacks +${v}` },
+  hex:    { name: 'Hex',        icon: 'gem',    desc: () => 'wilds do not expand' },
+  sticky: { name: 'Sticky',     icon: 'slime',  desc: () => 'reel 5 stays put' },
 };
 const TIER1 = ['slime', 'bat', 'goblin'];
 const TIER2 = ['skeleton', 'bigslime', 'shaman', 'goblin'];
 
 const has = (run, id) => run.charms.includes(id);
 function newRun(cls) {
-  return { cls, gold: CLASSES[cls].gold, bet: 20, charms: [], boost: { sword: 0, fire: 0, shield: 0 }, charge: 0,
+  return { cls, gold: CLASSES[cls].gold, bet: 20, charms: [], boost: { sword: 0, fire: 0, shield: 0 }, charge: 0, stash: null,
            map: genMap(), pos: null, visited: [], screen: 'map', room: null, fight: null, nextHpX: 1,
-           stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0, free: 0, holds: 0 } };
+           stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0, free: 0, holds: 0, respins: 0, gambles: 0 } };
 }
-function makeEnemy(id, hpX = 1) { const d = ENEMIES[id]; const hp = Math.round(d.hp * hpX); return { ...d, id, hp, maxHp: hp, timer: d.every, enraged: false }; }
-const enemyAtk = e => e.atk + (e.enraged ? e.enrage : 0);
+const intentAt = (e, i) => { const [type, v, n] = e.plan[i % e.plan.length]; return { type, v, n }; };
+function makeEnemy(id, hpX = 1) {
+  const d = ENEMIES[id], hp = Math.round(d.hp * hpX);
+  return { ...d, id, hp, maxHp: hp, step: 0, intent: intentAt(d, 0), rage: 0, enraged: false };
+}
+const nextIntent = e => intentAt(e, e.step + 1);
+const intentValue = (e, it = e.intent) => ['attack', 'heavy'].includes(it.type) ? it.v + e.rage + (e.enraged ? e.enrage : 0) : it.v;
+const wildsAllowed = f => f.enemy.intent.type !== 'hex';
 function startFightState(run, id, kind) {
   const f = { enemy: makeEnemy(id, run.nextHpX), kind, block: has(run, 'oak') ? 15 : 0, spins: 0, streak: 0,
-              free: 0, freeTotal: 0, berserk: false, lucky: false, stops: rollStops(), grid: null, stuck: null };
+              free: 0, freeTotal: 0, berserk: false, lucky: false, stops: rollStops(), grid: null,
+              canRespin: false, gamble: null, holdBack: false, release: false };
   run.nextHpX = 1;
   f.grid = gridFrom(f.stops);
   return f;
+}
+// Damage to the enemy. A guarding enemy takes half.
+function hurt(f, d) {
+  const e = f.enemy, real = e.intent.type === 'guard' ? Math.ceil(d / 2) : d;
+  e.hp = Math.max(0, e.hp - real);
+  return real;
 }
 
 // Combat from one spin: the attack row acts, then every winning line fires its symbol's power.
 function combat(run, f, spin, bet, freeMult) {
   const e = f.enemy, m = bet / 10;
-  const out = { row: [], lines: [], dmg: 0, block: 0, rush: 0, stun: 0, charge: 0, crit: 1, wildDmg: 0 };
+  const out = { row: [], lines: [], dmg: 0, block: 0, rush: 0, stun: 0, charge: 0, crit: 1, wildDmg: 0, lineDmg: 0, stashed: null, released: null };
   const plus = has(run, 'streak') ? f.streak * 2 : 0;
   const armorHalf = (dmg, sword) => e.armor && !(sword && (run.cls === 'warrior' || has(run, 'flaming'))) ? Math.ceil(dmg / 2) : dmg;
   const fires = spin.grid[1].filter(t => t === 'fire').length;
@@ -1046,9 +1108,15 @@ function combat(run, f, spin, bet, freeMult) {
   if (has(run, 'wildheart')) out.wildDmg = spin.expanded.length * 6;
   const crit = out.lines.some(l => l.crit) ? (has(run, 'lucky7') ? 3 : 2) : 1;
   out.crit = crit * (f.berserk ? 3 : 1);
-  const raw = out.row.reduce((a, x) => a + x.dmg, 0) + out.lines.reduce((a, x) => a + x.dmg, 0) + out.wildDmg + (freeMult > 1 && has(run, 'storm') ? 10 : 0);
+  let rowDmg = out.row.reduce((a, x) => a + x.dmg, 0), rowBlock = out.row.reduce((a, x) => a + x.block, 0);
+  // the pocket: hold back the attack row's strikes now, release them later at double strength
+  if (f.holdBack && !run.stash) { out.stashed = { dmg: rowDmg, block: rowBlock }; rowDmg = 0; rowBlock = 0; }
+  if (f.release && run.stash) { out.released = run.stash; rowDmg += run.stash.dmg * 2; rowBlock += run.stash.block * 2; }  // pent-up strikes hit twice as hard
+  const lineRaw = out.lines.reduce((a, x) => a + x.dmg, 0);
+  out.lineDmg = Math.round(lineRaw * out.crit);
+  const raw = rowDmg + lineRaw + out.wildDmg + (freeMult > 1 && has(run, 'storm') ? 10 : 0);
   out.dmg = Math.round(raw * out.crit);
-  out.block = out.row.reduce((a, x) => a + x.block, 0) + out.lines.reduce((a, x) => a + x.block, 0);
+  out.block = rowBlock + out.lines.reduce((a, x) => a + x.block, 0);
   out.rush = out.row.reduce((a, x) => a + x.rush, 0);
   out.stun = Math.min(1, out.lines.reduce((a, x) => a + x.stun, 0));
   out.charge = out.lines.reduce((a, x) => a + x.charge, 0) * (has(run, 'battery') ? 2 : 1);
@@ -1056,27 +1124,49 @@ function combat(run, f, spin, bet, freeMult) {
 }
 
 const spinCost = (run, f) => f.free > 0 || f.lucky ? 0 : run.bet;
-// Spin with full consequences: pay, roll, payout, combat, enemy turn.
-function playSpin(run, f) {
-  const bet = run.bet, free = f.free > 0, cost = spinCost(run, f);
+// Respin price: expected win ÷ RTP, never below half a bet (so a strong attack row cannot be replayed for pennies).
+const respinPrice = (run, f, c) => Math.max(Math.ceil(run.bet / 2), Math.ceil(respinEV(f.stops, c, wildsAllowed(f)) * run.bet / PAR.rtp));
+// The enemy's turn: count down the current intent and carry it out at zero.
+function enemyTurn(run, f, fx) {
+  const e = f.enemy, it = e.intent;
+  const attacking = it.type === 'attack' || it.type === 'heavy';
+  it.n += (attacking ? fx.stun : 0) - 1 - fx.rush;
+  if (it.n > 0) return null;
+  const out = { type: it.type, v: intentValue(e) };
+  if (attacking) {
+    const absorbed = Math.min(f.block, out.v), taken = out.v - absorbed;
+    f.block = 0;
+    run.gold = Math.max(0, run.gold - taken);
+    Object.assign(out, { absorbed, taken, mirror: 0 });
+    if (has(run, 'mirror') && absorbed) out.mirror = hurt(f, absorbed);
+  } else if (it.type === 'heal') e.hp = Math.min(e.maxHp, e.hp + it.v);
+  else if (it.type === 'rage') e.rage += it.v;
+  e.step++;
+  e.intent = intentAt(e, e.step);
+  return out;
+}
+// Spin with full consequences: pay, roll, payout, combat, enemy turn. respinReel = respin just that reel.
+function playSpin(run, f, respinReel = null) {
+  const bet = run.bet, free = f.free > 0, respin = respinReel !== null;
+  const cost = respin ? respinPrice(run, f, respinReel) : spinCost(run, f);
   run.gold -= cost; run.stats.wagered += cost;
-  const lucky = f.lucky; f.lucky = false;
+  if (respin) run.stats.respins++;
+  const lucky = !respin && f.lucky; if (lucky) f.lucky = false;
+  f.gamble = null;
   const e = f.enemy;
-  const stickNow = e.sticky && f.spins % 2 === 1;
-  const spin = machineSpin({ free, wilds: !e.hex });
-  if (stickNow && f.stops) {               // Giant Slime: reel 5 keeps its stop
-    spin.stops[4] = f.stops[4];
-    const g = gridFrom(spin.stops); spin.raw = g.map(r => r.slice()); spin.expanded = expandWilds(g, !e.hex);
-    spin.grid = g; spin.wins = evalLines(g); spin.lineX = spin.wins.reduce((a, w) => a + w.pay, 0) * (free ? FREE_MULT : 1);
-    spin.scatters = countSym(g, 'star'); spin.freeSpins = FREE_SPINS[Math.min(5, spin.scatters)] || 0; spin.holdSpin = countSym(spin.raw, 'coin') >= HS_TRIGGER;
-  }
-  spin.stuck = stickNow ? 4 : null;
+  const stuck = !respin && e.intent.type === 'sticky' ? 4 : null;
+  const keep = respin ? [0, 1, 2, 3, 4].filter(c => c !== respinReel) : stuck !== null ? [4] : null;
+  const spin = machineSpin({ free, wilds: wildsAllowed(f), base: f.stops, keep });
+  spin.stuck = stuck; spin.respin = respinReel;
   f.stops = spin.stops; f.grid = spin.grid;
   const freeMult = (free ? FREE_MULT : 1) * (lucky ? 2 : 1);
-  let winX = spin.wins.reduce((a, w) => a + w.pay, 0) * freeMult;
-  let win = randRound(winX * bet);
+  const winX = spin.wins.reduce((a, w) => a + w.pay, 0) * freeMult;
+  const win = randRound(winX * bet);
   const fx = combat(run, f, spin, bet, freeMult);
   f.berserk = false;
+  if (fx.stashed) run.stash = fx.stashed;
+  if (fx.released) run.stash = null;
+  f.holdBack = false; f.release = false;
   // Hold & Spin
   let hold = null;
   if (spin.holdSpin) {
@@ -1085,7 +1175,6 @@ function playSpin(run, f) {
     hold.dmg = Math.round(hold.total * (bet / 10) * 2 * (has(run, 'volley') ? 2 : 1));
     run.stats.holds++;
   }
-  // free spins bookkeeping
   if (free) f.free--;
   let freeAward = 0;
   if (spin.freeSpins) { freeAward = spin.freeSpins; f.free += freeAward; f.freeTotal = free ? f.freeTotal + freeAward : freeAward; run.stats.free++; }
@@ -1094,41 +1183,59 @@ function playSpin(run, f) {
   const totalWin = win + (hold ? hold.gold : 0);
   run.stats.won += totalWin;
   if (totalWin > run.stats.bigWin) run.stats.bigWin = totalWin;
-  // apply combat
   const blockGain = e.breaker ? Math.floor(fx.block / 2) : fx.block;
   f.block += blockGain;
-  const totalDmg = fx.dmg + (hold ? hold.dmg : 0);
+  const totalDmg = hurt(f, fx.dmg + (hold ? hold.dmg : 0));
   if (totalDmg > run.stats.best) run.stats.best = totalDmg;
-  e.hp = Math.max(0, e.hp - totalDmg);
   run.gold += totalWin;
   run.charge = Math.min(CHARGE_MAX, run.charge + fx.charge);
-  const res = { spin, bet, cost, free, lucky, freeMult, win, winX, hold, fx, blockGain, totalDmg, totalWin, freeAward, blockTotal: f.block };
+  const res = { spin, bet, cost, free, lucky, freeMult, win, winX, hold, fx, blockGain, totalDmg, totalWin, freeAward, respin: respinReel, guarded: e.intent.type === 'guard' };
+  f.canRespin = false;
   if (e.hp <= 0) { res.killed = true; return res; }
   if (e.enrage && !e.enraged && e.hp <= e.maxHp / 2) { e.enraged = true; res.enraged = true; }
-  // enemy turn: frozen during free spins and while a fresh feature plays out
+  // the enemy is frozen during free spins and while a fresh feature plays out
   if (!free && !freeAward && !hold) {
-    e.timer += fx.stun - 1 - fx.rush;
-    if (e.timer <= 0) {
-      e.timer = e.every;
-      const atk = enemyAtk(e);
-      const absorbed = Math.min(f.block, atk), taken = atk - absorbed;
-      f.block = 0;
-      run.gold = Math.max(0, run.gold - taken);
-      let mirror = 0;
-      if (has(run, 'mirror') && absorbed) { mirror = absorbed; e.hp = Math.max(0, e.hp - mirror); }
-      res.enemy = { atk, absorbed, taken, mirror };
-      if (e.hp <= 0) { res.killed = true; return res; }
-    }
+    res.enemy = enemyTurn(run, f, fx);
+    if (e.hp <= 0) { res.killed = true; return res; }
   }
-  if (run.gold <= 0 && f.free <= 0) res.dead = true;
+  res.blockTotal = f.block;
+  if (run.gold <= 0 && f.free <= 0) { res.dead = true; return res; }
+  const base = !free && !freeAward && !hold;
+  f.canRespin = base && !respin;
+  if (base && win > 0) f.gamble = { stake: win, dmg: fx.lineDmg, n: 0 };
   return res;
+}
+// Gamble: guess the card's color. Right doubles the win and strikes again with its line hits.
+// Wrong loses the win and the enemy shrugs the hits off. Exactly 50/50, so the RTP does not move.
+const GAMBLE_MAX = 3;
+function gamble(run, f, guess) {
+  const g = f.gamble;
+  if (!g || run.gold <= g.stake) return null;
+  const card = rng() < 0.5 ? 'red' : 'black', won = card === guess;
+  run.stats.wagered += g.stake; run.stats.gambles++;
+  const out = { card, won, stake: g.stake, dmg: 0 };
+  f.canRespin = false;
+  if (won) {
+    run.gold += g.stake; run.stats.won += g.stake * 2;
+    out.dmg = g.dmg ? hurt(f, g.dmg) : 0;
+    g.stake *= 2; g.dmg *= 2; g.n++;
+    if (g.n >= GAMBLE_MAX) f.gamble = null;
+    if (f.enemy.hp <= 0) out.killed = true;
+  } else {
+    run.gold -= g.stake;
+    out.healed = Math.min(g.dmg, f.enemy.maxHp - f.enemy.hp);
+    f.enemy.hp += out.healed;
+    f.gamble = null;
+    if (run.gold <= 0) out.dead = true;
+  }
+  return out;
 }
 function useSpecial(run, f) {
   if (run.charge < CHARGE_MAX) return null;
   run.charge = 0;
   if (run.cls === 'warrior') { f.berserk = true; return { kind: 'berserk' }; }
   if (run.cls === 'rogue') { f.lucky = true; return { kind: 'lucky' }; }
-  const dmg = 45; f.enemy.hp = Math.max(0, f.enemy.hp - dmg); return { kind: 'meteor', dmg, killed: f.enemy.hp <= 0 };
+  const dmg = hurt(f, 45); return { kind: 'meteor', dmg, killed: f.enemy.hp <= 0 };
 }
 const bonusBuyPrice = run => BONUS_BUY_X * run.bet;
 function buyBonus(run, f) {
@@ -1136,6 +1243,7 @@ function buyBonus(run, f) {
   if (run.gold <= price || f.free > 0) return false;
   run.gold -= price; run.stats.wagered += price;
   f.free = FREE_SPINS[3]; f.freeTotal = f.free; run.stats.free++;
+  f.canRespin = false; f.gamble = null;
   return true;
 }
 
@@ -1227,6 +1335,7 @@ const sfx = {
   wild: () => { tone(660, 0.06, 'square', 0.04); tone(990, 0.1, 'square', 0.04, 0, 0.06); },
   tease:() => tone(220, 0.5, 'triangle', 0.04, 220),
   charge:() => tone(880, 0.05, 'triangle', 0.04, 400),
+  lock: () => tone(420, 0.05, 'square', 0.03),
 };
 function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
 
@@ -1405,9 +1514,10 @@ function cellHTML(t, extra = '') { return `<div class="cell" data-t="${t}">${px(
 function intentHTML(f) {
   const e = f.enemy;
   if (f.free > 0) return `${px('star')}<span>FROZEN<br><b class="ice">free spins</b></span>`;
-  const pips = Array.from({ length: e.every }, (_, i) => `<i class="${i < e.timer ? '' : 'off'}"></i>`).join('');
-  const when = e.timer <= 1 ? 'NEXT SPIN' : `IN ${e.timer}`;
-  return `${px('sword')}<span>ATTACK ${when}<br><b>−${enemyAtk(e)} gold</b></span><span class="pips">${pips}</span>`;
+  const it = e.intent, I = INTENT[it.type], nx = nextIntent(e);
+  const timed = ['attack', 'heavy', 'heal', 'rage'].includes(it.type);
+  const when = timed ? (it.n <= 1 ? 'NEXT SPIN' : `IN ${it.n}`) : `${it.n} SPIN${it.n > 1 ? 'S' : ''}`;
+  return `${px(I.icon)}<span>${I.name.toUpperCase()} ${when}<br><b class="${it.type}">${I.desc(intentValue(e))}</b><small>then ${INTENT[nx.type].name.toLowerCase()}</small></span>`;
 }
 function renderFight() {
   const f = run.fight, e = f.enemy;
@@ -1438,11 +1548,14 @@ function renderFight() {
           <div class="hs" id="hs" hidden></div>
           <div class="bigwin" id="bigwin" hidden><b></b><span></span></div>
         </div>
+        <div class="respins" id="respins">${[0, 1, 2, 3, 4].map(c => `<button class="respin" data-c="${c}" aria-label="Respin reel ${c + 1}"></button>`).join('')}</div>
       </div>
       <div class="log" id="log"></div>
+      <div class="gamble" id="gamble" hidden><span id="gTxt"></span><button class="gbtn red" id="gRed">RED</button><button class="gbtn black" id="gBlack">BLACK</button></div>
       <div class="controls">
         <div class="bet"><button id="betDn" aria-label="Lower the bet">−</button><div><small>BET</small><b id="betN"></b></div><button id="betUp" aria-label="Raise the bet">+</button></div>
         <button class="special" id="special"><span class="lbl" id="spName"></span><span class="meter"><i id="spFill"></i></span></button>
+        <button class="pocketbtn" id="pocketBtn"><span class="lbl">POCKET</span><span id="pocketTxt"></span></button>
       </div>
       <div class="lever">
         <button class="side" id="autoBtn">AUTO</button>
@@ -1452,8 +1565,12 @@ function renderFight() {
     </div>`;
   drawGrid(f.grid);
   bindCharmBar();
-  $('#log').innerHTML = f.spins ? '' : `<b>${e.name}</b> blocks the way. Wins pay on 10 lines. Weapons on the <b>attack row</b> always strike, and every winning line fires its symbol's power.`;
+  $('#log').innerHTML = f.spins ? '' : `<b>${e.name}</b> blocks the way. Watch its plan above. Weapons on the <b>attack row</b> always strike, and every winning line fires its symbol's power.`;
   $('#spinBtn').onclick = () => { if (!busy) doSpin(); };
+  screen.querySelectorAll('.respin').forEach(b => b.onclick = () => { if (!busy) doSpin(+b.dataset.c); });
+  $('#gRed').onclick = () => onGamble('red');
+  $('#gBlack').onclick = () => onGamble('black');
+  $('#pocketBtn').onclick = onPocket;
   $('#betDn').onclick = () => changeBet(-1);
   $('#betUp').onclick = () => changeBet(1);
   $('#autoBtn').onclick = toggleAuto;
@@ -1480,7 +1597,9 @@ function refreshFight() {
   const bi = bets.indexOf(run.bet);
   $('#betDn').disabled = busy || freeOn || bi <= 0;
   $('#betUp').disabled = busy || freeOn || bi >= bets.length - 1 || bets[bi + 1] > run.gold;
-  const it = $('#intent'); it.innerHTML = intentHTML(f); it.classList.toggle('now', !freeOn && e.timer <= 1);
+  const it = $('#intent'); it.innerHTML = intentHTML(f);
+  it.classList.toggle('now', !freeOn && ['attack', 'heavy'].includes(e.intent.type) && e.intent.n <= 1);
+  it.classList.toggle('heavy', !freeOn && e.intent.type === 'heavy');
   $('#blockBadge').hidden = !f.block; $('#blockN').textContent = `${f.block} BLOCK`;
   // special
   const S = CLASSES[run.cls].special, ready = run.charge >= CHARGE_MAX;
@@ -1504,6 +1623,67 @@ function refreshFight() {
   $('#buyBtn').disabled = !canBuy;
   $('#buyBtn').classList.toggle('armed', buyArmed && canBuy);
   $('#buyBtn').innerHTML = buyArmed && canBuy ? `TAP TO<br>BUY ${price}` : `BUY<br>BONUS<br><small>${price}</small>`;
+  // respins: one per paid spin, priced by the machine
+  const showR = f.canRespin && !busy && !freeOn;
+  const prices = showR ? respinPrices(f) : null;
+  screen.querySelectorAll('.respin').forEach(b => {
+    const c = +b.dataset.c;
+    b.disabled = !showR || prices[c] > run.gold;
+    b.innerHTML = showR ? `↻ ${prices[c]}` : '';
+  });
+  $('#respins').classList.toggle('live', showR);
+  // gamble
+  const g = f.gamble, canG = g && !busy && run.gold > g.stake;
+  $('#gamble').hidden = !canG;
+  if (canG) $('#gTxt').innerHTML = `GAMBLE <b>${g.stake}</b> → ${g.stake * 2}${g.dmg ? ` · hits <b>${g.dmg}</b> again` : ''}`;
+  // pocket
+  const pb = $('#pocketBtn');
+  pb.className = 'pocketbtn' + (f.holdBack || f.release ? ' armed' : run.stash ? ' full' : '');
+  $('#pocketTxt').innerHTML = f.holdBack ? 'HOLDING BACK<br>next attack row'
+    : f.release ? `RELEASING ×2<br>${run.stash.dmg * 2} dmg${run.stash.block ? ' · ' + run.stash.block * 2 + ' blk' : ''}`
+    : run.stash ? `${run.stash.dmg} dmg${run.stash.block ? ' · ' + run.stash.block + ' blk' : ''}<br>tap: release ×2`
+    : 'tap: hold back<br>next attack row';
+  pb.disabled = busy;
+}
+let respinCache = { key: '', prices: null };
+function respinPrices(f) {
+  const key = f.stops.join() + '|' + run.bet + '|' + wildsAllowed(f);
+  if (respinCache.key !== key) respinCache = { key, prices: [0, 1, 2, 3, 4].map(c => respinPrice(run, f, c)) };
+  return respinCache.prices;
+}
+function onPocket() {
+  const f = run.fight;
+  if (busy) return;
+  if (run.stash) { f.release = !f.release; f.holdBack = false; }
+  else { f.holdBack = !f.holdBack; f.release = false; }
+  sfx.lock(); save(); refreshFight();
+}
+async function onGamble(color) {
+  const f = run.fight;
+  if (busy || !f.gamble) return;
+  busy = true; refreshFight(); busyLock();
+  $('#gamble').hidden = true;
+  for (let i = 0; i < 6; i++) { sfx.tick(); await sleep(80); }
+  const r = gamble(run, f, color);
+  if (!r) { busy = false; return refreshFight(); }
+  showBanner(r.card === 'red' ? '♥ RED' : '♠ BLACK', r.won ? `doubled! +${r.stake} gold` : `lost ${r.stake} gold`);
+  if (r.won) {
+    sfx.win(); floatAt($('#gold'), `+${r.stake}`, 'gold');
+    if (r.dmg) { anim($('#hero'), 'lunge-r'); await fly($('#hero'), $('#enemy'), 'sword'); sfx.big(); anim($('#enemy'), 'hit'); floatAt($('#enemy'), r.dmg, 'dmg'); }
+  } else {
+    sfx.hurt(); floatAt($('#gold'), `−${r.stake}`, 'loss');
+    if (r.healed) floatAt($('#enemy'), `+${r.healed}`, 'heal');
+  }
+  $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
+  $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
+  updateHud();
+  $('#log').innerHTML = r.won ? `The card is <b>${r.card}</b>. You win <b class="g">+${r.stake}</b>${r.dmg ? ` and strike for <b class="d">${r.dmg}</b>` : ''}.${f.gamble ? ' Gamble again?' : ''}`
+    : `The card is <b>${r.card}</b>. The ${r.stake} gold is gone${r.healed ? ` and ${f.enemy.name} shrugs off ${r.healed} damage` : ''}.`;
+  await sleep(700);
+  busy = false; save();
+  if (r.killed) { sfx.die(); anim($('#enemy'), 'dead'); await sleep(800); return winFight(); }
+  if (r.dead) { run.screen = 'over'; save(); return render(); }
+  refreshFight();
 }
 function changeBet(d) {
   const f = run.fight;
@@ -1558,9 +1738,10 @@ async function animateReels(spin, oldStops) {
   }
   await Promise.all(reels.map((reel, c) => new Promise(resolve => {
     if (spin.stuck === c) { reel.classList.add('stuck'); setTimeout(resolve, 50); return; }
+    if (spin.respin !== null && spin.respin !== undefined && spin.respin !== c) { setTimeout(resolve, 50); return; }
     reel.classList.remove('stuck', 'wild');
     const s = STRIPS[c], n = s.length;
-    const dur = delays[c] * speed();
+    const dur = (spin.respin != null ? 700 : delays[c]) * speed();
     const k = mod(oldStops[c] - spin.stops[c], n) + n * (1 + Math.floor(dur / 900));
     const seq = [];
     for (let j = 0; j < k + 3; j++) seq.push(s[mod(spin.stops[c] - 1 + j, n)]);
@@ -1637,23 +1818,27 @@ async function playHoldAnim(hold, bet) {
   if (hold.full) { showBanner('GRAND!', `+${HS_GRAND}× bet`); sfx.jackpot(); await sleep(900); }
 }
 
-async function doSpin() {
+async function doSpin(respinReel = null) {
   const f = run.fight;
   if (busy || !f) return;
-  if (spinCost(run, f) > run.gold) { auto = false; refreshFight(); return; }
+  if (respinReel !== null && (!f.canRespin || respinPrices(f)[respinReel] > run.gold)) return;
+  if (respinReel === null && spinCost(run, f) > run.gold) { auto = false; refreshFight(); return; }
   busy = true; buyArmed = false;
   [0, 1, 2, 3, 4].forEach(c => { $('#tag' + c).textContent = ''; $('#tag' + c).className = 'tag'; });
   $('#lines').innerHTML = '';
   $('#ledWin').textContent = '0'; $('#ledWin').classList.remove('hot');
-  $('#log').innerHTML = f.free > 0 ? `Free spin… (${f.free} left)` : 'The reels are spinning…';
-  refreshFight();
+  $('#log').innerHTML = respinReel !== null ? `Respinning reel ${respinReel + 1}…` : f.free > 0 ? `Free spin… (${f.free} left)` : 'The reels are spinning…';
+  $('#gamble').hidden = true;
+  refreshFight(); busyLock();
+  if (respinReel !== null) document.querySelectorAll('.reel').forEach((r, c) => { if (c !== respinReel) r.classList.add('kept'); });
   const oldStops = [...f.stops];
   const goldBefore = run.gold;
-  const res = playSpin(run, f);
+  const res = playSpin(run, f, respinReel);
   let shown = goldBefore - res.cost;
   updateHud(shown);
   if (res.cost) floatAt($('#gold'), `−${res.cost}`, 'loss');
   await animateReels(res.spin, oldStops);
+  document.querySelectorAll('.reel.kept').forEach(r => r.classList.remove('kept'));
 
   // nudging wilds
   if (res.spin.expanded.length) {
@@ -1677,9 +1862,15 @@ async function doSpin() {
     sfx.win();
     await sleep(500);
   }
-  // 1. the attack row
+  // 1. the attack row (or into the pocket)
+  const stashing = !!res.fx.stashed;
   for (const fx of res.fx.row) {
     const cell = cellAt(1, fx.c), tag = $('#tag' + fx.c);
+    if (stashing && (fx.dmg || fx.block)) {
+      tag.textContent = 'POCKET'; tag.className = 'tag pk'; anim(cell, 'pop');
+      await fly(cell, $('#pocketBtn'), fx.t); sfx.lock();
+      continue;
+    }
     if (fx.dmg) {
       tag.textContent = `${fx.dmg}`; tag.className = 'tag dmg';
       anim(cell, 'pop'); anim($('#hero'), 'lunge-r');
@@ -1689,6 +1880,16 @@ async function doSpin() {
     if (fx.block) { tag.textContent = fx.dmg ? `${fx.dmg}+${fx.block}` : `+${fx.block}`; tag.className = 'tag ' + (fx.dmg ? 'dmg' : 'block'); anim(cell, 'pop'); sfx.block(); await sleep(120); }
     if (fx.rush) { tag.textContent = 'RUSH'; tag.className = 'tag hex'; anim(cell, 'pop'); sfx.hurt(); anim($('#intent'), 'hit'); await sleep(160); }
   }
+  if (stashing) floatAt($('#pocketBtn'), `held: ${res.fx.stashed.dmg} dmg`, 'block');
+  if (res.fx.released) {
+    const st = res.fx.released;
+    showBanner('RELEASED ×2', `${st.dmg * 2} damage${st.block ? ` · ${st.block * 2} block` : ''}`);
+    anim($('#hero'), 'lunge-r'); await fly($('#pocketBtn'), $('#enemy'), 'sword');
+    sfx.big(); anim($('#enemy'), 'hit'); if (st.dmg) floatAt($('#enemy'), st.dmg * 2, 'dmg');
+    if (st.block) floatAt($('#hero'), `+${st.block * 2}`, 'block');
+    await sleep(400);
+  }
+  if (res.guarded && res.totalDmg) floatAt($('#enemy'), 'GUARD ½', 'block');
   // 2. every winning line fires its symbol's power
   const L = res.fx.lines;
   const lineDmg = L.reduce((a, l) => a + l.dmg, 0), lineBlock = L.reduce((a, l) => a + l.block, 0);
@@ -1747,11 +1948,22 @@ async function doSpin() {
   if (res.enraged) { sfx.big(); showBanner('THE DRAGON RAGES!', 'attack +' + f.enemy.enrage); await sleep(900); }
   if (res.enemy) {
     const a = res.enemy;
-    anim($('#enemy'), 'lunge-l'); await sleep(140);
-    if (a.absorbed) { sfx.block(); floatAt($('#hero'), `BLOCK ${a.absorbed}`, 'block'); }
-    if (a.taken) { sfx.hurt(); buzz(90); anim($('#hero'), 'hit'); floatAt($('#gold'), `−${a.taken}`, 'loss'); }
-    if (a.mirror) floatAt($('#enemy'), a.mirror, 'dmg');
-    $('#log').innerHTML += `<br>${f.enemy.name} attacks: <b class="d">−${a.atk}</b>${a.absorbed ? `, block stops <b class="bl">${a.absorbed}</b>` : ''}.`;
+    if (a.type === 'attack' || a.type === 'heavy') {
+      if (a.type === 'heavy') { showBanner('HEAVY BLOW!', `−${a.v} gold`); await sleep(500); }
+      anim($('#enemy'), 'lunge-l'); await sleep(140);
+      if (a.absorbed) { sfx.block(); floatAt($('#hero'), `BLOCK ${a.absorbed}`, 'block'); }
+      if (a.taken) { sfx.hurt(); buzz(a.type === 'heavy' ? 200 : 90); anim($('#hero'), 'hit'); floatAt($('#gold'), `−${a.taken}`, 'loss'); }
+      if (a.mirror) floatAt($('#enemy'), a.mirror, 'dmg');
+      $('#log').innerHTML += `<br>${f.enemy.name} ${a.type === 'heavy' ? 'lands a heavy blow' : 'attacks'}: <b class="d">−${a.v}</b>${a.absorbed ? `, block stops <b class="bl">${a.absorbed}</b>` : ''}.`;
+    } else if (a.type === 'heal') {
+      sfx.charge(); floatAt($('#enemy'), `+${a.v}`, 'heal');
+      $('#log').innerHTML += `<br>${f.enemy.name} heals <b>${a.v}</b>.`;
+      $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
+      $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
+    } else if (a.type === 'rage') {
+      sfx.big(); showBanner('ENRAGED!', `attacks +${a.v}`);
+      $('#log').innerHTML += `<br>${f.enemy.name} is enraged: attacks <b class="d">+${a.v}</b>.`;
+    }
     await sleep(350);
   }
   updateHud();
@@ -1762,15 +1974,16 @@ async function doSpin() {
   // free spins play themselves; autoplay stops on features and when gold runs low
   const stopAuto = res.freeAward || res.hold || res.win >= res.bet * 10 || run.gold < run.bet * 4;
   if (stopAuto && auto) { auto = false; refreshFight(); }
-  if (f.free > 0 || auto) setTimeout(() => { if (run.fight === f && !busy && run.screen === 'fight') doSpin(); }, 450 * speed());
+  if (f.free > 0 || auto) setTimeout(() => { if (run.fight === f && !busy && run.screen === 'fight') doSpin(); }, (auto && f.gamble ? 900 : 450) * speed());
 }
-function busyLock() { ['#betDn', '#betUp', '#special', '#spinBtn', '#buyBtn'].forEach(s => { const el = $(s); if (el) el.disabled = true; }); }
+function busyLock() { ['#betDn', '#betUp', '#special', '#spinBtn', '#buyBtn', '#pocketBtn'].forEach(s => { const el = $(s); if (el) el.disabled = true; }); document.querySelectorAll('.respin').forEach(b => { b.disabled = true; b.innerHTML = ''; }); const gm = $('#gamble'); if (gm) gm.hidden = true; }
 function spinLog(res) {
   const parts = [];
   if (res.spin.wins.length) {
     const w = res.spin.wins;
     parts.push(`${w.length} line${w.length > 1 ? 's' : ''}: ` + w.slice(0, 3).map(x => `${x.n}× ${SYM[x.t].name}`).join(', ') + (w.length > 3 ? '…' : '') + ` = <b class="g">+${res.win}</b>${res.freeMult > 1 ? ` (×${res.freeMult})` : ''}`);
   } else parts.push(res.cost ? `No win. ${res.cost} gold gone.` : 'No win.');
+  if (res.respin !== null) parts.unshift(`Respin reel ${res.respin + 1} (−${res.cost})`);
   if (res.hold) parts.push(`Hold &amp; Spin: <b class="g">+${res.hold.gold}</b>`);
   const bits = [];
   if (res.totalDmg) bits.push(`<b class="d">${res.totalDmg} damage</b>${res.fx.crit > 1 ? ` (crit ×${res.fx.crit})` : ''}`);
@@ -1778,6 +1991,8 @@ function spinLog(res) {
   if (res.fx.stun) bits.push('<b>stun</b>');
   if (res.fx.rush) bits.push('<b>enemy rushes</b>');
   if (res.fx.charge) bits.push(`<b>+${res.fx.charge} charge</b>`);
+  if (res.fx.stashed) bits.push(`<b>${res.fx.stashed.dmg} dmg held in pocket</b>`);
+  if (res.guarded && res.totalDmg) bits.push('<b>guarded: half damage</b>');
   return parts.join(' · ') + (bits.length ? '<br>' + bits.join(' · ') : '');
 }
 function winFight() {
@@ -2022,6 +2237,10 @@ function openMachine() {
     <h3>What every win does</h3>
     ${powers.map(([t, d]) => `<div class="row">${px(t)}<p><b>${SYM[t].name} line</b><br>${d}</p><span></span></div>`).join('')}
     <p class="txt">Every winning line also adds +1 charge. Line hits scale with your bet (shown at bet ${bet}).</p>
+    <h3>Your moves</h3>
+    <div class="row">${px('anvil')}<p><b>Respin a reel</b><br>Price = expected win ÷ ${pct(PAR.rtp)}, at least half a bet. The kept reels strike again.</p><span></span></div>
+    <div class="row">${px('seven')}<p><b>Gamble</b><br>50/50 to double a win and repeat its line hits. Lose: the gold is gone and the enemy heals the hits.</p><span></span></div>
+    <div class="row">${px('bag')}<p><b>Pocket</b><br>Hold back an attack row, release it later ×2.${run.stash ? ` Now: ${run.stash.dmg} dmg, ${run.stash.block} block.` : ''}</p><span></span></div>
     <h3>The machine (PAR sheet)</h3>
     <div class="kpis">
       <div><b>${pct(PAR.rtp)}</b><span>RTP</span></div>
@@ -2054,8 +2273,11 @@ function openHelp() {
     <p class="txt"><b>Every win fights.</b> Each winning line fires its symbol's power. Sword and Fire lines hit, Shield lines block, BAR stuns, Seven crits, Cherry charges your special. Line hits grow with your bet: a high bet is a gamble on huge blows.</p>
     <p class="txt"><b>Features.</b> Scatters give free spins: wins ×${FREE_MULT} and the enemy is frozen. Coins trigger Hold &amp; Spin: the coins pay out and pelt the enemy. You can also buy free spins.</p>
     <p class="txt"><b>Your special</b> charges with every win. Use it when it is full.</p>
+    <p class="txt"><b>Respin.</b> After a paid spin you may respin one reel; the other four stay, and their attack row strikes again. The price above each reel is the expected win ÷ ${pct(PAR.rtp)}, at least half a bet, so it never beats the house. One respin per spin.</p>
+    <p class="txt"><b>Gamble.</b> After a win, guess red or black. Right doubles the gold and its line hits strike again. Wrong loses the gold and the enemy shrugs the hits off. Exactly 50/50, up to ${GAMBLE_MAX} times.</p>
+    <p class="txt"><b>Pocket.</b> Hold back the next attack row's strikes instead of using them, then release them later at double strength. Perfect for a guarding enemy, a heavy blow or a Berserk spin. It keeps between fights.</p>
     <p class="txt"><b>Charms</b> (${CHARM_SLOTS} slots) change what wins and symbols do in combat. That is where your run grows.</p>
-    <p class="txt"><b>The enemy</b> shows when it attacks and how much gold it takes. Block absorbs the hit and then resets. Skulls on the attack row make it attack sooner. Elites and bosses bend the rules.</p>
+    <p class="txt"><b>The enemy</b> shows its plan: attacks and heavy blows (with a countdown), guarding (half damage), healing, enraging, hexing your wilds or making a reel stick. You also see what comes next. Block absorbs a hit and then resets. BAR lines delay attacks, skulls on the attack row speed them up.</p>
     <h3>The map</h3>
     ${Object.entries(ROOM).map(([k, R]) => `<div class="row">${px(R.icon)}<p><b>${R.name}</b><br>${{
       fight: 'A regular enemy. Gives a bounty and a charm.', elite: 'A tough enemy with a special rule. Bigger bounty and two charms.',
