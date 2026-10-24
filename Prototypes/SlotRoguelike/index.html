@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Silkscreen&display=swap">
 <style>
-/* Layout: one portrait cabinet column. HUD, battle stage, LED strip, five reels with one lit payline, then bet / nudges / pocket / lever at thumb height. */
+/* Layout: one portrait cabinet column. HUD, battle stage with charms, LED strip, a 5×3 slot with 10 lines and a lit attack row, then bet / special / lever at thumb height. */
 :root {
   --ink: #120e1c;
   --stone: #1e172e;
@@ -121,11 +121,11 @@ button.chip.sel { border-color: var(--brass); }
 
 /* ---------- Fight: stage ---------- */
 .fight { gap: 8px; }
-.stage { position: relative; height: clamp(140px, 23vh, 200px); flex: none; border: 2px solid var(--line); border-radius: 6px; overflow: hidden;
+.stage { position: relative; height: clamp(150px, 24vh, 200px); flex: none; border: 2px solid var(--line); border-radius: 6px; overflow: hidden;
   background: linear-gradient(to bottom, transparent 72%, #17121f 72%, #17121f 74%, #251d35 74%),
     repeating-linear-gradient(90deg, #1b1529 0 30px, #1f182e 30px 32px), #1b1529; }
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 10%, rgba(240,140,60,0.14), transparent 55%); }
-.ehead { position: absolute; top: 6px; right: 8px; left: 44%; z-index: 2; display: grid; gap: 3px; }
+.ehead { position: absolute; top: 6px; right: 8px; left: 52%; z-index: 2; display: grid; gap: 3px; }
 .ename { font-size: 14px; text-align: right; font-weight: 600; line-height: 1.1; }
 .hpbar { position: relative; height: 15px; background: #0b0812; border: 2px solid #000; border-radius: 2px; }
 .hpbar i { position: absolute; inset: 0 auto 0 0; background: var(--blood); transition: width 0.25s steps(5); }
@@ -138,7 +138,7 @@ button.chip.sel { border-color: var(--brass); }
 .pips i { width: 6px; height: 6px; background: var(--blood); }
 .pips i.off { background: var(--line); }
 .intent.now { border-color: var(--blood); animation: throb 0.5s steps(2) infinite; }
-.actor { position: absolute; bottom: 18%; z-index: 1; }
+.actor { position: absolute; bottom: 16%; z-index: 1; }
 .actor img { width: clamp(64px, 19vw, 84px); height: auto; }
 .hero { left: 7%; }
 .enemy { right: 8%; }
@@ -163,14 +163,15 @@ button.chip.sel { border-color: var(--brass); }
 @keyframes banner { 0% { opacity: 0; transform: scale(0.6); } 18% { opacity: 1; transform: scale(1.12); } 28% { transform: scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
 
 /* ---------- Fight: machine ---------- */
-.machine { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px;
+.machine { flex: none; display: flex; flex-direction: column; gap: 6px;
   background: linear-gradient(#3a2a12, #2a1e0c); border: 3px solid var(--brass); border-radius: 8px;
   box-shadow: inset 0 0 0 3px #000, 0 4px 0 var(--brass-dk); padding: 6px 8px 8px; }
 .led { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; background: #0a0505; border: 2px solid #000; border-radius: 3px; padding: 3px 6px; }
 .led span { display: flex; flex-direction: column; align-items: center; font-family: var(--mono); font-size: 8px; color: #8a5a4a; letter-spacing: 0.08em; line-height: 1.1; }
 .led b { font-family: var(--mono); font-weight: 400; font-size: 15px; color: var(--led); text-shadow: 0 0 6px rgba(255,90,60,0.6); font-variant-numeric: tabular-nums; }
 .led b.hot { color: #ffd23c; text-shadow: 0 0 8px rgba(255,210,60,0.8); }
-.reels { position: relative; flex: 1; min-height: 120px; max-height: 260px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.reels { position: relative; height: clamp(170px, 33vh, 300px); display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.reel + .reel { margin-left: 3px; }
 .reel { position: relative; overflow: hidden; background: #f3e6c9; border-radius: 3px; box-shadow: inset 0 0 0 2px #000; }
 .reel::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
   background: linear-gradient(to bottom, rgba(18,14,28,0.72), rgba(18,14,28,0.45) 33.3%, transparent 33.4%, transparent 66.6%, rgba(18,14,28,0.45) 66.7%, rgba(18,14,28,0.72)); }
@@ -178,14 +179,36 @@ button.chip.sel { border-color: var(--brass); }
 .strip { position: absolute; left: 0; right: 0; top: 0; height: 100%; will-change: transform; }
 .cell { position: relative; display: grid; place-items: center; height: 33.333%; }
 .cell img { height: 66%; width: auto; max-width: 88%; aspect-ratio: 1; }
-.cell .lv { position: absolute; right: 2px; top: 2px; font-family: var(--mono); font-style: normal; font-size: 9px; color: #fff; background: var(--brass-dk); padding: 0 3px; border-radius: 2px; }
+.cell .lvx { position: absolute; right: 2px; top: 2px; font-family: var(--mono); font-style: normal; font-size: 9px; color: #fff; background: var(--brass-dk); padding: 0 3px; border-radius: 2px; }
 .cell .tmp { position: absolute; left: 3px; top: 3px; font-family: var(--mono); font-style: normal; font-size: 8px; color: #fff; background: var(--hex); padding: 0 3px; border-radius: 2px; }
 .cell .pk { position: absolute; left: 3px; bottom: 3px; font-family: var(--mono); font-style: normal; font-size: 8px; color: var(--ink); background: var(--leaf); padding: 0 3px; border-radius: 2px; }
 .cell.win { background: rgba(240,182,72,0.6); }
 .cell.pop img { animation: pop 0.3s steps(3); }
 @keyframes pop { 50% { transform: scale(1.25); } }
 .payline { position: absolute; left: -8px; right: -8px; top: 33.333%; height: 33.333%; z-index: 3; pointer-events: none;
-  border-top: 3px solid var(--brass); border-bottom: 3px solid var(--brass); box-sizing: border-box; }
+  border-top: 2px solid var(--brass); border-bottom: 2px solid var(--brass); box-sizing: border-box; }
+.payline span { position: absolute; left: 50%; top: -9px; transform: translateX(-50%); font-family: var(--mono); font-size: 7px; letter-spacing: 0.1em; color: var(--ink); background: var(--brass); padding: 0 4px; border-radius: 2px; line-height: 12px; }
+.lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+.reel.wild { box-shadow: inset 0 0 0 3px var(--mana), 0 0 12px rgba(115,239,247,0.6); }
+.reel.wild .cell { background: rgba(115,239,247,0.25); }
+.reel.tease { box-shadow: inset 0 0 0 3px #ffd23c, 0 0 16px rgba(255,210,60,0.8); animation: throb 0.3s steps(2) infinite; }
+.reel.stuck { box-shadow: inset 0 0 0 3px var(--leaf); }
+.reel.stuck::before { content: "STUCK"; position: absolute; left: 50%; top: 2px; transform: translateX(-50%); z-index: 4; font-family: var(--mono); font-size: 7px; color: var(--ink); background: var(--leaf); padding: 0 3px; }
+.machine.freemode { border-color: var(--mana); background: linear-gradient(#123a4a, #0c2430); box-shadow: inset 0 0 0 3px #000, 0 4px 0 #1f6f86, 0 0 18px rgba(115,239,247,0.35); }
+.hs { position: absolute; inset: 0; z-index: 6; background: rgba(10,6,4,0.94); border-radius: 4px; display: flex; flex-direction: column; gap: 4px; padding: 4px; }
+.hshead { text-align: center; font-family: var(--mono); font-size: 10px; color: var(--brass); }
+.hshead b { font-weight: 400; color: #fff; font-size: 13px; }
+.hsgrid { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(3, 1fr); gap: 3px; }
+.hc { position: relative; background: #1d140a; border: 1px solid #3a2a12; border-radius: 3px; display: grid; place-items: center; }
+.hc img { width: 60%; height: auto; }
+.hc i { position: absolute; bottom: 1px; left: 0; right: 0; text-align: center; font-family: var(--mono); font-style: normal; font-size: 9px; color: #fff; text-shadow: 1px 1px 0 #000; }
+.hc.on { background: #4a3410; border-color: var(--brass); }
+.hc.fresh { animation: pop 0.4s steps(3); box-shadow: 0 0 10px rgba(240,182,72,0.9); }
+.hc.spinning { background: repeating-linear-gradient(0deg, #1d140a 0 6px, #2a1d0d 6px 12px); animation: throb 0.14s steps(2) infinite; }
+.bigwin { position: absolute; inset: -4px; z-index: 7; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(8,4,16,0.88); border-radius: 6px; }
+.bigwin b { font-size: 34px; color: var(--brass); text-shadow: 0 4px 0 #000, 0 0 18px rgba(240,182,72,0.7); animation: pop 0.5s steps(3) infinite; }
+.bigwin span { font-family: var(--mono); font-size: 30px; color: #fff; text-shadow: 0 3px 0 #000; font-variant-numeric: tabular-nums; }
+.bigwin.mega b { color: #ff7ad9; } .bigwin.epic b { color: var(--mana); }
 .payline::before, .payline::after { content: ""; position: absolute; top: 50%; margin-top: -7px; border: 7px solid transparent; }
 .payline::before { left: -3px; border-left-color: var(--brass); }
 .payline::after { right: -3px; border-right-color: var(--brass); }
@@ -209,10 +232,33 @@ button.chip.sel { border-color: var(--brass); }
 .lockbtn.on { background: var(--brass); color: var(--ink); border-color: var(--brass); }
 .lockbtn.put { background: var(--leaf); color: var(--ink); border-color: var(--leaf); animation: throb 0.6s steps(2) infinite; }
 .lockbtn:disabled { opacity: 0.35; }
-.log { font-size: 13px; color: var(--muted); min-height: 2.7em; line-height: 1.35; text-align: center; }
+.log { flex: 1; font-size: 13px; color: var(--muted); min-height: 0; overflow-y: auto; line-height: 1.35; text-align: center; }
 .log b { color: var(--parch); font-weight: 600; }
 .log .d { color: var(--blood); } .log .g { color: var(--brass); } .log .bl { color: var(--mana); }
-.controls { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: stretch; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: stretch; }
+.special { position: relative; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 4px 8px; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; text-align: left; }
+.special .lbl { font-size: 9px; color: var(--parch); }
+.special .meter { height: 8px; background: #0b0812; border: 1px solid #000; }
+.special .meter i { display: block; height: 100%; background: var(--hex); transition: width 0.3s steps(5); }
+.special.ready { border-color: var(--hex); background: #2e1a3d; animation: throb 0.6s steps(2) infinite; }
+.special.armed { border-color: var(--leaf); }
+.special:disabled { opacity: 1; cursor: default; }
+.lever { display: grid; grid-template-columns: 58px 1fr 58px; gap: 6px; }
+.side { font-family: var(--mono); font-size: 10px; line-height: 1.25; padding: 0; background: var(--stone-2); border: 2px solid var(--line); border-radius: 4px; color: var(--parch); }
+.side small { color: var(--brass); font-size: 10px; }
+.side.on { background: var(--leaf); color: var(--ink); border-color: var(--leaf); }
+.side.armed { background: var(--brass); color: var(--ink); border-color: var(--brass); animation: throb 0.6s steps(2) infinite; }
+.side:disabled { opacity: 0.35; }
+.spin.free { background: var(--mana); box-shadow: 0 5px 0 #1f6f86; }
+.iconbtn.on { background: var(--leaf); color: var(--ink); border-color: var(--leaf); }
+.charmbar { position: absolute; left: 6px; top: 6px; z-index: 2; display: flex; align-items: center; gap: 2px; background: rgba(10,8,18,0.75); border: 1px solid var(--line); border-radius: 3px; padding: 2px; }
+.scr.map .charmbar { position: static; align-self: flex-start; }
+.charmbar .ch { width: 20px; height: 20px; display: grid; place-items: center; background: #0f0b18; border-radius: 2px; }
+.charmbar .ch img { width: 18px; height: 18px; }
+.charmbar .ch.empty { border: 1px dashed var(--line); }
+.charmbar .lbl { font-size: 7px; margin: 0 3px; }
+.rule { position: absolute; left: 6px; right: 6px; bottom: 4px; z-index: 2; font-size: 11px; color: var(--hex); text-align: center; background: rgba(10,8,18,0.8); border-radius: 3px; padding: 1px 4px; }
+.intent b.ice { color: var(--mana); }
 .nudges { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 52px; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; padding: 2px 4px; }
 .nudges .lbl { font-size: 8px; }
 .nudges b { font-family: var(--mono); font-weight: 400; font-size: 20px; color: var(--leaf); }
@@ -232,7 +278,7 @@ button.chip.sel { border-color: var(--brass); }
 .slot.sel { background: var(--leaf); }
 .slot.used { opacity: 0.4; }
 .slot i { position: absolute; right: 1px; top: 0; font-family: var(--mono); font-style: normal; font-size: 9px; color: var(--brass); }
-.spin { font-size: 22px; padding-block: 12px; letter-spacing: 0.04em; flex-direction: column; gap: 0; line-height: 1.1; }
+.spin { font-size: 21px; padding-block: 10px; letter-spacing: 0.04em; flex-direction: column; gap: 0; line-height: 1.1; }
 .spin small { font-family: var(--mono); font-size: 10px; font-weight: 400; opacity: 0.8; letter-spacing: 0; }
 .spin.collect { background: var(--leaf); box-shadow: 0 5px 0 #4f8a3a; }
 .shake { animation: hit 0.32s steps(4); }
@@ -314,6 +360,7 @@ button.reelcard:active, button.reelcard:hover { border-color: var(--brass); }
   <div class="hud" id="hud" hidden>
     <div class="gold" id="gold"><img class="px" id="goldIcon" alt=""><span id="goldN">0</span><small>LIFE</small></div>
     <div class="floor" id="floorLbl"></div>
+    <button class="iconbtn" id="turboBtn" aria-label="Turbo spins">»</button>
     <button class="iconbtn" id="machBtn" aria-label="The machine and paytable"><img class="px" id="machIcon" alt=""></button>
     <button class="iconbtn" id="helpBtn" aria-label="How to play">?</button>
   </div>
@@ -725,6 +772,22 @@ SPR.bar = (() => {
   rows.push(".YeeeeeeeeeeeeY.", ".YYYYYYYYYYYYYY.");
   return rows;
 })();
+SPR.star = [
+  "................",
+  ".......YY.......",
+  "......YyyY......",
+  "......YyyY......",
+  ".....YyyyyY.....",
+  "YYYYYYywyyyYYYYY",
+  ".YyyyyyyyyyyyyY.",
+  "..YyyyyyyyyyyY..",
+  "...YyyyyyyyyY...",
+  "...YyyyyyyyyY...",
+  "..YyyyyYYyyyyY..",
+  "..YyyyY..YyyyY..",
+  ".YyyY......YyyY.",
+  ".YYY........YYY.",
+];
 SPR.cherry = [
   "................",
   "..........gg....",
@@ -764,297 +827,321 @@ const px = (k, alt = '') => k === 'blank' ? '' : `<img class="px" src="${IMG[k]}
 let rng = Math.random;
 const ri = (a, b) => a + Math.floor(rng() * (b - a + 1));
 const pick = arr => arr[Math.floor(rng() * arr.length)];
-function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function shuffle(a, r = rng) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 // rounds 7.4 to 7 (60%) or 8 (40%): keeps the expected payout exact
 const randRound = x => Math.floor(x) + (rng() < x - Math.floor(x) ? 1 : 0);
 const mod = (i, n) => ((i % n) + n) % n;
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-// --- Machine -----------------------------------------------------------
-const REELS = 5;
-// Denominations: like real casinos, higher stakes return a larger share.
-const BETS = [1, 2, 3, 5, 10, 20];
-const RTP_BY_BET = { 1: 0.94, 2: 0.95, 3: 0.955, 5: 0.96, 10: 0.965, 20: 0.97 };
-const HOLD_FEE = 0.5;     // minimum extra cost per held reel, as a share of the bet
-const MAX_HOLDS = 3;
-const MIN_STOPS = 10;
-const NUDGE_AWARD = 0.05; // chance of a free nudge after a losing spin, fruit-machine style
-const MAX_NUDGES = 6;
-
+// ===================================================================
+// THE MACHINE: fixed, "certified" math. Nothing in the run changes it.
+// ===================================================================
+const REELS = 5, ROWS = 3;
+const BETS = [10, 20, 30, 50, 100, 200];
 const SYM = {
-  seven: { name: 'Seven' }, bar: { name: 'BAR' }, cherry: { name: 'Cherry' }, gem: { name: 'Wild' },
-  sword: { name: 'Sword' }, fire: { name: 'Fire' }, shield: { name: 'Shield' }, skull: { name: 'Skull' }, blank: { name: 'Blank' },
+  seven: { name: 'Seven' }, bar: { name: 'BAR' }, cherry: { name: 'Cherry' },
+  sword: { name: 'Sword' }, fire: { name: 'Fire' }, shield: { name: 'Shield' },
+  gem: { name: 'Wild' }, coin: { name: 'Coin' }, star: { name: 'Scatter' }, skull: { name: 'Skull' },
 };
 const WEAPONS = ['sword', 'fire', 'shield'];
-// Base pays per 1 gold bet for N in a row from the left, before calibration.
+// Reel strips. Wilds only on reels 2–4. Generated once from a fixed seed, so every player gets the same machine.
+const STRIP_COUNTS = [
+  { seven: 1, bar: 2, cherry: 5, sword: 6, fire: 4, shield: 4, coin: 3, star: 1, skull: 4 },
+  { seven: 1, bar: 2, cherry: 5, sword: 6, fire: 4, shield: 4, coin: 4, star: 1, gem: 1, skull: 2 },
+  { seven: 1, bar: 2, cherry: 5, sword: 6, fire: 4, shield: 4, coin: 4, star: 1, gem: 1, skull: 2 },
+  { seven: 1, bar: 2, cherry: 5, sword: 6, fire: 4, shield: 4, coin: 4, star: 1, gem: 1, skull: 2 },
+  { seven: 1, bar: 2, cherry: 5, sword: 6, fire: 4, shield: 4, coin: 3, star: 1, skull: 4 },
+];
+const STRIPS = STRIP_COUNTS.map((cnt, c) => {
+  const items = [];
+  for (const t in cnt) for (let i = 0; i < cnt[t]; i++) items.push(t);
+  return shuffle(items, mulberry32(1337 + c * 101));
+});
+// 10 fixed paylines (row index per reel). Line 1 is the middle row.
+const LINES = [
+  [1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2],
+  [1, 0, 0, 0, 1], [1, 2, 2, 2, 1], [0, 0, 1, 2, 2], [2, 2, 1, 0, 0], [1, 2, 1, 0, 1],
+];
+// Pays as multiples of the TOTAL bet, for 3 / 4 / 5 in a row from the left.
 const PAYTABLE = {
-  gem:    { 3: 50, 4: 250, 5: 1000 },
-  seven:  { 3: 25, 4: 100, 5: 500 },
-  bar:    { 3: 10, 4: 40,  5: 150 },
-  cherry: { 1: 1,  2: 3,   3: 8,  4: 25, 5: 100 },
-  sword:  { 3: 5,  4: 20,  5: 80 },
-  fire:   { 3: 5,  4: 20,  5: 80 },
-  shield: { 3: 4,  4: 15,  5: 60 },
+  seven:  { 3: 4,    4: 20,  5: 100 },
+  bar:    { 3: 2,    4: 6,   5: 25 },
+  cherry: { 3: 1.1,  4: 3,   5: 12 },
+  sword:  { 3: 0.6,  4: 2,   5: 8 },
+  fire:   { 3: 0.6,  4: 2,   5: 8 },
+  shield: { 3: 0.5,  4: 1.5, 5: 6 },
 };
-const PAY_ORDER = ['gem', 'seven', 'bar', 'cherry', 'sword', 'fire', 'shield'];
-// Weapon combos: damage (or block) per 1 gold bet.
-const POWER_X = { 3: 10, 4: 25, 5: 60 };
-const POWER_NAME = {
-  sword:  { 3: 'POWER STRIKE', 4: 'MEGA STRIKE', 5: 'ULTRA STRIKE' },
-  fire:   { 3: 'FIREBALL', 4: 'FIRESTORM', 5: 'METEOR' },
-  shield: { 3: 'FORTRESS', 4: 'CITADEL', 5: 'BASTION' },
-};
-const comboName = c => WEAPONS.includes(c.t) ? POWER_NAME[c.t][c.n] : `${c.n} × ${SYM[c.t].name}`;
+const FREE_SPINS = { 3: 10, 4: 15, 5: 25 };  // by number of scatters anywhere
+const FREE_MULT = 3;                         // free spin wins ×3
+const HS_TRIGGER = 6;                        // coins anywhere for Hold & Spin
+const HS_RESPIN_P = 0.14;                    // chance an empty cell lands a coin on a respin
+const HS_VALUES = [[0.5, 30], [1, 30], [2, 18], [3, 10], [5, 7], [10, 3.2, 'MINI'], [25, 1.3, 'MAJOR'], [50, 0.5, 'MAXI']];
+const HS_GRAND = 100;
+// PAR sheet from a 20 million spin simulation of this exact machine (see README).
+const PAR = { rtp: 0.9601, base: 0.6512, free: 0.1992, hold: 0.1097, hit: 0.242, freeEvery: 117, holdEvery: 411, vol: 'Medium-high' };
+const BONUS_BUY_X = 24;                      // price of buying 10 free spins, in total bets (average return 22.6×)
 
-// Best left-to-right run on the payline. Wilds substitute for anything.
-function evalLine(types) {
-  let lead = 0; while (lead < types.length && types[lead] === 'gem') lead++;
-  let best = lead >= 3 ? { t: 'gem', n: lead, base: PAYTABLE.gem[lead] } : null;
-  for (const t of PAY_ORDER) {
-    if (t === 'gem') continue;
-    let n = 0; while (n < types.length && (types[n] === t || types[n] === 'gem')) n++;
-    if (n === lead) continue;
-    const base = PAYTABLE[t][n];
-    if (base && (!best || base > best.base)) best = { t, n, base };
+function rollStops() { return STRIPS.map(s => ri(0, s.length - 1)); }
+function gridFrom(stops) {
+  const g = [[], [], []];
+  for (let c = 0; c < REELS; c++) { const s = STRIPS[c], n = s.length; for (let r = 0; r < ROWS; r++) g[r][c] = s[mod(stops[c] - 1 + r, n)]; }
+  return g;
+}
+// Nudging wild: a wild anywhere on reels 2–4 nudges to the middle and expands over the whole reel.
+function expandWilds(g, allowed = true) {
+  const ex = [];
+  if (!allowed) return ex;
+  for (let c = 1; c <= 3; c++) {
+    const r = [0, 1, 2].find(r => g[r][c] === 'gem');
+    if (r !== undefined) { ex.push({ c, from: r }); for (let k = 0; k < ROWS; k++) g[k][c] = 'gem'; }
   }
-  return best;
+  return ex;
 }
-function counts(strip) { const c = {}; strip.forEach(s => { c[s.t] = (c[s.t] || 0) + 1; }); return c; }
-// Exact enumeration of the payline over the reel strips (a PAR sheet in miniature).
-function lineStats(strips, fixed) {
-  const dists = strips.map((s, i) => fixed && fixed[i] ? [[fixed[i], 1]] : Object.entries(counts(s)).map(([t, n]) => [t, n / s.length]));
-  let ev = 0, hit = 0, sq = 0;
-  const types = new Array(dists.length);
-  (function rec(i, p) {
-    if (i === dists.length) {
-      const r = evalLine(types);
-      if (r) { ev += p * r.base; hit += p; sq += p * r.base * r.base; }
-      return;
+function evalLines(g) {
+  const wins = [];
+  LINES.forEach((ln, i) => {
+    const t = g[ln[0]][0];
+    if (!PAYTABLE[t]) return;
+    let n = 1; while (n < REELS && (g[ln[n]][n] === t || g[ln[n]][n] === 'gem')) n++;
+    const pay = PAYTABLE[t][n];
+    if (pay) wins.push({ line: i, t, n, pay });
+  });
+  return wins;
+}
+const countSym = (g, t) => g.flat().filter(x => x === t).length;
+function hsValue() {
+  let x = rng() * HS_VALUES.reduce((a, v) => a + v[1], 0);
+  for (const v of HS_VALUES) { if ((x -= v[1]) < 0) return { v: v[0], label: v[2] || null }; }
+  return { v: 0.5, label: null };
+}
+// Hold & Spin: coins stick, 3 respins, every new coin resets the count. All 15 cells = GRAND.
+function playHoldSpin(g) {
+  const cells = g.map(row => row.map(t => t === 'coin' ? hsValue() : null));
+  const steps = [];
+  let respins = 3;
+  while (respins > 0) {
+    let fresh = false;
+    const landed = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < REELS; c++) {
+      if (!cells[r][c] && rng() < HS_RESPIN_P) { cells[r][c] = hsValue(); landed.push([r, c]); fresh = true; }
     }
-    for (const [t, q] of dists[i]) { types[i] = t; rec(i + 1, p * q); }
-  })(0, 1);
-  return { ev, hit, sq };
+    respins = fresh ? 3 : respins - 1;
+    steps.push({ landed, respins });
+    if (cells.flat().every(Boolean)) break;
+  }
+  const full = cells.flat().every(Boolean);
+  const total = cells.flat().reduce((a, x) => a + (x ? x.v : 0), 0) + (full ? HS_GRAND : 0);
+  return { start: g.map(row => row.map(t => t === 'coin')), cells, steps, full, total };
 }
-const has = (run, id) => run.relics.includes(id);
-const rtpFor = (run, bet) => RTP_BY_BET[bet] + (has(run, 'screws') ? 0.015 : 0);
-// The casino re-calibrates every pay so the machine always returns exactly its RTP.
-const MEMO = new Map();
-function machine(run, strips, bet) {
-  const key = strips.map(s => JSON.stringify(counts(s))).join('|') + bet + run.relics.join();
-  if (MEMO.has(key)) return MEMO.get(key);
-  if (MEMO.size > 300) MEMO.clear();
-  const st = lineStats(strips);
-  const rtp = rtpFor(run, bet);
-  const scale = rtp / st.ev;
-  const out = { rtp, scale, hit: st.hit, sd: Math.sqrt(Math.max(0, st.sq * scale * scale - rtp * rtp)) };
-  MEMO.set(key, out);
-  return out;
+// One paid or free spin of the machine. Pure slot math, no combat.
+function machineSpin(opts = {}) {
+  const stops = rollStops();
+  const g = gridFrom(stops);
+  const raw = g.map(r => r.slice());
+  const ex = expandWilds(g, opts.wilds !== false);
+  const wins = evalLines(g);
+  const mult = opts.free ? FREE_MULT : 1;
+  const lineX = wins.reduce((a, w) => a + w.pay, 0) * mult;
+  const scatters = countSym(g, 'star');
+  const coins = countSym(raw, 'coin');
+  return { stops, raw, grid: g, expanded: ex, wins, lineX, scatters, freeSpins: FREE_SPINS[Math.min(5, scatters)] || 0,
+           holdSpin: coins >= HS_TRIGGER };
 }
-const volLabel = sd => sd < 6 ? 'Low' : sd < 14 ? 'Medium' : 'High';
-const betsFor = run => BETS.filter(b => b < 20 || has(run, 'highroller'));
 
-// --- Classes, relics, enemies --------------------------------------------
+// ===================================================================
+// THE META GAME: classes, charms, enemies. Combat only, never payouts.
+// ===================================================================
 const CLASSES = {
-  warrior: { name: 'Warrior', sprite: 'warrior', gold: 80, mod: { sword: +1, fire: -1 },
-             passive: 'Swords deal +1 damage and cut through armor.' },
-  mage:    { name: 'Mage', sprite: 'mage', gold: 70, mod: { sword: -1, fire: +2, blank: -1 },
-             passive: 'Two or more Fire on the line: all fire damage is doubled.' },
-  rogue:   { name: 'Rogue', sprite: 'rogue', gold: 75, mod: { cherry: +1, blank: -1 },
-             passive: 'Pocket holds 2. Cherries deal 2 damage. +1 nudge every fight.' },
+  warrior: { name: 'Warrior', sprite: 'warrior', gold: 900,
+             passive: 'Swords on the attack row deal +1 and cut through armor.',
+             special: { name: 'Berserk', desc: 'Your next spin deals triple damage.' } },
+  mage:    { name: 'Mage', sprite: 'mage', gold: 850,
+             passive: 'Two or more Fire on the attack row: their damage is doubled.',
+             special: { name: 'Meteor', desc: 'Deal 45 damage right now, through armor.' } },
+  rogue:   { name: 'Rogue', sprite: 'rogue', gold: 850,
+             passive: 'Cherries on the attack row deal 2. Cherry lines charge twice as much.',
+             special: { name: 'Lucky Break', desc: 'Your next spin is free and its wins pay double.' } },
 };
-// 19 stops per reel. Cherries thin out towards the right, like a real strip set.
-const BASE_REEL = [3, 3, 2, 2, 2].map(ch => ({ seven: 1, bar: 2, cherry: ch, gem: 1, sword: 4, fire: 2, shield: 3, skull: 1, blank: 5 - ch }));
-const RELICS = {
-  whetstone:  { name: 'Whetstone',        icon: 'sword',  desc: 'Swords deal +1 damage.' },
-  oak:        { name: 'Oak Shield',       icon: 'shield', desc: 'Start every fight with 10 block.' },
-  screws:     { name: 'Loose Screws',     icon: 'anvil',  desc: 'The machine pays back 1.5 points more (RTP).' },
-  crystal:    { name: 'Fire Crystal',     icon: 'fire',   desc: 'Fire deals +1 damage.' },
-  clover:     { name: 'Four-Leaf Clover', icon: 'clover', desc: 'The hold fee is halved.' },
-  silk:       { name: 'Silk Pocket',      icon: 'bag',    desc: '+1 pocket slot.' },
-  bonering:   { name: 'Bone Ring',        icon: 'skull',  desc: 'Skulls on the line deal 5 damage instead of rushing the enemy.' },
-  magnet:     { name: 'Wild Magnet',      icon: 'gem',    desc: 'Wilds on the line deal 4 damage.' },
-  rage:       { name: 'Rage Draught',     icon: 'potion', desc: 'Weapon combos deal double damage and block.' },
-  highroller: { name: 'High Roller Chip', icon: 'seven',  desc: 'Unlocks bet 20 (97% RTP).' },
-  grease:     { name: 'Greased Lever',    icon: 'chestOpen', desc: '+1 nudge every fight.' },
+const CHARGE_MAX = 10;
+const LINE_HIT = { 3: 4, 4: 10, 5: 25 };     // weapon line damage/block per 10 gold of bet
+const CHARMS = {
+  whetstone: { name: 'Whetstone',      icon: 'sword',  desc: 'Swords on the attack row deal +2.' },
+  flaming:   { name: 'Flaming Blades', icon: 'fire',   desc: 'Sword hits ignore armor.' },
+  twin:      { name: 'Twin Blades',    icon: 'sword',  desc: 'Sword lines hit twice.' },
+  kindling:  { name: 'Kindling',       icon: 'fire',   desc: 'Fire on the attack row deals +2.' },
+  inferno:   { name: 'Inferno',        icon: 'fire',   desc: 'Fire lines deal double damage.' },
+  spiked:    { name: 'Spiked Shield',  icon: 'shield', desc: 'Shields on the attack row also deal 2 damage.' },
+  tower:     { name: 'Tower Shield',   icon: 'shield', desc: 'Shields on the attack row give +3 block.' },
+  mirror:    { name: 'Mirror Shield',  icon: 'shield', desc: 'Damage your block absorbs is dealt back to the enemy.' },
+  oak:       { name: 'Oak Shield',     icon: 'shield', desc: 'Start every fight with 15 block.' },
+  sour:      { name: 'Sour Cherries',  icon: 'cherry', desc: 'Cherry lines deal 4 / 10 / 25 damage.' },
+  ironbar:   { name: 'Iron Bar',       icon: 'bar',    desc: 'BAR lines also deal 5 / 12 / 30 damage.' },
+  lucky7:    { name: 'Lucky Seven',    icon: 'seven',  desc: 'Crits deal ×3 instead of ×2.' },
+  wildheart: { name: 'Wild Heart',     icon: 'gem',    desc: 'Every expanding wild deals 6 damage.' },
+  streak:    { name: 'Hot Streak',     icon: 'potion', desc: 'Every winning spin in a row adds +2 to all damage. A losing spin resets it.' },
+  bonering:  { name: 'Bone Ring',      icon: 'skull',  desc: 'Skulls on the attack row deal 5 damage instead of rushing the enemy.' },
+  battery:   { name: 'Battery',        icon: 'chestOpen', desc: 'Your special charges twice as fast.' },
+  storm:     { name: 'Stormcaller',    icon: 'star',   desc: 'Every free spin also deals 10 damage.' },
+  volley:    { name: 'Coin Volley',    icon: 'coin',   desc: 'Hold & Spin coins deal double damage.' },
 };
+const CHARM_SLOTS = 5;
 const ENEMIES = {
-  slime:    { name: 'Slime',          sprite: 'slime',    hp: 30,  atk: 5,  every: 2 },
-  bat:      { name: 'Cave Bat',       sprite: 'bat',      hp: 20,  atk: 3,  every: 1 },
-  goblin:   { name: 'Goblin',         sprite: 'goblin',   hp: 38,  atk: 7,  every: 2 },
-  skeleton: { name: 'Skeleton Knight', sprite: 'skeleton', hp: 44, atk: 8,  every: 2, armor: true },
-  bigslime: { name: 'Giant Slime',    sprite: 'slime',    hp: 66,  atk: 12, every: 3, big: true, filter: 'hue-rotate(250deg)' },
-  shaman:   { name: 'Goblin Shaman',  sprite: 'goblin',   hp: 40,  atk: 4,  every: 1, curse: true, filter: 'hue-rotate(160deg)' },
-  orc:      { name: 'Orc Chieftain',  sprite: 'orc',      hp: 66,  atk: 9,  every: 2, curse: true, big: true },
-  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 150, atk: 10, every: 2, armor: true, curse: true, enrage: 4, big: true },
+  slime:    { name: 'Slime',           sprite: 'slime',    hp: 34,  atk: 40,  every: 2 },
+  bat:      { name: 'Cave Bat',        sprite: 'bat',      hp: 24,  atk: 25,  every: 1 },
+  goblin:   { name: 'Goblin',          sprite: 'goblin',   hp: 42,  atk: 50,  every: 2 },
+  skeleton: { name: 'Skeleton Knight', sprite: 'skeleton', hp: 52,  atk: 60,  every: 2, armor: true, rule: 'Armor: swords deal half damage.' },
+  bigslime: { name: 'Giant Slime',     sprite: 'slime',    hp: 72,  atk: 90, every: 3, big: true, filter: 'hue-rotate(250deg)', sticky: true, rule: 'Sticky: reel 5 stays put every other spin.' },
+  shaman:   { name: 'Goblin Shaman',   sprite: 'goblin',   hp: 46,  atk: 30,  every: 1, filter: 'hue-rotate(160deg)', hex: true, rule: 'Hex: wilds do not expand.' },
+  orc:      { name: 'Orc Chieftain',   sprite: 'orc',      hp: 78, atk: 70,  every: 2, big: true, breaker: true, rule: 'Shieldbreaker: your block is halved.' },
+  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 165, atk: 80, every: 2, armor: true, enrage: 30, big: true, rule: 'Armor. Enrages at half health.' },
 };
 const TIER1 = ['slime', 'bat', 'goblin'];
 const TIER2 = ['skeleton', 'bigslime', 'shaman', 'goblin'];
 
-function buildStrip(countsObj) {
-  const syms = [], blanks = [];
-  for (const t in countsObj) for (let i = 0; i < countsObj[t]; i++) (t === 'blank' ? blanks : syms).push({ t, lvl: 0 });
-  shuffle(syms);
-  // spread blanks evenly between symbols, like a real reel
-  const n = syms.length + blanks.length, out = [];
-  const at = new Set(blanks.map((_, j) => Math.floor((j + 0.5) * n / blanks.length)));
-  for (let i = 0; i < n; i++) out.push(at.has(i) && blanks.length ? blanks.pop() : syms.pop() || blanks.pop());
-  return out;
-}
-function classReel(cls, i) {
-  const c = { ...BASE_REEL[i] };
-  for (const t in CLASSES[cls].mod) c[t] = Math.max(0, (c[t] || 0) + CLASSES[cls].mod[t]);
-  return c;
-}
+const has = (run, id) => run.charms.includes(id);
 function newRun(cls) {
-  return { cls, gold: CLASSES[cls].gold, bet: 2, strips: BASE_REEL.map((_, i) => buildStrip(classReel(cls, i))), pocket: [], nudges: 1,
-           relics: [], map: genMap(), pos: null, visited: [], screen: 'map', room: null, fight: null, place: [],
-           stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0, nudges: 0 } };
+  return { cls, gold: CLASSES[cls].gold, bet: 20, charms: [], boost: { sword: 0, fire: 0, shield: 0 }, charge: 0,
+           map: genMap(), pos: null, visited: [], screen: 'map', room: null, fight: null, nextHpX: 1,
+           stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0, free: 0, holds: 0 } };
 }
-const pocketCap = run => 1 + (run.cls === 'rogue' ? 1 : 0) + (has(run, 'silk') ? 1 : 0);
-const nudgesPerFight = run => 1 + (run.cls === 'rogue' ? 1 : 0) + (has(run, 'grease') ? 1 : 0);
-
-// --- Fight -----------------------------------------------------------------
-function makeEnemy(id) { const d = ENEMIES[id]; return { ...d, id, maxHp: d.hp, timer: d.every, enraged: false }; }
+function makeEnemy(id, hpX = 1) { const d = ENEMIES[id]; const hp = Math.round(d.hp * hpX); return { ...d, id, hp, maxHp: hp, timer: d.every, enraged: false }; }
 const enemyAtk = e => e.atk + (e.enraged ? e.enrage : 0);
 function startFightState(run, id, kind) {
-  const strips = run.strips.map(s => s.map(x => ({ ...x })));
-  run.nudges = Math.min(MAX_NUDGES, run.nudges + nudgesPerFight(run));
-  const off = () => Array(REELS).fill(false);
-  return { enemy: makeEnemy(id), kind, strips, pos: strips.map(s => ri(0, s.length - 1)), override: Array(REELS).fill(null),
-           lock: off(), lastLock: off(), pocketUse: null, pocketed: false, pending: null, block: has(run, 'oak') ? 10 : 0, spins: 0 };
+  const f = { enemy: makeEnemy(id, run.nextHpX), kind, block: has(run, 'oak') ? 15 : 0, spins: 0, streak: 0,
+              free: 0, freeTotal: 0, berserk: false, lucky: false, stops: rollStops(), grid: null, stuck: null };
+  run.nextHpX = 1;
+  f.grid = gridFrom(f.stops);
+  return f;
 }
-const midSym = (f, c) => f.override[c] || f.strips[c][f.pos[c]];
-function fixedTypes(f) {
-  return f.strips.map((_, c) => f.pocketUse && f.pocketUse.reel === c ? f.pocketUse.sym.t : f.lock[c] ? midSym(f, c).t : null);
-}
-function spinPrice(run, f, bet) {
-  const fixed = fixedTypes(f), n = fixed.filter(Boolean).length;
-  if (!n) return { total: bet, fee: 0, n: 0 };
-  const m = machine(run, f.strips, bet);
-  const ev = bet * m.scale * lineStats(f.strips, fixed).ev;
-  const minP = bet + Math.ceil(bet * HOLD_FEE * (has(run, 'clover') ? 0.5 : 1) * n);
-  const total = Math.max(minP, Math.ceil(ev / m.rtp));   // a hold never beats the house
-  return { total, fee: total - bet, n };
-}
-// A single symbol on the payline, outside a combo: flat effect, the bet does not change it.
-function cellFx(run, f, s, firesOnLine) {
-  const t = s.t;
-  const fx = { t, dmg: 0, block: 0, rush: 0, half: false };
-  if (t === 'sword') {
-    fx.dmg = 3 + s.lvl + (run.cls === 'warrior' ? 1 : 0) + (has(run, 'whetstone') ? 1 : 0);
-    if (f.enemy.armor && run.cls !== 'warrior') { fx.dmg = Math.ceil(fx.dmg / 2); fx.half = true; }
-  } else if (t === 'fire') {
-    fx.dmg = 3 + s.lvl + (has(run, 'crystal') ? 1 : 0);
-    if (run.cls === 'mage' && firesOnLine >= 2) fx.dmg *= 2;
-  } else if (t === 'shield') fx.block = 4 + s.lvl;
-  else if (t === 'cherry' && run.cls === 'rogue') fx.dmg = 2;
-  else if (t === 'gem' && has(run, 'magnet')) fx.dmg = 4;
-  else if (t === 'skull') { if (has(run, 'bonering')) fx.dmg = 5; else fx.rush = 1; }
-  return fx;
-}
-// Weapon combo of N from the left: POWER_X[N] × bet, ignores armor.
-function powerFx(run, combo, line, bet) {
-  const lv = line.slice(0, combo.n).reduce((a, s) => a + (s.lvl || 0), 0);
-  const v = (POWER_X[combo.n] + lv * 2) * bet * (has(run, 'rage') ? 2 : 1);
-  return combo.t === 'shield' ? { block: v, dmg: 0 } : { dmg: v, block: 0 };
-}
-// What the payline does right now, without changing anything.
-function outcome(run, f, bet) {
-  const line = f.strips.map((_, c) => midSym(f, c));
-  const types = line.map(s => s.t);
-  const combo = evalLine(types);
-  const m = machine(run, f.strips, bet);
-  const mult = combo ? combo.base * m.scale : 0;
-  const power = combo && WEAPONS.includes(combo.t) ? combo : null;
-  const fires = types.filter(t => t === 'fire').length;
-  const cells = line.map((s, i) => power && i < power.n ? { power: true, dmg: 0, block: 0, rush: 0 } : cellFx(run, f, s, fires));
-  const pfx = power ? powerFx(run, power, line, bet) : null;
-  const sum = k => cells.reduce((a, x) => a + x[k], 0) + (pfx ? pfx[k] || 0 : 0);
-  return { line, combo, mult, power, pfx, cells, dmg: sum('dmg'), block: sum('block'), rush: sum('rush'), winEV: mult * bet };
-}
-const outcomeValue = (o, nudged) => (nudged ? 0 : o.winEV) + o.dmg + o.block * 0.5 - o.rush * 4;
 
-// Step 1: pay, spin the reels that are not held.
-function startSpin(run, f) {
-  const bet = run.bet;
-  const price = spinPrice(run, f, bet).total;
-  run.gold -= price;
-  run.stats.wagered += price;
-  const pu = f.pocketUse;
-  const next = Array(REELS).fill(null), held = Array(REELS).fill(false);
-  for (let c = 0; c < REELS; c++) {
-    if (pu && pu.reel === c) { next[c] = pu.sym; held[c] = true; }
-    else if (f.lock[c]) { next[c] = f.override[c]; held[c] = true; }
-    else f.pos[c] = ri(0, f.strips[c].length - 1);
+// Combat from one spin: the attack row acts, then every winning line fires its symbol's power.
+function combat(run, f, spin, bet, freeMult) {
+  const e = f.enemy, m = bet / 10;
+  const out = { row: [], lines: [], dmg: 0, block: 0, rush: 0, stun: 0, charge: 0, crit: 1, wildDmg: 0 };
+  const plus = has(run, 'streak') ? f.streak * 2 : 0;
+  const armorHalf = (dmg, sword) => e.armor && !(sword && (run.cls === 'warrior' || has(run, 'flaming'))) ? Math.ceil(dmg / 2) : dmg;
+  const fires = spin.grid[1].filter(t => t === 'fire').length;
+  // attack row: flat, the bet does not change it
+  spin.grid[1].forEach((t, c) => {
+    const fx = { c, t, dmg: 0, block: 0, rush: 0 };
+    if (t === 'sword') fx.dmg = armorHalf(3 + run.boost.sword + (run.cls === 'warrior' ? 1 : 0) + (has(run, 'whetstone') ? 2 : 0) + plus, true);
+    else if (t === 'fire') { fx.dmg = 3 + run.boost.fire + (has(run, 'kindling') ? 2 : 0) + plus; if (run.cls === 'mage' && fires >= 2) fx.dmg *= 2; }
+    else if (t === 'shield') { fx.block = 4 + run.boost.shield + (has(run, 'tower') ? 3 : 0); if (has(run, 'spiked')) fx.dmg = 2 + plus; }
+    else if (t === 'cherry' && run.cls === 'rogue') fx.dmg = 2 + plus;
+    else if (t === 'skull') { if (has(run, 'bonering')) fx.dmg = 5 + plus; else fx.rush = 1; }
+    out.row.push(fx);
+  });
+  // every win does something
+  spin.wins.forEach(w => {
+    const fx = { line: w.line, t: w.t, n: w.n, dmg: 0, block: 0, stun: 0, crit: false, charge: 1 };
+    const base = LINE_HIT[w.n] * m * freeMult;
+    if (w.t === 'sword') fx.dmg = armorHalf((base + plus) * (has(run, 'twin') ? 2 : 1), true);
+    else if (w.t === 'fire') fx.dmg = (base + plus) * (has(run, 'inferno') ? 2 : 1);
+    else if (w.t === 'shield') fx.block = base;
+    else if (w.t === 'cherry') { fx.charge = run.cls === 'rogue' ? 6 : 3; if (has(run, 'sour')) fx.dmg = LINE_HIT[w.n] * m + plus; }
+    else if (w.t === 'bar') { fx.stun = 1; if (has(run, 'ironbar')) fx.dmg = { 3: 5, 4: 12, 5: 30 }[w.n] * m + plus; }
+    else if (w.t === 'seven') fx.crit = true;
+    out.lines.push(fx);
+  });
+  if (has(run, 'wildheart')) out.wildDmg = spin.expanded.length * 6;
+  const crit = out.lines.some(l => l.crit) ? (has(run, 'lucky7') ? 3 : 2) : 1;
+  out.crit = crit * (f.berserk ? 3 : 1);
+  const raw = out.row.reduce((a, x) => a + x.dmg, 0) + out.lines.reduce((a, x) => a + x.dmg, 0) + out.wildDmg + (freeMult > 1 && has(run, 'storm') ? 10 : 0);
+  out.dmg = Math.round(raw * out.crit);
+  out.block = out.row.reduce((a, x) => a + x.block, 0) + out.lines.reduce((a, x) => a + x.block, 0);
+  out.rush = out.row.reduce((a, x) => a + x.rush, 0);
+  out.stun = Math.min(1, out.lines.reduce((a, x) => a + x.stun, 0));
+  out.charge = out.lines.reduce((a, x) => a + x.charge, 0) * (has(run, 'battery') ? 2 : 1);
+  return out;
+}
+
+const spinCost = (run, f) => f.free > 0 || f.lucky ? 0 : run.bet;
+// Spin with full consequences: pay, roll, payout, combat, enemy turn.
+function playSpin(run, f) {
+  const bet = run.bet, free = f.free > 0, cost = spinCost(run, f);
+  run.gold -= cost; run.stats.wagered += cost;
+  const lucky = f.lucky; f.lucky = false;
+  const e = f.enemy;
+  const stickNow = e.sticky && f.spins % 2 === 1;
+  const spin = machineSpin({ free, wilds: !e.hex });
+  if (stickNow && f.stops) {               // Giant Slime: reel 5 keeps its stop
+    spin.stops[4] = f.stops[4];
+    const g = gridFrom(spin.stops); spin.raw = g.map(r => r.slice()); spin.expanded = expandWilds(g, !e.hex);
+    spin.grid = g; spin.wins = evalLines(g); spin.lineX = spin.wins.reduce((a, w) => a + w.pay, 0) * (free ? FREE_MULT : 1);
+    spin.scatters = countSym(g, 'star'); spin.freeSpins = FREE_SPINS[Math.min(5, spin.scatters)] || 0; spin.holdSpin = countSym(spin.raw, 'coin') >= HS_TRIGGER;
   }
-  f.override = next;
-  if (pu) run.pocket.splice(pu.idx, 1);
-  f.lastLock = held; f.lock = Array(REELS).fill(false); f.pocketUse = null; f.pocketed = false;
-  f.pending = { bet, price, held };
-  return f.pending;
-}
-// Step 2 (optional): nudge a reel one stop. dir -1 pulls the symbol above onto the line, +1 the one below.
-// A nudged spin pays no gold: nudges are for fighting, so the house edge stays intact.
-const canNudge = (run, f, c) => !!f.pending && run.nudges > 0 && !f.override[c];
-function nudge(run, f, c, dir) {
-  if (!canNudge(run, f, c)) return false;
-  f.pos[c] = mod(f.pos[c] + dir, f.strips[c].length);
-  f.pending.nudged = true;
-  run.nudges--; run.stats.nudges++;
-  return true;
-}
-function bestNudge(run, f) {
-  const bet = f.pending.bet, base = outcomeValue(outcome(run, f, bet), f.pending.nudged);
-  let best = { gain: 0, c: -1, dir: 0 };
-  for (let c = 0; c < REELS; c++) {
-    if (f.override[c]) continue;
-    for (const dir of [-1, 1]) {
-      const p = f.pos[c];
-      f.pos[c] = mod(p + dir, f.strips[c].length);
-      const g = outcomeValue(outcome(run, f, bet), true) - base;
-      f.pos[c] = p;
-      if (g > best.gain) best = { gain: g, c, dir };
+  spin.stuck = stickNow ? 4 : null;
+  f.stops = spin.stops; f.grid = spin.grid;
+  const freeMult = (free ? FREE_MULT : 1) * (lucky ? 2 : 1);
+  let winX = spin.wins.reduce((a, w) => a + w.pay, 0) * freeMult;
+  let win = randRound(winX * bet);
+  const fx = combat(run, f, spin, bet, freeMult);
+  f.berserk = false;
+  // Hold & Spin
+  let hold = null;
+  if (spin.holdSpin) {
+    hold = playHoldSpin(spin.raw);
+    hold.gold = randRound(hold.total * bet);
+    hold.dmg = Math.round(hold.total * (bet / 10) * 2 * (has(run, 'volley') ? 2 : 1));
+    run.stats.holds++;
+  }
+  // free spins bookkeeping
+  if (free) f.free--;
+  let freeAward = 0;
+  if (spin.freeSpins) { freeAward = spin.freeSpins; f.free += freeAward; f.freeTotal = free ? f.freeTotal + freeAward : freeAward; run.stats.free++; }
+  f.spins++; run.stats.spins++;
+  f.streak = win > 0 ? f.streak + 1 : 0;
+  const totalWin = win + (hold ? hold.gold : 0);
+  run.stats.won += totalWin;
+  if (totalWin > run.stats.bigWin) run.stats.bigWin = totalWin;
+  // apply combat
+  const blockGain = e.breaker ? Math.floor(fx.block / 2) : fx.block;
+  f.block += blockGain;
+  const totalDmg = fx.dmg + (hold ? hold.dmg : 0);
+  if (totalDmg > run.stats.best) run.stats.best = totalDmg;
+  e.hp = Math.max(0, e.hp - totalDmg);
+  run.gold += totalWin;
+  run.charge = Math.min(CHARGE_MAX, run.charge + fx.charge);
+  const res = { spin, bet, cost, free, lucky, freeMult, win, winX, hold, fx, blockGain, totalDmg, totalWin, freeAward, blockTotal: f.block };
+  if (e.hp <= 0) { res.killed = true; return res; }
+  if (e.enrage && !e.enraged && e.hp <= e.maxHp / 2) { e.enraged = true; res.enraged = true; }
+  // enemy turn: frozen during free spins and while a fresh feature plays out
+  if (!free && !freeAward && !hold) {
+    e.timer += fx.stun - 1 - fx.rush;
+    if (e.timer <= 0) {
+      e.timer = e.every;
+      const atk = enemyAtk(e);
+      const absorbed = Math.min(f.block, atk), taken = atk - absorbed;
+      f.block = 0;
+      run.gold = Math.max(0, run.gold - taken);
+      let mirror = 0;
+      if (has(run, 'mirror') && absorbed) { mirror = absorbed; e.hp = Math.max(0, e.hp - mirror); }
+      res.enemy = { atk, absorbed, taken, mirror };
+      if (e.hp <= 0) { res.killed = true; return res; }
     }
   }
-  return best;
-}
-// Step 3: the line acts, the payout is made, then the enemy's turn.
-function resolveSpin(run, f) {
-  const { bet, price, held, nudged } = f.pending;
-  f.pending = null;
-  const o = outcome(run, f, bet);
-  const win = o.combo && !nudged ? randRound(o.mult * bet) : 0;
-  f.spins++; run.stats.spins++; run.stats.won += win;
-  if (o.dmg > run.stats.best) run.stats.best = o.dmg;
-  if (win > run.stats.bigWin) run.stats.bigWin = win;
-  f.block += o.block;
-  const e = f.enemy;
-  e.hp = Math.max(0, e.hp - o.dmg);
-  run.gold += win;
-  const res = { ...o, bet, price, win, held, nudged: !!nudged, blockTotal: f.block };
-  if (e.hp <= 0) { res.killed = true; return res; }
-  if (!win && run.nudges < MAX_NUDGES && rng() < NUDGE_AWARD) { run.nudges++; res.nudgeAward = true; }
-  if (e.enrage && !e.enraged && e.hp <= e.maxHp / 2) { e.enraged = true; res.enraged = true; }
-  e.timer -= 1 + o.rush;
-  if (e.timer <= 0) {
-    e.timer = e.every;
-    const atk = enemyAtk(e);
-    const absorbed = Math.min(f.block, atk), taken = atk - absorbed;
-    f.block = 0;
-    run.gold = Math.max(0, run.gold - taken);
-    const curseReel = e.curse ? addCurse(f) : null;
-    res.enemy = { atk, absorbed, taken, curseReel };
-  }
-  if (run.gold <= 0) res.dead = true;
+  if (run.gold <= 0 && f.free <= 0) res.dead = true;
   return res;
 }
-function addCurse(f) {
-  const blanks = [];
-  f.strips.forEach((s, c) => s.forEach((x, i) => { if (x.t === 'blank') blanks.push([c, i]); }));
-  if (blanks.length) { const [c, i] = pick(blanks); f.strips[c][i] = { t: 'skull', lvl: 0, temp: true }; return c; }
-  const c = ri(0, REELS - 1); f.strips[c].push({ t: 'skull', lvl: 0, temp: true }); return c;
+function useSpecial(run, f) {
+  if (run.charge < CHARGE_MAX) return null;
+  run.charge = 0;
+  if (run.cls === 'warrior') { f.berserk = true; return { kind: 'berserk' }; }
+  if (run.cls === 'rogue') { f.lucky = true; return { kind: 'lucky' }; }
+  const dmg = 45; f.enemy.hp = Math.max(0, f.enemy.hp - dmg); return { kind: 'meteor', dmg, killed: f.enemy.hp <= 0 };
+}
+const bonusBuyPrice = run => BONUS_BUY_X * run.bet;
+function buyBonus(run, f) {
+  const price = bonusBuyPrice(run);
+  if (run.gold <= price || f.free > 0) return false;
+  run.gold -= price; run.stats.wagered += price;
+  f.free = FREE_SPINS[3]; f.freeTotal = f.free; run.stats.free++;
+  return true;
 }
 
-// --- Map ---------------------------------------------------------------------
+// ===================================================================
+// MAP
+// ===================================================================
 const FLOORS = 8, COLS = 4;
 function genMap() {
   const nodes = {}, edges = [];
@@ -1077,7 +1164,7 @@ function genMap() {
     }
   }
   nodes.boss = { k: 'boss', f: FLOORS, c: 1.5, type: 'boss', jx: 0, jy: 0 };
-  const weights = [['fight', 44], ['event', 20], ['elite', 12], ['shop', 9], ['forge', 8], ['altar', 7]];
+  const weights = [['fight', 46], ['event', 22], ['elite', 12], ['shop', 11], ['forge', 9]];
   for (const n of Object.values(nodes)) {
     if (n.type) continue;
     if (n.f === 0) n.type = 'fight';
@@ -1096,37 +1183,22 @@ function reachable(run) {
   return run.map.edges.filter(e => e[0] === run.pos).map(e => e[1]);
 }
 const floorOf = run => run.pos ? run.map.nodes[run.pos].f : -1;
-function rewardSymbols(run) {
-  const f = floorOf(run);
-  const pool = [['sword', 24], ['fire', 20], ['shield', 16], ['cherry', 10], ['bar', 10], ['seven', 5], ['gem', 7]];
-  const tot = pool.reduce((a, [, w]) => a + w, 0);
-  const out = [];
-  for (let guard = 0; out.length < 3 && guard < 50; guard++) {
-    let x = rng() * tot, t = 'sword';
-    for (const [k, w] of pool) { if ((x -= w) < 0) { t = k; break; } }
-    const lvl = WEAPONS.includes(t) && rng() < 0.2 + f * 0.05 ? 1 : 0;
-    if (out.some(o => o.t === t && o.lvl === lvl)) continue;
-    out.push({ t, lvl });
-  }
-  return out;
+function charmOffer(run, n = 3) {
+  return shuffle(Object.keys(CHARMS).filter(k => !run.charms.includes(k))).slice(0, n);
 }
-function randomRelic(run) {
-  const free = Object.keys(RELICS).filter(k => !run.relics.includes(k));
-  return free.length ? pick(free) : null;
-}
-// Put a symbol on a reel: it replaces a blank if there is one, otherwise the reel grows by one stop.
-function placeOnReel(strips, c, sym) {
-  const i = strips[c].findIndex(s => s.t === 'blank');
-  if (i >= 0) strips[c][i] = { t: sym.t, lvl: sym.lvl || 0 };
-  else strips[c].splice(ri(0, strips[c].length), 0, { t: sym.t, lvl: sym.lvl || 0 });
-}
+const BOOSTS = [
+  { id: 'sword',  name: 'Temper the blades', desc: 'Swords on the attack row deal +1.' },
+  { id: 'fire',   name: 'Stoke the flames',  desc: 'Fire on the attack row deals +1.' },
+  { id: 'shield', name: 'Rivet the shields', desc: 'Shields on the attack row give +2 block.' },
+];
+function applyBoost(run, id) { run.boost[id] += id === 'shield' ? 2 : 1; }
 // ===== LOGIC END =====
 
 // ===================================================================
 // SOUND
 // ===================================================================
-let actx = null, muted = false;
-try { muted = localStorage.getItem('oah-muted') === '1'; } catch (e) {}
+let actx = null, muted = false, turbo = false;
+try { muted = localStorage.getItem('oah-muted') === '1'; turbo = localStorage.getItem('oah-turbo') === '1'; } catch (e) {}
 function tone(freq, dur, type = 'square', vol = 0.04, slide = 0, delay = 0) {
   if (muted) return;
   try {
@@ -1141,19 +1213,20 @@ function tone(freq, dur, type = 'square', vol = 0.04, slide = 0, delay = 0) {
   } catch (e) {}
 }
 const sfx = {
-  tick: () => tone(1200, 0.02, 'square', 0.01),
-  stop: () => tone(260, 0.05, 'square', 0.035),
+  tick: () => tone(1200, 0.02, 'square', 0.008),
+  stop: () => tone(260, 0.05, 'square', 0.03),
   hit:  () => tone(180, 0.12, 'sawtooth', 0.06, -120),
   big:  () => { tone(140, 0.25, 'sawtooth', 0.07, -100); tone(70, 0.3, 'square', 0.05, 0, 0.05); },
-  coin: () => { tone(988, 0.05, 'square', 0.025); tone(1319, 0.08, 'square', 0.025, 0, 0.05); },
+  coin: () => { tone(988, 0.05, 'square', 0.022); tone(1319, 0.08, 'square', 0.022, 0, 0.05); },
   win:  () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.1, 'square', 0.035, 0, i * 0.07)),
   jackpot: () => [523, 659, 784, 1047, 784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.12, 'square', 0.04, 0, i * 0.09)),
   hurt: () => tone(110, 0.22, 'square', 0.06, -60),
   block:() => tone(600, 0.06, 'triangle', 0.06),
   die:  () => [400, 300, 200, 120].forEach((f, i) => tone(f, 0.12, 'square', 0.04, 0, i * 0.09)),
   click:() => tone(700, 0.03, 'square', 0.02),
-  lock: () => tone(420, 0.05, 'square', 0.03),
-  nudge:() => { tone(330, 0.04, 'square', 0.04); tone(495, 0.05, 'square', 0.04, 0, 0.05); },
+  wild: () => { tone(660, 0.06, 'square', 0.04); tone(990, 0.1, 'square', 0.04, 0, 0.06); },
+  tease:() => tone(220, 0.5, 'triangle', 0.04, 220),
+  charge:() => tone(880, 0.05, 'triangle', 0.04, 400),
 };
 function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
 
@@ -1162,12 +1235,13 @@ function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e
 // ===================================================================
 const $ = s => document.querySelector(s);
 const app = $('#app'), screen = $('#screen');
-const SAVE = 'one-armed-hero-run-v3';
+const SAVE = 'one-armed-hero-run-v4';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(r => setTimeout(r, reduced ? ms * 0.3 : ms));
+const speed = () => (reduced ? 0.3 : 1) * (turbo ? 0.4 : 1);
+const sleep = ms => new Promise(r => setTimeout(r, ms * speed()));
 const pct = x => (x * 100).toFixed(1) + '%';
-const fmtMult = x => '×' + (x >= 10 ? Math.round(x) : x.toFixed(1));
-let run = null, busy = false, pocketSel = null;
+const fmtX = x => (x >= 10 ? Math.round(x) : +x.toFixed(2)) + '×';
+let run = null, busy = false, auto = false, buyArmed = false;
 
 function save() { try { if (run && run.cls) localStorage.setItem(SAVE, JSON.stringify(run)); } catch (e) {} }
 function loadSave() { try { const s = localStorage.getItem(SAVE); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
@@ -1181,8 +1255,9 @@ function updateHud(goldShown) {
   if (!show) return;
   const g = goldShown ?? run.gold;
   $('#goldN').textContent = g;
-  $('#gold').classList.toggle('low', g <= 12);
-  $('#floorLbl').innerHTML = `${CLASSES[run.cls].name.toUpperCase()}<br>FLOOR ${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}`;
+  $('#gold').classList.toggle('low', g <= run.bet * 3);
+  $('#floorLbl').innerHTML = `FLOOR<br>${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}`;
+  $('#turboBtn').classList.toggle('on', turbo);
 }
 function floatAt(el, text, cls) {
   const a = app.getBoundingClientRect(), b = el.getBoundingClientRect();
@@ -1199,6 +1274,7 @@ async function fly(fromEl, toEl, sprite) {
   s.className = 'px shot'; s.src = IMG[sprite];
   s.style.left = (b.left - a.left + b.width / 2) + 'px'; s.style.top = (b.top - a.top + b.height / 2) + 'px';
   app.appendChild(s); void s.offsetWidth;
+  s.style.transitionDuration = (240 * speed()) + 'ms';
   s.style.transform = `translate(${t.left - b.left + t.width / 2 - b.width / 2}px, ${t.top - b.top + t.height / 2 - b.height / 2}px) rotate(200deg)`;
   await sleep(240); s.remove();
 }
@@ -1206,18 +1282,13 @@ function go(name) { run.screen = name; save(); render(); }
 function render() {
   updateHud();
   if (!run || run.screen === 'title') return renderTitle();
-  const fn = { class: renderClass, map: renderMap, fight: renderFight, reward: renderReward, place: renderPlace, chest: renderChest,
-               forge: renderForge, altar: renderAltar, shop: renderShop, event: renderEvent, over: renderOver, win: renderWin }[run.screen];
+  const fn = { class: renderClass, map: renderMap, fight: renderFight, reward: renderReward, chest: renderChest,
+               forge: renderForge, shop: renderShop, event: renderEvent, over: renderOver, win: renderWin }[run.screen];
   (fn || renderMap)();
 }
-function reelChips(strip, opts = {}) {
-  const c = counts(strip);
-  const order = ['seven', 'bar', 'cherry', 'gem', 'sword', 'fire', 'shield', 'skull', 'blank'];
-  return order.filter(t => c[t]).map(t => {
-    const inner = t === 'blank' ? `blank ${c[t]}` : `${px(t, SYM[t].name)}${c[t]}`;
-    return opts.button ? `<button class="chip ${t === 'blank' ? 'blank' : ''} ${opts.sel === t ? 'sel' : ''}" data-t="${t}">${inner}</button>`
-                       : `<span class="chip ${t === 'blank' ? 'blank' : ''}">${inner}</span>`;
-  }).join('');
+function charmTile(id, extra = '', attrs = '') {
+  const C = CHARMS[id];
+  return `<button class="tile" ${attrs}>${px(C.icon)}<b>${C.name}</b><span>${C.desc}</span>${extra}</button>`;
 }
 
 // ---------- title ----------
@@ -1228,7 +1299,7 @@ function renderTitle() {
     <div class="scr title">
       <div class="trio">${px('warrior')}${px('seven')}${px('rogue')}</div>
       <h1 class="logo">One-Armed<span>Hero</span></h1>
-      <p class="tagline">A roguelike on a real one-armed bandit. Your gold is your life, and the house always wins in the end. Almost.</p>
+      <p class="tagline">A roguelike on a real five-reel slot. The machine is certified at ${pct(PAR.rtp)} RTP and never changes. You do.</p>
       <div class="stack">
         ${canContinue ? `<button class="btn" id="cont">Continue run</button>` : ''}
         <button class="btn ${canContinue ? 'ghost' : ''}" id="new">New run</button>
@@ -1246,19 +1317,16 @@ function renderClass() {
     <div class="scr">
       <h2>Choose your hero</h2>
       <div class="cls-list">
-        ${Object.entries(CLASSES).map(([k, C]) => {
-          const reel = classReel(k, 0), strip = [];
-          for (const t in reel) for (let i = 0; i < reel[t]; i++) strip.push({ t });
-          return `
+        ${Object.entries(CLASSES).map(([k, C]) => `
           <button class="cls" data-c="${k}">
             ${px(C.sprite)}
             <div>
               <h3>${C.name}</h3>
               <p class="passive">${C.passive}</p>
-              <p>Starting gold ${C.gold}. Reel 1:</p>
-              <div class="chips">${reelChips(strip)}</div>
+              <p><b>${C.special.name}:</b> ${C.special.desc}</p>
+              <p>Starting gold ${C.gold}</p>
             </div>
-          </button>`; }).join('')}
+          </button>`).join('')}
       </div>
       <button class="btn ghost" id="back">Back</button>
     </div>`;
@@ -1269,8 +1337,8 @@ function renderClass() {
 // ---------- map ----------
 const ROOM = {
   fight: { name: 'Fight', icon: 'sword' }, elite: { name: 'Elite', icon: 'skull' }, chest: { name: 'Treasure', icon: 'chest' },
-  forge: { name: 'Forge', icon: 'anvil' }, shop: { name: 'Merchant', icon: 'bag' }, altar: { name: 'Altar', icon: 'altar' },
-  event: { name: 'Mystery', icon: 'mystery' }, boss: { name: 'Dragon', icon: 'dragon' },
+  forge: { name: 'Forge', icon: 'anvil' }, shop: { name: 'Merchant', icon: 'bag' }, event: { name: 'Mystery', icon: 'mystery' },
+  boss: { name: 'Dragon', icon: 'dragon' },
 };
 function renderMap() {
   const ROWH = 78, PAD = 52, H = PAD * 2 + FLOORS * ROWH;
@@ -1288,15 +1356,23 @@ function renderMap() {
   }).join('');
   screen.innerHTML = `
     <div class="scr map">
+      ${charmBar()}
       <div class="map-scroll" id="mapScroll"><div class="map-inner" style="height:${H}px">
         <svg viewBox="0 0 100 ${H}" preserveAspectRatio="none">${lines}</svg>${nodes}
       </div></div>
-      <div class="legend">${['fight', 'elite', 'event', 'chest', 'forge', 'shop', 'altar'].map(t => `<span>${px(ROOM[t].icon)}${ROOM[t].name}</span>`).join('')}</div>
+      <div class="legend">${['fight', 'elite', 'event', 'chest', 'forge', 'shop'].map(t => `<span>${px(ROOM[t].icon)}${ROOM[t].name}</span>`).join('')}</div>
     </div>`;
   screen.querySelectorAll('.node.reach').forEach(b => b.onclick = () => { sfx.click(); enterRoom(b.dataset.k); });
+  bindCharmBar();
   const sc = $('#mapScroll');
   sc.scrollTop = Math.max(0, (run.pos ? pos(m.nodes[run.pos]).y : H) - sc.clientHeight * 0.65);
 }
+function charmBar() {
+  const slots = Array.from({ length: CHARM_SLOTS }, (_, i) => run.charms[i]);
+  return `<button class="charmbar" id="charmBar" aria-label="Your charms">${slots.map(id => id ? `<span class="ch" data-id="${id}">${px(CHARMS[id].icon)}</span>` : '<span class="ch empty"></span>').join('')}
+    <span class="lbl">CHARMS</span></button>`;
+}
+function bindCharmBar() { const b = $('#charmBar'); if (b) b.onclick = () => { sfx.click(); openMachine(); }; }
 function enterRoom(k) {
   const n = run.map.nodes[k];
   run.pos = k; run.visited.push(k);
@@ -1305,29 +1381,18 @@ function enterRoom(k) {
     case 'elite': return startFight('orc', 'elite');
     case 'boss':  return startFight('dragon', 'boss');
     case 'chest': {
-      const relic = randomRelic(run);
+      const charm = charmOffer(run, 1)[0];
       run.room = { picked: null, chests: shuffle([
-        relic ? { kind: 'relic', id: relic } : { kind: 'gold', v: 35 },
-        { kind: 'gold', v: ri(20, 30) },
-        { kind: 'syms', items: [{ t: 'gem', lvl: 0 }, { t: pick(WEAPONS), lvl: 1 }] },
+        charm ? { kind: 'charm', id: charm } : { kind: 'gold', v: 300 },
+        { kind: 'gold', v: ri(20, 30) * 10 },
+        { kind: 'boost', id: pick(BOOSTS).id },
       ]) };
       return go('chest');
     }
-    case 'forge': {
-      const all = [];
-      run.strips.forEach((s, c) => s.forEach((x, i) => { if (WEAPONS.includes(x.t) && x.lvl < 2) all.push([c, i]); }));
-      const seen = new Set(), opts = [];
-      for (const [c, i] of shuffle(all)) { const x = run.strips[c][i], key = c + x.t + x.lvl; if (seen.has(key)) continue; seen.add(key); opts.push([c, i]); if (opts.length === 3) break; }
-      run.room = { opts, done: null };
-      return go('forge');
-    }
-    case 'altar': run.room = { sel: null, done: null }; return go('altar');
+    case 'forge': run.room = { done: null }; return go('forge');
     case 'shop': {
-      const PRICE = { sword: 10, fire: 10, shield: 8, cherry: 6, bar: 8, seven: 14, gem: 18 };
-      const syms = rewardSymbols(run).map(s => ({ ...s, price: PRICE[s.t] + s.lvl * 8, sold: false }));
-      const relic = randomRelic(run);
-      run.room = { syms, relic: relic ? { id: relic, price: 40, sold: false } : null, purge: { price: 12, sold: false },
-                   nudge: { price: 10, sold: false }, msg: null };
+      run.room = { charms: charmOffer(run, 3).map(id => ({ id, price: ri(15, 22) * 10, sold: false })),
+                   boost: { id: pick(BOOSTS).id, price: 180, sold: false }, charge: { price: 80, sold: false }, msg: null, replace: null };
       return go('shop');
     }
     case 'event': run.room = { id: pick(Object.keys(EVENTS)), result: null }; return go('event');
@@ -1335,30 +1400,28 @@ function enterRoom(k) {
 }
 
 // ---------- fight ----------
-function startFight(id, kind) { run.fight = startFightState(run, id, kind); pocketSel = null; go('fight'); }
-function cellHTML(s, extra = '') {
-  return `<div class="cell" data-t="${s.t}">${px(s.t, SYM[s.t].name)}${s.lvl ? `<i class="lv">+${s.lvl}</i>` : ''}${s.temp ? '<i class="tmp">CURSE</i>' : ''}${extra}</div>`;
-}
-function windowHTML(f, c, preview) {
-  const s = f.strips[c], n = s.length, p = f.pos[c];
-  return cellHTML(s[mod(p - 1, n)]) + cellHTML(preview || midSym(f, c), preview ? '<i class="pk">POCKET</i>' : '') + cellHTML(s[mod(p + 1, n)]);
-}
-function intentHTML(e) {
+function startFight(id, kind) { run.fight = startFightState(run, id, kind); auto = false; go('fight'); }
+function cellHTML(t, extra = '') { return `<div class="cell" data-t="${t}">${px(t, SYM[t].name)}${extra}</div>`; }
+function intentHTML(f) {
+  const e = f.enemy;
+  if (f.free > 0) return `${px('star')}<span>FROZEN<br><b class="ice">free spins</b></span>`;
   const pips = Array.from({ length: e.every }, (_, i) => `<i class="${i < e.timer ? '' : 'off'}"></i>`).join('');
-  const when = e.timer <= 1 ? 'NEXT SPIN' : `IN ${e.timer} SPINS`;
-  return `${px('sword')}<span>ATTACKS ${when}<br><b>−${enemyAtk(e)} gold</b>${e.curse ? ' + curse' : ''}</span><span class="pips">${pips}</span>`;
+  const when = e.timer <= 1 ? 'NEXT SPIN' : `IN ${e.timer}`;
+  return `${px('sword')}<span>ATTACK ${when}<br><b>−${enemyAtk(e)} gold</b></span><span class="pips">${pips}</span>`;
 }
 function renderFight() {
   const f = run.fight, e = f.enemy;
-  const kindLbl = f.kind === 'elite' ? 'ELITE · ' : f.kind === 'boss' ? 'BOSS · ' : '';
+  const kindLbl = f.kind === 'elite' ? 'ELITE' : f.kind === 'boss' ? 'BOSS' : '';
   screen.innerHTML = `
     <div class="scr fight">
       <div class="stage" id="stage">
+        ${charmBar()}
         <div class="ehead">
-          <div class="ename"><span class="lbl">${kindLbl}${e.armor ? 'ARMOR · ' : ''}</span>${e.name}</div>
+          <div class="ename">${kindLbl ? `<span class="lbl">${kindLbl} · </span>` : ''}${e.name}</div>
           <div class="hpbar"><i id="hpFill" style="width:${(e.hp / e.maxHp) * 100}%"></i><b id="hpTxt">${e.hp}/${e.maxHp}</b></div>
           <div class="intent" id="intent"></div>
         </div>
+        ${e.rule ? `<div class="rule">${e.rule}</div>` : ''}
         <div class="actor hero" id="hero">
           <div class="blockbadge" id="blockBadge" hidden>${px('shield')}<span id="blockN"></span></div>
           <div class="sprite">${px(CLASSES[run.cls].sprite)}</div>
@@ -1366,298 +1429,319 @@ function renderFight() {
         <div class="actor enemy ${e.big ? 'big' : ''}" id="enemy"><div class="sprite" style="${e.filter ? 'filter:' + e.filter : ''}">${px(e.sprite)}</div></div>
         <div class="banner" id="banner"><b></b><span></span></div>
       </div>
-      <div class="machine">
-        <div class="led"><span>BET<b id="ledBet"></b></span><span>RTP<b id="ledRtp"></b></span><span>WIN<b id="ledWin">0</b></span></div>
+      <div class="machine" id="machine">
+        <div class="led"><span id="ledA">BET<b id="ledBet"></b></span><span>RTP<b>${pct(PAR.rtp)}</b></span><span>WIN<b id="ledWin">0</b></span></div>
         <div class="reels" id="reels">
-          ${f.strips.map((_, c) => `<div class="reel" data-c="${c}"><div class="strip"></div><div class="tag" id="tag${c}"></div>
-            <button class="tap top" data-c="${c}" data-z="top" aria-label="Nudge reel ${c + 1} down"></button>
-            <button class="tap mid" data-c="${c}" data-z="mid" aria-label="Save this symbol to the pocket"></button>
-            <button class="tap bot" data-c="${c}" data-z="bot" aria-label="Nudge reel ${c + 1} up"></button></div>`).join('')}
-          <div class="payline" id="payline"></div>
+          ${[0, 1, 2, 3, 4].map(c => `<div class="reel" data-c="${c}"><div class="strip"></div><div class="tag" id="tag${c}"></div></div>`).join('')}
+          <div class="payline" id="payline"><span>ATTACK ROW</span></div>
+          <svg class="lines" id="lines" viewBox="0 0 500 300" preserveAspectRatio="none"></svg>
+          <div class="hs" id="hs" hidden></div>
+          <div class="bigwin" id="bigwin" hidden><b></b><span></span></div>
         </div>
-        <div class="locks">${f.strips.map((_, c) => `<button class="lockbtn" data-c="${c}"></button>`).join('')}</div>
       </div>
       <div class="log" id="log"></div>
       <div class="controls">
-        <div class="bet"><button id="betDn" aria-label="Lower the bet">−</button><div><small>BET</small><b id="betN"></b><small id="betRtp"></small></div><button id="betUp" aria-label="Raise the bet">+</button></div>
-        <div class="nudges" id="nudges"></div>
-        <div class="pocket" id="pocket"></div>
+        <div class="bet"><button id="betDn" aria-label="Lower the bet">−</button><div><small>BET</small><b id="betN"></b></div><button id="betUp" aria-label="Raise the bet">+</button></div>
+        <button class="special" id="special"><span class="lbl" id="spName"></span><span class="meter"><i id="spFill"></i></span></button>
       </div>
-      <button class="btn spin" id="spinBtn"></button>
+      <div class="lever">
+        <button class="side" id="autoBtn">AUTO</button>
+        <button class="btn spin" id="spinBtn"></button>
+        <button class="side" id="buyBtn"></button>
+      </div>
     </div>`;
-  f.strips.forEach((_, c) => drawReel(c));
-  $('#log').innerHTML = f.pending ? nudgeHint() : f.spins ? '' : `<b>${e.name}</b> blocks the way. Pick a bet and pull the lever. Only the <b>middle row</b> counts, read from the left.`;
-  $('#spinBtn').onclick = () => run.fight.pending ? collect() : doSpin();
+  drawGrid(f.grid);
+  bindCharmBar();
+  $('#log').innerHTML = f.spins ? '' : `<b>${e.name}</b> blocks the way. Wins pay on 10 lines. Weapons on the <b>attack row</b> always strike, and every winning line fires its symbol's power.`;
+  $('#spinBtn').onclick = () => { if (!busy) doSpin(); };
   $('#betDn').onclick = () => changeBet(-1);
   $('#betUp').onclick = () => changeBet(1);
-  screen.querySelectorAll('.lockbtn').forEach(b => b.onclick = () => onHold(+b.dataset.c));
-  screen.querySelectorAll('.reel .tap').forEach(b => b.onclick = () => onReelTap(+b.dataset.c, b.dataset.z));
+  $('#autoBtn').onclick = toggleAuto;
+  $('#buyBtn').onclick = onBuy;
+  $('#special').onclick = onSpecial;
   refreshFight();
 }
-function drawReel(c) {
-  const f = run.fight;
-  const preview = f.pocketUse && f.pocketUse.reel === c ? f.pocketUse.sym : null;
-  const reel = document.querySelectorAll('.reel')[c];
-  const strip = reel.querySelector('.strip');
-  strip.style.transition = 'none'; strip.style.transform = 'none'; strip.style.height = '100%';
-  strip.innerHTML = windowHTML(f, c, preview);
-  reel.classList.toggle('locked', !!(f.lock[c] || preview));
-  reel.classList.toggle('nudgeable', !!(f.pending && canNudge(run, f, c)));
+function drawGrid(g, expanded = []) {
+  document.querySelectorAll('.reel').forEach((reel, c) => {
+    const strip = reel.querySelector('.strip');
+    strip.style.transition = 'none'; strip.style.transform = 'none'; strip.style.height = '100%';
+    strip.innerHTML = [0, 1, 2].map(r => cellHTML(g[r][c])).join('');
+    reel.classList.toggle('wild', expanded.some(x => x.c === c));
+  });
 }
 function refreshFight() {
   const f = run.fight, e = f.enemy;
-  const bets = betsFor(run);
-  if (!f.pending) while (run.bet > run.gold && run.bet > 1) run.bet = bets[Math.max(0, bets.indexOf(run.bet) - 1)] || 1;
-  const m = machine(run, f.strips, run.bet);
-  $('#ledBet').textContent = run.bet;
-  $('#ledRtp').textContent = pct(m.rtp);
+  const bets = BETS;
+  if (!busy && f.free <= 0) while (run.bet > run.gold && run.bet > BETS[0]) run.bet = bets[Math.max(0, bets.indexOf(run.bet) - 1)];
+  const freeOn = f.free > 0;
+  $('#ledA').innerHTML = freeOn ? `FREE ×${FREE_MULT}<b id="ledBet">${f.free} left</b>` : `BET<b id="ledBet">${run.bet}</b>`;
+  $('#machine').classList.toggle('freemode', freeOn);
   $('#betN').textContent = run.bet;
-  $('#betRtp').textContent = 'RTP ' + pct(m.rtp);
   const bi = bets.indexOf(run.bet);
-  const lockedPhase = busy || !!f.pending;
-  $('#betDn').disabled = lockedPhase || bi <= 0;
-  $('#betUp').disabled = lockedPhase || bi >= bets.length - 1 || bets[bi + 1] > run.gold;
-  const it = $('#intent'); it.innerHTML = intentHTML(e); it.classList.toggle('now', e.timer <= 1);
+  $('#betDn').disabled = busy || freeOn || bi <= 0;
+  $('#betUp').disabled = busy || freeOn || bi >= bets.length - 1 || bets[bi + 1] > run.gold;
+  const it = $('#intent'); it.innerHTML = intentHTML(f); it.classList.toggle('now', !freeOn && e.timer <= 1);
   $('#blockBadge').hidden = !f.block; $('#blockN').textContent = `${f.block} BLOCK`;
-  f.strips.forEach((_, c) => document.querySelectorAll('.reel')[c].classList.toggle('nudgeable', !!(f.pending && canNudge(run, f, c))));
-  // holds
-  const nHeld = f.lock.filter(Boolean).length + (f.pocketUse ? 1 : 0);
-  screen.querySelectorAll('.lockbtn').forEach(b => {
-    const c = +b.dataset.c;
-    const isPU = f.pocketUse && f.pocketUse.reel === c;
-    b.className = 'lockbtn';
-    if (f.pending) { b.textContent = '▲▼'; b.disabled = true; }
-    else if (pocketSel !== null && !f.lastLock[c] && !f.lock[c] && !isPU) { b.textContent = 'PUT'; b.classList.add('put'); b.disabled = busy || nHeld >= MAX_HOLDS; }
-    else if (isPU) { b.textContent = 'POCKET'; b.classList.add('on'); b.disabled = busy; }
-    else if (f.lock[c]) { b.textContent = 'HELD'; b.classList.add('on'); b.disabled = busy; }
-    else if (f.lastLock[c]) { b.textContent = 'REST'; b.disabled = true; }
-    else { b.textContent = 'HOLD'; b.disabled = busy || !f.spins || nHeld >= MAX_HOLDS; }
-  });
-  // nudges
-  $('#nudges').innerHTML = `<span class="lbl">NUDGE</span><b>${run.nudges}</b>`;
-  $('#nudges').classList.toggle('live', !!f.pending && run.nudges > 0);
-  // pocket
-  const cap = pocketCap(run);
-  let ph = '<span class="lbl">POCKET</span>';
-  for (let i = 0; i < cap; i++) {
-    const s = run.pocket[i];
-    const used = f.pocketUse && f.pocketUse.idx === i;
-    ph += `<button class="slot ${s ? 'full' : ''} ${pocketSel === i ? 'sel' : ''} ${used ? 'used' : ''}" data-i="${i}" aria-label="${s ? SYM[s.t].name + ' in pocket' : 'Empty pocket'}">${s ? px(s.t) + (s.lvl ? `<i>+${s.lvl}</i>` : '') : ''}</button>`;
-  }
-  $('#pocket').innerHTML = ph;
-  $('#pocket').querySelectorAll('.slot').forEach(b => b.onclick = () => onPocketSlot(+b.dataset.i));
+  // special
+  const S = CLASSES[run.cls].special, ready = run.charge >= CHARGE_MAX;
+  const armed = f.berserk || f.lucky;
+  $('#spName').textContent = armed ? `${S.name.toUpperCase()} ARMED` : ready ? `${S.name.toUpperCase()}!` : `${S.name.toUpperCase()} ${run.charge}/${CHARGE_MAX}`;
+  $('#spFill').style.width = (run.charge / CHARGE_MAX * 100) + '%';
+  $('#special').classList.toggle('ready', ready && !armed);
+  $('#special').classList.toggle('armed', armed);
+  $('#special').disabled = busy || !ready || armed;
   // lever
   const sb = $('#spinBtn');
-  if (f.pending) {
-    sb.disabled = busy;
-    sb.classList.add('collect');
-    sb.innerHTML = `COLLECT<small>or nudge: tap the symbol above or below the line</small>`;
-    return;
-  }
-  sb.classList.remove('collect');
-  const pr = spinPrice(run, f, run.bet);
-  const afford = pr.total <= run.gold;
+  const cost = spinCost(run, f);
+  const afford = cost <= run.gold;
   sb.disabled = busy || !afford;
-  const pw = POWER_X[3] * run.bet * (has(run, 'rage') ? 2 : 1);
-  sb.innerHTML = afford
-    ? `SPIN −${pr.total} GOLD<small>${pr.n ? `bet ${run.bet} + hold ${pr.fee}` : `bet ${run.bet} · power strike ${pw}`}</small>`
-    : `TOO EXPENSIVE<small>release a hold or lower the bet</small>`;
+  sb.classList.toggle('free', freeOn || f.lucky);
+  const sub = freeOn ? `wins ×${FREE_MULT} · enemy frozen` : f.lucky ? 'lucky break: free, wins ×2' : f.berserk ? 'berserk: triple damage' : `10 lines · line hits ×${run.bet / 10}`;
+  sb.innerHTML = freeOn ? `FREE SPIN<small>${sub}</small>` : cost === 0 ? `SPIN · FREE<small>${sub}</small>` : afford ? `SPIN −${cost}<small>${sub}</small>` : `TOO EXPENSIVE<small>lower the bet</small>`;
+  $('#autoBtn').classList.toggle('on', auto);
+  const price = bonusBuyPrice(run);
+  const canBuy = !busy && !freeOn && run.gold > price;
+  $('#buyBtn').disabled = !canBuy;
+  $('#buyBtn').classList.toggle('armed', buyArmed && canBuy);
+  $('#buyBtn').innerHTML = buyArmed && canBuy ? `TAP TO<br>BUY ${price}` : `BUY<br>BONUS<br><small>${price}</small>`;
 }
 function changeBet(d) {
   const f = run.fight;
-  if (busy || f.pending) return;
-  const bets = betsFor(run), i = bets.indexOf(run.bet), n = bets[i + d];
+  if (busy || f.free > 0) return;
+  const i = BETS.indexOf(run.bet), n = BETS[i + d];
   if (!n || n > run.gold) return;
-  run.bet = n; sfx.click(); refreshFight(); save();
+  run.bet = n; buyArmed = false; sfx.click(); refreshFight(); save();
 }
-function onHold(c) {
+function toggleAuto() { auto = !auto; sfx.click(); refreshFight(); if (auto && !busy) doSpin(); }
+function onBuy() {
   const f = run.fight;
-  if (busy || f.pending) return;
-  if (pocketSel !== null) {
-    if (f.lastLock[c]) return;
-    f.lock[c] = false;
-    f.pocketUse = { reel: c, idx: pocketSel, sym: run.pocket[pocketSel] };
-    pocketSel = null; sfx.lock();
-  } else if (f.pocketUse && f.pocketUse.reel === c) { f.pocketUse = null; sfx.click(); }
-  else { f.lock[c] = !f.lock[c]; sfx.lock(); }
-  drawReel(c); refreshFight(); save();
+  if (busy || f.free > 0) return;
+  if (!buyArmed) { buyArmed = true; sfx.click(); $('#log').innerHTML = `Buy <b>${FREE_SPINS[3]} free spins</b> (wins ×${FREE_MULT}) for ${BONUS_BUY_X}× your bet = <b>${bonusBuyPrice(run)} gold</b>? They return ${fmtX(22.6)} on average. Tap again to buy.`; refreshFight(); return; }
+  buyArmed = false;
+  if (!buyBonus(run, f)) return;
+  sfx.jackpot(); updateHud();
+  showBanner('FREE SPINS!', `${f.free} spins · wins ×${FREE_MULT} · enemy frozen`);
+  save(); refreshFight();
+  setTimeout(() => { if (!busy) doSpin(); }, 1100 * speed());
 }
-function onPocketSlot(i) {
-  const f = run.fight;
-  if (busy || f.pending) return;
-  if (!run.pocket[i]) { $('#log').innerHTML = 'The pocket is empty. After a spin, tap a symbol <b>on the payline</b> to save it.'; return; }
-  if (f.pocketUse && f.pocketUse.idx === i) { const c = f.pocketUse.reel; f.pocketUse = null; drawReel(c); }
-  else pocketSel = pocketSel === i ? null : i;
-  if (pocketSel !== null) $('#log').innerHTML = `Choose a reel for the <b>${SYM[run.pocket[i].t].name.toLowerCase()}</b>. It counts as a hold.`;
-  sfx.click(); refreshFight();
-}
-function onReelTap(c, zone) {
+async function onSpecial() {
   const f = run.fight;
   if (busy) return;
-  if (f.pending) {
-    if (zone === 'mid') return;
-    if (!canNudge(run, f, c)) { $('#log').innerHTML = run.nudges ? 'That reel holds a pocket symbol and cannot be nudged.' : 'No nudges left.'; return; }
-    nudge(run, f, c, zone === 'top' ? -1 : 1);
-    sfx.nudge(); buzz(10);
-    drawReel(c); anim(midCell(c), 'pop');
-    $('#log').innerHTML = nudgeHint();
-    refreshFight(); save();
-    if (!run.nudges) setTimeout(() => { if (run.fight && run.fight.pending && !busy) collect(); }, 650);
-    return;
+  const r = useSpecial(run, f);
+  if (!r) return;
+  sfx.big(); buzz(60);
+  const S = CLASSES[run.cls].special;
+  showBanner(S.name.toUpperCase() + '!', S.desc);
+  if (r.kind === 'meteor') {
+    busy = true; refreshFight();
+    await fly($('#hero'), $('#enemy'), 'fire');
+    anim($('#enemy'), 'hit'); anim($('#stage'), 'shake'); floatAt($('#enemy'), r.dmg, 'dmg');
+    $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
+    $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
+    await sleep(500); busy = false;
+    if (r.killed) { sfx.die(); anim($('#enemy'), 'dead'); await sleep(800); return winFight(); }
   }
-  if (zone === 'mid') onPocketCell(c);
-}
-function linePreview() {
-  const f = run.fight, o = outcome(run, f, f.pending.bet);
-  if (!o.combo) return 'no win';
-  if (f.pending.nudged) return `${comboName(o.combo)} (nudged: no gold)`;
-  return `${comboName(o.combo)} ${fmtMult(o.mult)}`;
-}
-function nudgeHint() {
-  return `<b>Nudge?</b> Tap the symbol above or below the line to pull it in (${run.nudges} left). A nudged spin <b>pays no gold</b>, it only fights.<br>Line now: <b>${linePreview()}</b>`;
-}
-function onPocketCell(c) {
-  const f = run.fight;
-  if (busy || !f.spins) return;
-  const s = midSym(f, c);
-  const why = f.pocketed ? 'You already saved a symbol this spin.'
-    : run.pocket.length >= pocketCap(run) ? 'The pocket is full.'
-    : f.override[c] ? 'That symbol came from the pocket.'
-    : ['blank', 'skull'].includes(s.t) ? 'That one cannot be saved.' : null;
-  if (why) { $('#log').innerHTML = why; return; }
-  run.pocket.push({ t: s.t, lvl: s.lvl || 0 });
-  f.pocketed = true;
-  sfx.coin(); $('#log').innerHTML = `<b>${SYM[s.t].name}</b> is in your pocket. Put it on any reel later, even in another fight.`;
-  refreshFight(); save();
+  save(); refreshFight();
 }
 
-async function animateReels(f, oldPos, held) {
+// Reels stop left to right. Two scatters already showing? The rest spin longer.
+async function animateReels(spin, oldStops) {
   const reels = [...document.querySelectorAll('.reel')];
+  const delays = [];
+  let stars = 0, tease = false, t = 0;
+  for (let c = 0; c < REELS; c++) {
+    t += c === 0 ? 520 : 170;
+    if (tease) t += 650;
+    delays.push(t);
+    stars += [0, 1, 2].filter(r => spin.raw[r][c] === 'star').length;
+    if (stars >= 2 && c < REELS - 1) tease = true;
+  }
   await Promise.all(reels.map((reel, c) => new Promise(resolve => {
-    if (held[c]) { drawReel(c); return resolve(); }
-    const s = f.strips[c], n = s.length;
-    const k = mod(oldPos[c] - f.pos[c], n) + n * (1 + Math.floor(c / 2));
+    if (spin.stuck === c) { reel.classList.add('stuck'); setTimeout(resolve, 50); return; }
+    reel.classList.remove('stuck', 'wild');
+    const s = STRIPS[c], n = s.length;
+    const dur = delays[c] * speed();
+    const k = mod(oldStops[c] - spin.stops[c], n) + n * (1 + Math.floor(dur / 900));
     const seq = [];
-    for (let j = 0; j < k + 3; j++) seq.push(s[mod(f.pos[c] - 1 + j, n)]);
-    const len = seq.length;
-    const strip = reel.querySelector('.strip');
+    for (let j = 0; j < k + 3; j++) seq.push(s[mod(spin.stops[c] - 1 + j, n)]);
+    const len = seq.length, strip = reel.querySelector('.strip');
     strip.style.transition = 'none';
     strip.style.height = (len / 3 * 100) + '%';
     strip.innerHTML = seq.map(x => cellHTML(x).replace('class="cell"', `class="cell" style="height:${100 / len}%"`)).join('');
     strip.style.transform = `translateY(-${(k / len) * 100}%)`;
     void strip.offsetHeight;
-    const dur = (reduced ? 150 : 600) + c * (reduced ? 50 : 200);
-    strip.style.transition = `transform ${dur}ms cubic-bezier(.2,.75,.3,1.05)`;
+    strip.style.transition = `transform ${dur}ms cubic-bezier(.2,.75,.3,1.04)`;
     strip.style.transform = 'translateY(0)';
-    let ticks = 0;
-    const tk = setInterval(() => { sfx.tick(); if (++ticks > dur / 80) clearInterval(tk); }, 80);
-    setTimeout(() => { clearInterval(tk); sfx.stop(); drawReel(c); resolve(); }, dur + 30);
+    const tk = setInterval(sfx.tick, 90);
+    const teaseAt = c > 0 && delays[c] - delays[c - 1] > 600;
+    if (teaseAt) setTimeout(() => { reel.classList.add('tease'); sfx.tease(); }, (delays[c - 1]) * speed());
+    setTimeout(() => {
+      clearInterval(tk); sfx.stop(); reel.classList.remove('tease');
+      strip.style.transition = 'none'; strip.style.transform = 'none'; strip.style.height = '100%';
+      strip.innerHTML = [0, 1, 2].map(r => cellHTML(spin.raw[r][c])).join('');
+      resolve();
+    }, dur + 20);
   })));
 }
-const midCell = c => document.querySelectorAll('.reel')[c].querySelectorAll('.cell')[1];
+const cellAt = (r, c) => document.querySelectorAll('.reel')[c].querySelectorAll('.cell')[r];
 function showBanner(title, sub = '') {
   const b = $('#banner'); b.querySelector('b').textContent = title; b.querySelector('span').textContent = sub; anim(b, 'show');
 }
-async function countUp(el, to, hudFrom) {
-  const steps = Math.min(16, to);
+const LINE_COLORS = ['#f0b648', '#73eff7', '#e0475a', '#a7f070', '#c27ae0', '#ef7d57', '#41a6f6', '#ffcd75', '#94b0c2', '#f4f4f4'];
+function drawLines(wins) {
+  $('#lines').innerHTML = wins.map(w => {
+    const pts = LINES[w.line].map((r, c) => `${c * 100 + 50},${r * 100 + 50}`).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="#000" stroke-width="9" stroke-linejoin="round" vector-effect="non-scaling-stroke" opacity="0.6"/>
+            <polyline points="${pts}" fill="none" stroke="${LINE_COLORS[w.line]}" stroke-width="4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+  }).join('');
+}
+async function countUp(el, to, hudFrom, ms = 600) {
+  const steps = Math.max(1, Math.min(20, to));
   for (let i = 1; i <= steps; i++) {
     const v = Math.round(to * i / steps);
     el.textContent = v; updateHud(hudFrom + v);
     if (i % 2) sfx.coin();
-    await sleep(40);
+    await sleep(ms / steps);
   }
+}
+async function bigWin(amount, bet, hudFrom) {
+  const x = amount / bet;
+  const tier = x >= 50 ? 'EPIC WIN' : x >= 25 ? 'MEGA WIN' : 'BIG WIN';
+  const bw = $('#bigwin'); bw.hidden = false; bw.className = 'bigwin ' + tier.split(' ')[0].toLowerCase();
+  bw.querySelector('b').textContent = tier;
+  sfx.jackpot(); buzz(250);
+  await countUp(bw.querySelector('span'), amount, hudFrom, 1600);
+  await sleep(900);
+  bw.hidden = true;
+}
+
+async function playHoldAnim(hold, bet) {
+  const box = $('#hs');
+  box.hidden = false;
+  const cells = hold.start.map((row, r) => row.map((on, c) => on ? hold.cells[r][c] : null));
+  const draw = (respins, fresh = []) => {
+    box.innerHTML = `<div class="hshead">HOLD &amp; SPIN · RESPINS <b>${respins}</b></div><div class="hsgrid">${cells.map((row, r) => row.map((x, c) =>
+      `<div class="hc ${x ? 'on' : ''} ${fresh.some(([a, b]) => a === r && b === c) ? 'fresh' : ''}">${x ? px('coin') + `<i>${x.label || Math.round(x.v * bet)}</i>` : ''}</div>`).join('')).join('')}</div>`;
+  };
+  showBanner('HOLD & SPIN!', 'coins stick · 3 respins');
+  sfx.jackpot();
+  draw(3); await sleep(1100);
+  for (const st of hold.steps) {
+    box.querySelectorAll('.hc:not(.on)').forEach(el => el.classList.add('spinning'));
+    for (let i = 0; i < 5; i++) { sfx.tick(); await sleep(70); }
+    st.landed.forEach(([r, c]) => { cells[r][c] = hold.cells[r][c]; });
+    draw(st.respins, st.landed);
+    if (st.landed.length) { sfx.coin(); buzz(30); }
+    await sleep(st.landed.length ? 600 : 380);
+  }
+  if (hold.full) { showBanner('GRAND!', `+${HS_GRAND}× bet`); sfx.jackpot(); await sleep(900); }
 }
 
 async function doSpin() {
   const f = run.fight;
-  if (busy || !f || f.pending) return;
-  const pr = spinPrice(run, f, run.bet);
-  if (pr.total > run.gold) return;
-  busy = true; pocketSel = null;
-  f.strips.forEach((_, c) => { $('#tag' + c).textContent = ''; $('#tag' + c).className = 'tag'; });
+  if (busy || !f) return;
+  if (spinCost(run, f) > run.gold) { auto = false; refreshFight(); return; }
+  busy = true; buyArmed = false;
+  [0, 1, 2, 3, 4].forEach(c => { $('#tag' + c).textContent = ''; $('#tag' + c).className = 'tag'; });
+  $('#lines').innerHTML = '';
   $('#ledWin').textContent = '0'; $('#ledWin').classList.remove('hot');
-  $('#log').innerHTML = 'The reels are spinning…';
+  $('#log').innerHTML = f.free > 0 ? `Free spin… (${f.free} left)` : 'The reels are spinning…';
   refreshFight();
-  const oldPos = [...f.pos];
-  const p = startSpin(run, f);
-  updateHud();
-  floatAt($('#gold'), `−${p.price}`, 'loss');
-  await animateReels(f, oldPos, p.held);
-  // Nudge phase only when a nudge could actually help.
-  if (run.nudges > 0 && bestNudge(run, f).gain > 0) {
-    busy = false; save();
-    $('#log').innerHTML = nudgeHint();
-    anim($('#nudges'), 'pop');
-    refreshFight();
-    return;
-  }
-  busy = false;
-  await collect();
-}
+  const oldStops = [...f.stops];
+  const goldBefore = run.gold;
+  const res = playSpin(run, f);
+  let shown = goldBefore - res.cost;
+  updateHud(shown);
+  if (res.cost) floatAt($('#gold'), `−${res.cost}`, 'loss');
+  await animateReels(res.spin, oldStops);
 
-async function collect() {
-  const f = run.fight;
-  if (busy || !f || !f.pending) return;
-  busy = true;
-  const shown = run.gold;
-  const res = resolveSpin(run, f);
-  refreshFight();
-  // 1. the combination
-  if (res.combo) {
-    const n = res.combo.n;
-    for (let c = 0; c < n; c++) midCell(c).classList.add('win');
-    anim($('#payline'), 'flash');
-    if (res.power) { sfx.big(); buzz(80); showBanner(comboName(res.power) + '!', res.pfx.dmg ? `${res.pfx.dmg} damage (${POWER_X[n]}${has(run, 'rage') ? '×2' : ''} × bet ${res.bet})` : `+${res.pfx.block} block`); await sleep(1000); }
-    else if (['gem', 'seven'].includes(res.combo.t) && n >= 3 && !res.nudged) { sfx.jackpot(); buzz(200); showBanner('JACKPOT!', comboName(res.combo)); await sleep(1000); }
-  }
-  // 2. the payline acts: a weapon combo as one big blow, then every other symbol left to right
-  if (res.power) {
-    const n = res.power.n;
-    for (let c = 0; c < n; c++) { anim(midCell(c), 'pop'); $('#tag' + c).textContent = 'POWER'; $('#tag' + c).className = 'tag ' + (res.pfx.dmg ? 'dmg' : 'block'); }
-    if (res.pfx.dmg) {
-      anim($('#hero'), 'lunge-r');
-      await Promise.all(Array.from({ length: n }, (_, c) => fly(midCell(c), $('#enemy'), res.power.t)));
-      sfx.big(); buzz(120); anim($('#enemy'), 'hit'); anim($('#stage'), 'shake');
-      floatAt($('#enemy'), res.pfx.dmg, 'dmg');
-    } else { sfx.block(); floatAt($('#hero'), `+${res.pfx.block}`, 'block'); await sleep(300); }
-  }
-  for (let c = res.power ? res.power.n : 0; c < res.cells.length; c++) {
-    const fx = res.cells[c], cell = midCell(c), tag = $('#tag' + c);
-    anim(cell, 'pop');
-    if (fx.dmg) {
-      tag.textContent = `${fx.dmg} DMG`; tag.className = 'tag dmg';
-      anim($('#hero'), 'lunge-r');
-      await fly(cell, $('#enemy'), fx.t);
-      sfx.hit(); buzz(15);
-      anim($('#enemy'), 'hit'); floatAt($('#enemy'), fx.dmg, 'dmg');
-    } else if (fx.block) {
-      tag.textContent = `+${fx.block} BLK`; tag.className = 'tag block';
-      sfx.block(); floatAt($('#hero'), `+${fx.block}`, 'block');
-      await sleep(160);
-    } else if (fx.rush) {
-      tag.textContent = 'RUSH'; tag.className = 'tag hex';
-      sfx.hurt(); anim($('#intent'), 'hit');
+  // nudging wilds
+  if (res.spin.expanded.length) {
+    sfx.wild(); showBanner('NUDGING WILD', res.spin.expanded.length > 1 ? `${res.spin.expanded.length} reels go wild` : 'the reel goes wild');
+    for (const x of res.spin.expanded) {
+      const reel = document.querySelectorAll('.reel')[x.c], strip = reel.querySelector('.strip');
+      const shift = (1 - x.from) * 33.333;
+      strip.style.transition = `transform ${200 * speed()}ms`; strip.style.transform = `translateY(${shift}%)`;
       await sleep(220);
-    } else { tag.textContent = '–'; tag.className = 'tag none'; await sleep(60); }
+      strip.style.transition = 'none'; strip.style.transform = 'none';
+      strip.innerHTML = [0, 1, 2].map(() => cellHTML('gem')).join('');
+      reel.classList.add('wild'); sfx.wild();
+    }
+    await sleep(300);
   }
+  const g = res.spin.grid;
+  // winning lines
+  if (res.spin.wins.length) {
+    drawLines(res.spin.wins);
+    res.spin.wins.forEach(w => { for (let c = 0; c < w.n; c++) cellAt(LINES[w.line][c], c).classList.add('win'); });
+    sfx.win();
+    await sleep(500);
+  }
+  // 1. the attack row
+  for (const fx of res.fx.row) {
+    const cell = cellAt(1, fx.c), tag = $('#tag' + fx.c);
+    if (fx.dmg) {
+      tag.textContent = `${fx.dmg}`; tag.className = 'tag dmg';
+      anim(cell, 'pop'); anim($('#hero'), 'lunge-r');
+      await fly(cell, $('#enemy'), fx.t);
+      sfx.hit(); anim($('#enemy'), 'hit'); floatAt($('#enemy'), fx.dmg, 'dmg');
+    }
+    if (fx.block) { tag.textContent = fx.dmg ? `${fx.dmg}+${fx.block}` : `+${fx.block}`; tag.className = 'tag ' + (fx.dmg ? 'dmg' : 'block'); anim(cell, 'pop'); sfx.block(); await sleep(120); }
+    if (fx.rush) { tag.textContent = 'RUSH'; tag.className = 'tag hex'; anim(cell, 'pop'); sfx.hurt(); anim($('#intent'), 'hit'); await sleep(160); }
+  }
+  // 2. every winning line fires its symbol's power
+  const L = res.fx.lines;
+  const lineDmg = L.reduce((a, l) => a + l.dmg, 0), lineBlock = L.reduce((a, l) => a + l.block, 0);
+  if (lineDmg) {
+    anim($('#hero'), 'lunge-r');
+    await Promise.all(L.filter(l => l.dmg).slice(0, 4).map(l => fly(cellAt(LINES[l.line][0], 0), $('#enemy'), l.t)));
+    (lineDmg >= 25 ? sfx.big : sfx.hit)(); buzz(lineDmg >= 25 ? 80 : 20);
+    anim($('#enemy'), 'hit'); floatAt($('#enemy'), lineDmg, 'dmg');
+  }
+  if (lineBlock) { sfx.block(); floatAt($('#hero'), `+${lineBlock}`, 'block'); }
+  if (res.fx.stun) { floatAt($('#enemy'), 'STUNNED', 'block'); anim($('#intent'), 'hit'); }
+  if (res.fx.wildDmg) floatAt($('#enemy'), res.fx.wildDmg, 'dmg');
+  if (res.fx.crit > 1) { sfx.big(); buzz(100); showBanner(`CRIT ×${res.fx.crit}`, `${res.fx.dmg} damage in total`); anim($('#stage'), 'shake'); await sleep(700); }
+  if (res.fx.charge) { sfx.charge(); anim($('#special'), 'pop'); }
   $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
   $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
-  if (res.block) { $('#blockBadge').hidden = false; $('#blockN').textContent = `${res.blockTotal} BLOCK`; }
+  refreshFight(); busyLock();
   // 3. the payout
   if (res.win) {
-    if (!res.power && !['gem', 'seven'].includes(res.combo.t)) sfx.win();
     $('#ledWin').classList.add('hot');
     floatAt($('#gold'), `+${res.win}`, 'gold');
-    await countUp($('#ledWin'), res.win, shown);
+    if (res.win >= res.bet * 10) await bigWin(res.win, res.bet, shown);
+    else await countUp($('#ledWin'), res.win, shown);
+    $('#ledWin').textContent = res.win;
+    shown += res.win;
+  }
+  // 4. features
+  if (res.hold) {
+    await playHoldAnim(res.hold, res.bet);
+    anim($('#hero'), 'lunge-r');
+    await fly($('#hs'), $('#enemy'), 'coin');
+    sfx.big(); anim($('#enemy'), 'hit'); anim($('#stage'), 'shake'); floatAt($('#enemy'), res.hold.dmg, 'dmg');
+    if (res.hold.gold >= res.bet * 10) await bigWin(res.hold.gold, res.bet, shown);
+    else await countUp($('#ledWin'), res.hold.gold, shown);
+    shown += res.hold.gold;
+    $('#hs').hidden = true;
+    $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
+    $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
+  }
+  if (res.freeAward) {
+    res.spin.grid.forEach((row, r) => row.forEach((t, c) => { if (t === 'star') anim(cellAt(r, c), 'pop'); }));
+    sfx.jackpot(); buzz(200);
+    showBanner(res.free ? 'RETRIGGER!' : 'FREE SPINS!', `+${res.freeAward} spins · wins ×${FREE_MULT} · enemy frozen`);
+    await sleep(1300);
   }
   $('#log').innerHTML = spinLog(res);
-  if (res.nudgeAward) { sfx.nudge(); showBanner('NUDGE AWARDED', '+1 nudge'); anim($('#nudges'), 'pop'); }
-  await sleep(250);
+  updateHud();
+  await sleep(200);
 
   if (res.killed) {
     sfx.die(); anim($('#enemy'), 'dead');
     await sleep(800);
-    busy = false;
+    busy = false; auto = false;
     return winFight();
   }
   if (res.enraged) { sfx.big(); showBanner('THE DRAGON RAGES!', 'attack +' + f.enemy.enrage); await sleep(900); }
@@ -1666,110 +1750,103 @@ async function collect() {
     anim($('#enemy'), 'lunge-l'); await sleep(140);
     if (a.absorbed) { sfx.block(); floatAt($('#hero'), `BLOCK ${a.absorbed}`, 'block'); }
     if (a.taken) { sfx.hurt(); buzz(90); anim($('#hero'), 'hit'); floatAt($('#gold'), `−${a.taken}`, 'loss'); }
-    $('#log').innerHTML += `<br>${f.enemy.name} attacks: <b class="d">−${a.atk}</b>${a.absorbed ? `, block stops <b class="bl">${a.absorbed}</b>` : ''}.` +
-      (a.curseReel !== null ? ` A <b>skull</b> lands on reel ${a.curseReel + 1}.` : '');
+    if (a.mirror) floatAt($('#enemy'), a.mirror, 'dmg');
+    $('#log').innerHTML += `<br>${f.enemy.name} attacks: <b class="d">−${a.atk}</b>${a.absorbed ? `, block stops <b class="bl">${a.absorbed}</b>` : ''}.`;
     await sleep(350);
   }
   updateHud();
-  if (res.dead) { await sleep(500); busy = false; run.screen = 'over'; save(); return render(); }
+  if (res.dead) { await sleep(500); busy = false; auto = false; run.screen = 'over'; save(); return render(); }
   busy = false;
   save();
-  f.strips.forEach((_, c) => drawReel(c));
   refreshFight();
+  // free spins play themselves; autoplay stops on features and when gold runs low
+  const stopAuto = res.freeAward || res.hold || res.win >= res.bet * 10 || run.gold < run.bet * 4;
+  if (stopAuto && auto) { auto = false; refreshFight(); }
+  if (f.free > 0 || auto) setTimeout(() => { if (run.fight === f && !busy && run.screen === 'fight') doSpin(); }, 450 * speed());
 }
+function busyLock() { ['#betDn', '#betUp', '#special', '#spinBtn', '#buyBtn'].forEach(s => { const el = $(s); if (el) el.disabled = true; }); }
 function spinLog(res) {
-  let out;
-  if (!res.combo) out = `No win. Your bet of ${res.bet} is gone.`;
-  else if (res.nudged) out = `<b>${comboName(res.combo)}</b>, but nudged spins pay no gold.`;
-  else out = `<b>${comboName(res.combo)}</b> ${fmtMult(res.mult)} × bet ${res.bet} = <b class="g">+${res.win} gold</b>`;
+  const parts = [];
+  if (res.spin.wins.length) {
+    const w = res.spin.wins;
+    parts.push(`${w.length} line${w.length > 1 ? 's' : ''}: ` + w.slice(0, 3).map(x => `${x.n}× ${SYM[x.t].name}`).join(', ') + (w.length > 3 ? '…' : '') + ` = <b class="g">+${res.win}</b>${res.freeMult > 1 ? ` (×${res.freeMult})` : ''}`);
+  } else parts.push(res.cost ? `No win. ${res.cost} gold gone.` : 'No win.');
+  if (res.hold) parts.push(`Hold &amp; Spin: <b class="g">+${res.hold.gold}</b>`);
   const bits = [];
-  if (res.dmg) bits.push(`<b class="d">${res.dmg} damage</b>`);
-  if (res.block) bits.push(`<b class="bl">+${res.block} block</b>`);
-  if (res.rush) bits.push(`<b>enemy rushes</b>`);
-  return out + (bits.length ? '<br>' + bits.join(' · ') : '');
+  if (res.totalDmg) bits.push(`<b class="d">${res.totalDmg} damage</b>${res.fx.crit > 1 ? ` (crit ×${res.fx.crit})` : ''}`);
+  if (res.blockGain) bits.push(`<b class="bl">+${res.blockGain} block</b>`);
+  if (res.fx.stun) bits.push('<b>stun</b>');
+  if (res.fx.rush) bits.push('<b>enemy rushes</b>');
+  if (res.fx.charge) bits.push(`<b>+${res.fx.charge} charge</b>`);
+  return parts.join(' · ') + (bits.length ? '<br>' + bits.join(' · ') : '');
 }
 function winFight() {
   const f = run.fight;
   run.stats.kills++;
   if (f.kind === 'boss') { run.fight = null; run.screen = 'win'; save(); return render(); }
-  const gold = f.kind === 'elite' ? ri(20, 28) : ri(8, 13);
+  const gold = f.kind === 'elite' ? ri(20, 28) * 10 : ri(8, 13) * 10;
   run.gold += gold;
-  let relic = null;
-  if (f.kind === 'elite') { relic = randomRelic(run); if (relic) run.relics.push(relic); }
-  run.room = { gold, relic, options: rewardSymbols(run), enemy: f.enemy.name };
+  run.room = { gold, enemy: f.enemy.name, picks: f.kind === 'elite' ? 2 : 1, offer: charmOffer(run, 3), replace: null };
   run.fight = null;
   go('reward');
 }
 
-// ---------- reward + placing symbols on reels ----------
-function symDesc(t, lvl = 0) {
-  const r = run && run.cls ? run : { cls: null, relics: [] };
-  switch (t) {
-    case 'sword':  return `${3 + lvl + (r.cls === 'warrior' ? 1 : 0) + (has(r, 'whetstone') ? 1 : 0)} damage` + (r.cls === 'warrior' ? '' : ', halved by armor');
-    case 'fire':   return `${3 + lvl + (has(r, 'crystal') ? 1 : 0)} damage, ignores armor`;
-    case 'shield': return `+${4 + lvl} block`;
-    case 'cherry': return 'One on reel 1 returns your bet' + (r.cls === 'rogue' ? ', 2 damage' : '');
-    case 'bar':    return 'Pays well in a row';
-    case 'seven':  return 'The jackpot symbol';
-    case 'gem':    return 'Wild: stands in for anything' + (has(r, 'magnet') ? ', 4 damage' : '');
-    case 'skull':  return has(r, 'bonering') ? '5 damage' : 'The enemy attacks one spin sooner';
-    case 'blank':  return 'Nothing';
-  }
+// ---------- reward / charms ----------
+function takeCharm(id, back) {
+  if (run.charms.length < CHARM_SLOTS) { run.charms.push(id); return true; }
+  run.room.replace = { id, back };
+  return false;
 }
-function symTile(s, extra = '', attrs = '') {
-  return `<button class="tile" ${attrs}>${px(s.t)}<b>${SYM[s.t].name}${s.lvl ? ' +' + s.lvl : ''}</b><span>${symDesc(s.t, s.lvl)}</span>${extra}</button>`;
+function replaceHTML() {
+  const R = run.room.replace;
+  return `<div class="result">Your charm slots are full. Tap a charm to swap it for <b>${CHARMS[R.id].name}</b>.</div>
+    <div class="tiles">${run.charms.map((id, i) => charmTile(id, '', `data-rep="${i}"`)).join('')}</div>
+    <button class="btn ghost" id="repCancel">Keep my charms</button>`;
+}
+function bindReplace(done) {
+  screen.querySelectorAll('[data-rep]').forEach(b => b.onclick = () => { run.charms[+b.dataset.rep] = run.room.replace.id; run.room.replace = null; sfx.win(); done(); });
+  $('#repCancel').onclick = () => { run.room.replace = null; sfx.click(); done(); };
 }
 function renderReward() {
   const R = run.room;
+  if (R.replace) {
+    screen.innerHTML = `<div class="scr room"><h2>Swap a charm?</h2>${replaceHTML()}</div>`;
+    return bindReplace(() => nextPick());
+  }
   screen.innerHTML = `
     <div class="scr room">
       <h2>Victory!</h2>
       <p>${R.enemy} is defeated. Bounty: <b style="color:var(--brass)">${R.gold} gold</b>.</p>
-      ${R.relic ? `<div class="result"><b>Relic: ${RELICS[R.relic].name}</b><br>${RELICS[R.relic].desc}</div>` : ''}
-      <div class="lbl">Choose a symbol to put on a reel</div>
-      <div class="tiles">${R.options.map((s, i) => symTile(s, '', `data-i="${i}"`)).join('')}</div>
-      <p class="lbl">The casino re-calibrates the paytable after every change, so the RTP never moves. What you build is your fighting power and your volatility.</p>
+      <div class="lbl">Choose a charm${R.picks > 1 ? ` (${R.picks} picks left)` : ''} · ${run.charms.length}/${CHARM_SLOTS} slots</div>
+      <div class="tiles">${R.offer.map((id, i) => charmTile(id, '', `data-i="${i}"`)).join('')}</div>
+      <p class="lbl">Charms change what wins and symbols do in combat. They never change the payouts.</p>
       <div class="spacer"></div>
       <button class="btn ghost" id="skip">Skip</button>
     </div>`;
-  screen.querySelectorAll('.tile').forEach(b => b.onclick = () => { sfx.click(); queuePlace([R.options[+b.dataset.i]], 'map'); });
+  screen.querySelectorAll('.tile[data-i]').forEach(b => b.onclick = () => {
+    const id = R.offer[+b.dataset.i]; sfx.win();
+    if (takeCharm(id)) nextPick(); else { save(); render(); }
+  });
   $('#skip').onclick = () => { sfx.click(); toMap(); };
 }
-function toMap() { run.room = null; go('map'); }
-function queuePlace(syms, back) { run.place = syms.map(s => ({ t: s.t, lvl: s.lvl || 0 })); run.placeBack = back; go('place'); }
-function renderPlace() {
-  const s = run.place[0];
-  const chance = (strip, t) => strip.filter(x => x.t === t).length / strip.length;
-  screen.innerHTML = `
-    <div class="scr room">
-      <div class="head">${px(s.t)}<div><h2>${SYM[s.t].name}${s.lvl ? ' +' + s.lvl : ''}</h2><p>Which reel? It replaces a blank. With no blank left, the reel grows by one stop. Combos count from the left, so reels 1–3 matter most.</p></div></div>
-      <div class="reelcards">${run.strips.map((strip, c) => {
-        const blank = strip.some(x => x.t === 'blank');
-        const before = chance(strip, s.t);
-        const after = (strip.filter(x => x.t === s.t).length + 1) / (strip.length + (blank ? 0 : 1));
-        return `<button class="reelcard" data-c="${c}">
-          <div class="top"><b>Reel ${c + 1}</b><span>${strip.length} stops</span></div>
-          <div class="chips">${reelChips(strip)}</div>
-          <div class="note">Chance on the line: ${pct(before)} → ${pct(after)}${blank ? '' : ' · reel grows'}</div>
-        </button>`; }).join('')}</div>
-    </div>`;
-  screen.querySelectorAll('.reelcard').forEach(b => b.onclick = () => {
-    placeOnReel(run.strips, +b.dataset.c, s); run.place.shift(); sfx.lock();
-    if (run.place.length) { save(); render(); }
-    else if (run.placeBack === 'map') toMap();
-    else go(run.placeBack);
-  });
+function nextPick() {
+  const R = run.room;
+  R.picks--;
+  if (R.picks > 0) { R.offer = charmOffer(run, 3); save(); render(); } else toMap();
 }
+function toMap() { run.room = null; go('map'); }
 
 // ---------- chest ----------
 const CHEST_LBL = ['Wooden chest', 'Silver chest', 'Gold chest'];
 function chestContent(ch) {
-  if (ch.kind === 'relic') return { icon: RELICS[ch.id].icon, title: RELICS[ch.id].name, text: RELICS[ch.id].desc };
+  if (ch.kind === 'charm') return { icon: CHARMS[ch.id].icon, title: CHARMS[ch.id].name, text: CHARMS[ch.id].desc };
   if (ch.kind === 'gold') return { icon: 'coin', title: `${ch.v} gold`, text: 'A pile of coins.' };
-  return { icon: ch.items[0].t, title: 'Symbol pack', text: ch.items.map(s => SYM[s.t].name + (s.lvl ? ' +' + s.lvl : '')).join(' and ') };
+  const B = BOOSTS.find(b => b.id === ch.id);
+  return { icon: 'anvil', title: B.name, text: B.desc };
 }
 function renderChest() {
   const R = run.room, open = R.picked !== null;
+  if (R.replace) { screen.innerHTML = `<div class="scr room"><h2>Swap a charm?</h2>${replaceHTML()}</div>`; return bindReplace(() => { save(); render(); }); }
   screen.innerHTML = `
     <div class="scr room">
       <div class="head">${px('chest')}<div><h2>The Treasury</h2><p>Three chests. You have time to open one before the floor gives way.</p></div></div>
@@ -1782,12 +1859,13 @@ function renderChest() {
     </div>`;
   if (!open) screen.querySelectorAll('.tile').forEach(b => b.onclick = () => {
     const i = +b.dataset.i, ch = R.chests[i];
-    R.picked = i;
-    if (ch.kind === 'relic') run.relics.push(ch.id);
+    R.picked = i; sfx.win();
+    if (ch.kind === 'charm') takeCharm(ch.id);
     else if (ch.kind === 'gold') run.gold += ch.v;
-    sfx.win(); save(); render();
+    else applyBoost(run, ch.id);
+    save(); render();
   });
-  else $('#next').onclick = () => { const ch = R.chests[R.picked]; if (ch.kind === 'syms') queuePlace(ch.items, 'map'); else toMap(); };
+  else $('#next').onclick = toMap;
 }
 
 // ---------- forge ----------
@@ -1795,50 +1873,13 @@ function renderForge() {
   const R = run.room;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px('anvil')}<div><h2>The Forge</h2><p>The smith sharpens one weapon on your reels. Just one.</p></div></div>
-      ${R.opts.length ? `<div class="tiles">${R.opts.map(([c, i], k) => { const s = run.strips[c][i], done = R.done === k, nl = done ? s.lvl : s.lvl + 1;
-        return `<button class="tile ${done ? 'sel' : R.done !== null ? 'gone' : ''}" data-k="${k}" ${R.done !== null ? 'disabled' : ''}>
-          ${px(s.t)}<b>${SYM[s.t].name} +${nl}</b><span>Reel ${c + 1}</span><span>${symDesc(s.t, nl)}</span></button>`; }).join('')}</div>`
-        : `<div class="result">You have no weapons left to upgrade.</div>`}
-      <p class="lbl">Upgrades add damage or block, and +2 per level to combos. They never change the paytable.</p>
+      <div class="head">${px('anvil')}<div><h2>The Forge</h2><p>The smith improves your attack row. Pick one.</p></div></div>
+      <div class="tiles">${BOOSTS.map(B => `<button class="tile ${R.done === B.id ? 'sel' : R.done ? 'gone' : ''}" data-id="${B.id}" ${R.done ? 'disabled' : ''}>
+        ${px(B.id)}<b>${B.name}</b><span>${B.desc}</span><span>now +${run.boost[B.id]}</span></button>`).join('')}</div>
       <div class="spacer"></div>
-      <button class="btn ${R.done !== null ? '' : 'ghost'}" id="next">${R.done !== null ? 'Onward' : 'Leave'}</button>
+      <button class="btn ${R.done ? '' : 'ghost'}" id="next">${R.done ? 'Onward' : 'Leave'}</button>
     </div>`;
-  if (R.done === null) screen.querySelectorAll('.tile').forEach(b => b.onclick = () => {
-    const k = +b.dataset.k, [c, i] = R.opts[k]; run.strips[c][i].lvl++; R.done = k; sfx.win(); save(); render();
-  });
-  $('#next').onclick = toMap;
-}
-
-// ---------- altar ----------
-function renderAltar() {
-  const R = run.room;
-  screen.innerHTML = `
-    <div class="scr room">
-      <div class="head">${px('altar')}<div><h2>The Altar</h2><p>Sacrifice one stop from a reel. The reel gets shorter, so everything else on it lands on the line more often.</p></div></div>
-      ${R.done ? `<div class="result">${R.done}</div>` : `<div class="reelcards">${run.strips.map((strip, c) => `
-        <div class="reelcard"><div class="top"><b>Reel ${c + 1}</b><span>${strip.length} stops${strip.length <= MIN_STOPS ? ' · minimum' : ''}</span></div>
-        <div class="chips" data-c="${c}">${reelChips(strip, { button: true, sel: R.sel && R.sel[0] === c ? R.sel[1] : null })}</div></div>`).join('')}</div>`}
-      <div class="spacer"></div>
-      ${R.done ? `<button class="btn" id="next">Onward</button>` : `
-        <button class="btn" id="offer" ${R.sel ? '' : 'disabled'}>${R.sel ? `Sacrifice ${SYM[R.sel[1]].name.toLowerCase()} from reel ${R.sel[0] + 1}` : 'Choose a symbol'}</button>
-        <button class="btn ghost" id="next">Leave</button>`}
-    </div>`;
-  if (!R.done) {
-    screen.querySelectorAll('.chips[data-c] .chip').forEach(b => b.onclick = () => {
-      const c = +b.parentElement.dataset.c;
-      if (run.strips[c].length <= MIN_STOPS) return;
-      R.sel = [c, b.dataset.t]; sfx.click(); render();
-    });
-    $('#offer').onclick = () => {
-      const [c, t] = R.sel, strip = run.strips[c];
-      let idx = -1;
-      strip.forEach((s, i) => { if (s.t === t && (idx < 0 || s.lvl < strip[idx].lvl)) idx = i; });
-      strip.splice(idx, 1);
-      R.done = `The ${SYM[t].name.toLowerCase()} on reel ${c + 1} burns away in a blue flame. The reel now has ${strip.length} stops.`; R.sel = null;
-      sfx.die(); save(); render();
-    };
-  }
+  if (!R.done) screen.querySelectorAll('.tile').forEach(b => b.onclick = () => { applyBoost(run, b.dataset.id); R.done = b.dataset.id; sfx.win(); save(); render(); });
   $('#next').onclick = toMap;
 }
 
@@ -1846,32 +1887,27 @@ function renderAltar() {
 const priceTag = p => `<span class="price">${p} ${px('coin')}</span>`;
 function renderShop() {
   const R = run.room, can = p => run.gold > p;
-  const skulls = run.strips.flat().filter(s => s.t === 'skull').length;
+  if (R.replace) { screen.innerHTML = `<div class="scr room"><h2>Swap a charm?</h2>${replaceHTML()}</div>`; return bindReplace(() => { save(); render(); }); }
+  const B = BOOSTS.find(b => b.id === R.boost.id);
   screen.innerHTML = `
     <div class="scr room">
       <div class="head">${px('bag')}<div><h2>The Merchant</h2><p>"Everything has a price, traveler. Even your life." You cannot pay with your last coin.</p></div></div>
-      <div class="lbl">Symbols (choose a reel after buying)</div>
-      <div class="tiles">${R.syms.map((s, i) => symTile(s, s.sold ? '<span class="price">SOLD</span>' : priceTag(s.price), `data-k="sym" data-i="${i}" ${s.sold || !can(s.price) ? 'disabled' : ''}`)).join('')}</div>
-      <div class="lbl">Relic and services</div>
+      <div class="lbl">Charms · ${run.charms.length}/${CHARM_SLOTS} slots</div>
+      <div class="tiles">${R.charms.map((c, i) => charmTile(c.id, c.sold ? '<span class="price">SOLD</span>' : priceTag(c.price), `data-k="charm" data-i="${i}" ${c.sold || !can(c.price) ? 'disabled' : ''}`)).join('')}</div>
+      <div class="lbl">Services</div>
       <div class="tiles">
-        ${R.relic ? `<button class="tile" data-k="relic" ${R.relic.sold || !can(R.relic.price) ? 'disabled' : ''}>${px(RELICS[R.relic.id].icon)}<b>${RELICS[R.relic.id].name}</b><span>${RELICS[R.relic.id].desc}</span>${R.relic.sold ? '<span class="price">SOLD</span>' : priceTag(R.relic.price)}</button>` : ''}
-        <button class="tile" data-k="purge" ${R.purge.sold || !skulls || !can(R.purge.price) ? 'disabled' : ''}>${px('skull')}<b>Cleansing</b><span>Turn one skull into a blank (${skulls} left)</span>${R.purge.sold ? '<span class="price">DONE</span>' : priceTag(R.purge.price)}</button>
-        <button class="tile" data-k="nudge" ${R.nudge.sold || run.nudges >= MAX_NUDGES || !can(R.nudge.price) ? 'disabled' : ''}>${px('chestOpen')}<b>Nudges</b><span>+2 nudges (you have ${run.nudges})</span>${R.nudge.sold ? '<span class="price">SOLD</span>' : priceTag(R.nudge.price)}</button>
+        <button class="tile" data-k="boost" ${R.boost.sold || !can(R.boost.price) ? 'disabled' : ''}>${px('anvil')}<b>${B.name}</b><span>${B.desc}</span>${R.boost.sold ? '<span class="price">SOLD</span>' : priceTag(R.boost.price)}</button>
+        <button class="tile" data-k="charge" ${R.charge.sold || run.charge >= CHARGE_MAX || !can(R.charge.price) ? 'disabled' : ''}>${px('chestOpen')}<b>Full charge</b><span>Your special is ready for the next fight.</span>${R.charge.sold ? '<span class="price">SOLD</span>' : priceTag(R.charge.price)}</button>
       </div>
       ${R.msg ? `<div class="result">${R.msg}</div>` : ''}
       <div class="spacer"></div>
       <button class="btn" id="next">Leave the shop</button>
     </div>`;
   screen.querySelectorAll('.tile[data-k]').forEach(b => b.onclick = () => {
-    const k = b.dataset.k;
-    sfx.coin();
-    if (k === 'sym') { const s = R.syms[+b.dataset.i]; run.gold -= s.price; s.sold = true; R.msg = null; return queuePlace([s], 'shop'); }
-    if (k === 'relic') { run.gold -= R.relic.price; R.relic.sold = true; run.relics.push(R.relic.id); R.msg = `${RELICS[R.relic.id].name} is yours.`; }
-    if (k === 'purge') {
-      for (const strip of run.strips) { const i = strip.findIndex(s => s.t === 'skull'); if (i >= 0) { strip[i] = { t: 'blank', lvl: 0 }; break; } }
-      run.gold -= R.purge.price; R.purge.sold = true; R.msg = 'The skull crumbles to dust.';
-    }
-    if (k === 'nudge') { run.gold -= R.nudge.price; R.nudge.sold = true; run.nudges = Math.min(MAX_NUDGES, run.nudges + 2); R.msg = 'Two nudges, freshly oiled.'; }
+    const k = b.dataset.k; sfx.coin();
+    if (k === 'charm') { const c = R.charms[+b.dataset.i]; run.gold -= c.price; c.sold = true; R.msg = `${CHARMS[c.id].name} is yours.`; takeCharm(c.id); }
+    if (k === 'boost') { run.gold -= R.boost.price; R.boost.sold = true; applyBoost(run, R.boost.id); R.msg = 'The smith\'s apprentice gets to work.'; }
+    if (k === 'charge') { run.gold -= R.charge.price; R.charge.sold = true; run.charge = CHARGE_MAX; R.msg = 'You feel the power building.'; }
     save(); render();
   });
   $('#next').onclick = toMap;
@@ -1880,36 +1916,31 @@ function renderShop() {
 // ---------- events ----------
 const EVENTS = {
   bandit: { title: 'The One-Armed Bandit', icon: 'seven',
-    text: 'A rusty slot machine stands alone in the cave. The sign promises "38 GOLD!". The small print says "1 in 4".',
+    text: 'A rusty slot machine stands alone in the cave. The sign promises "380 GOLD!". The small print says "1 in 4".',
     choices: [
-      { label: 'Pull the lever (10 gold)', ok: r => r.gold > 10, run: r => { r.gold -= 10; if (rng() < 0.25) { r.gold += 38; return 'Three sevens! The machine spits out 38 gold.'; } return 'Lemon, plum, skull. The machine keeps your 10 gold. (It pays back 95% on average.)'; } },
+      { label: 'Pull the lever (100 gold)', ok: r => r.gold > 100, run: r => { r.gold -= 100; if (rng() < 0.25) { r.gold += 380; return 'Three sevens! The machine spits out 380 gold.'; } return 'Lemon, plum, skull. The machine keeps your 100 gold. (It pays back 95% on average.)'; } },
       { label: 'Walk past', run: () => 'You leave the machine for the next poor soul.' } ] },
   well: { title: 'The Cursed Well', icon: 'skull',
-    text: 'Gold glints at the bottom of the well. A voice whispers: "Take it. Everything has a price."',
+    text: 'Gold glints at the bottom of the well. A voice whispers: "Take it. The next one you meet will be stronger for it."',
     choices: [
-      { label: 'Take the gold (+25 gold, 2 skulls on your reels)', run: r => { r.gold += 25; placeOnReel(r.strips, ri(0, REELS - 1), { t: 'skull' }); placeOnReel(r.strips, ri(0, REELS - 1), { t: 'skull' }); return 'The coins are cold. Two skulls climb out with you and settle on your reels.'; } },
+      { label: 'Take the gold (+250 gold, next enemy +50% health)', run: r => { r.gold += 250; r.nextHpX = 1.5; return 'The coins are cold. Somewhere ahead, something grows.'; } },
       { label: 'Walk past', run: () => 'The whisper fades behind you.' } ] },
   monk: { title: 'The Wandering Monk', icon: 'altar',
-    text: '"Your machine smells of death, friend. For a small gift I can cleanse it, or bless it."',
+    text: '"For a small gift, friend, I can bless you."',
     choices: [
-      { label: 'Cleanse (8 gold): a skull becomes a blank', ok: r => r.gold > 8 && r.strips.flat().some(s => s.t === 'skull'), run: r => { r.gold -= 8; for (const s of r.strips) { const i = s.findIndex(x => x.t === 'skull'); if (i >= 0) { s[i] = { t: 'blank', lvl: 0 }; break; } } return 'The monk mutters a prayer. The skull is gone.'; } },
-      { label: 'Bless (14 gold): gain a wild', ok: r => r.gold > 14, run: r => { r.gold -= 14; r.room.place = [{ t: 'gem', lvl: 0 }]; return 'A wild glows in the monk\'s hand.'; } },
+      { label: 'A charm (120 gold)', ok: r => r.gold > 120 && charmOffer(r, 1).length, run: r => { r.gold -= 120; const id = charmOffer(r, 1)[0]; if (r.charms.length < CHARM_SLOTS) { r.charms.push(id); return `The monk hands you ${CHARMS[id].name}: ${CHARMS[id].desc}`; } r.gold += 120; return 'Your charm slots are full. The monk returns your gold.'; } },
+      { label: 'Full charge (60 gold)', ok: r => r.gold > 60 && r.charge < CHARGE_MAX, run: r => { r.gold -= 60; r.charge = CHARGE_MAX; return 'Power hums in your arm. Your special is ready.'; } },
       { label: 'Decline', run: () => 'The monk nods and walks on.' } ] },
   mule: { title: 'The Dead Mule', icon: 'bag',
     text: 'A merchant\'s mule lies dead by the road. The saddlebag has split open.',
     choices: [
-      { label: 'Pick up the coins (+14 gold)', run: r => { r.gold += 14; return 'Fourteen coins, slightly bloody.'; } },
-      { label: 'Search the bag (a random symbol)', run: r => { const s = rewardSymbols(r)[0]; r.room.place = [s]; return `You find a ${SYM[s.t].name.toLowerCase()}${s.lvl ? ' +' + s.lvl : ''}.`; } } ] },
+      { label: 'Pick up the coins (+140 gold)', run: r => { r.gold += 140; return 'A hundred and forty coins, slightly bloody.'; } },
+      { label: 'Take the whetstone and oil (a forge boost)', run: r => { const B = pick(BOOSTS); applyBoost(r, B.id); return `${B.name}: ${B.desc}`; } } ] },
   shrine: { title: 'Shrine of the War God', icon: 'sword',
     text: 'An altar of black stone. Carved into it: "Blood for steel."',
     choices: [
-      { label: 'Offer 15 gold: every sword +1', ok: r => r.gold > 15 && r.strips.flat().some(s => s.t === 'sword' && s.lvl < 2), run: r => { r.gold -= 15; r.strips.flat().forEach(s => { if (s.t === 'sword' && s.lvl < 2) s.lvl++; }); return 'Your swords glow red.'; } },
+      { label: 'Offer 150 gold: swords and fire +1', ok: r => r.gold > 150, run: r => { r.gold -= 150; r.boost.sword++; r.boost.fire++; return 'Your weapons glow red.'; } },
       { label: 'Walk past', run: () => 'The gods can wait.' } ] },
-  oil: { title: 'The Tinker', icon: 'anvil',
-    text: 'A tinker with oily hands offers to loosen your lever.',
-    choices: [
-      { label: 'Accept (+2 nudges)', ok: r => r.nudges < MAX_NUDGES, run: r => { r.nudges = Math.min(MAX_NUDGES, r.nudges + 2); return 'The lever slides like butter. +2 nudges.'; } },
-      { label: 'Walk past', run: () => 'You keep your lever as it is.' } ] },
 };
 function renderEvent() {
   const R = run.room, E = EVENTS[R.id];
@@ -1917,11 +1948,11 @@ function renderEvent() {
     <div class="scr room">
       <div class="head">${px(E.icon)}<div><h2>${E.title}</h2></div></div>
       <p>${E.text}</p>
-      ${R.result ? `<div class="result">${R.result}</div><div class="spacer"></div><button class="btn" id="next">${R.place ? 'Choose a reel' : 'Onward'}</button>` : `
+      ${R.result ? `<div class="result">${R.result}</div><div class="spacer"></div><button class="btn" id="next">Onward</button>` : `
       <div class="spacer"></div>
       <div class="choices">${E.choices.map((c, i) => `<button class="btn ${i ? 'ghost' : ''}" data-i="${i}" ${c.ok && !c.ok(run) ? 'disabled' : ''}>${c.label}</button>`).join('')}</div>`}
     </div>`;
-  if (R.result) $('#next').onclick = () => R.place ? queuePlace(R.place, 'map') : toMap();
+  if (R.result) $('#next').onclick = toMap;
   else screen.querySelectorAll('.choices .btn').forEach(b => b.onclick = () => { R.result = E.choices[+b.dataset.i].run(run); sfx.click(); save(); render(); });
 }
 
@@ -1933,7 +1964,8 @@ function endStats() {
     <span>Floor</span><b>${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}</b>
     <span>Enemies defeated</span><b>${s.kills}</b>
     <span>Spins</span><b>${s.spins}</b>
-    <span>Nudges used</span><b>${s.nudges}</b>
+    <span>Free spin rounds</span><b>${s.free}</b>
+    <span>Hold &amp; Spins</span><b>${s.holds}</b>
     <span>Total wagered</span><b>${s.wagered}</b>
     <span>Total won</span><b>${s.won}</b>
     <span>Your actual RTP</span><b>${s.wagered ? pct(s.won / s.wagered) : '–'}</b>
@@ -1969,74 +2001,71 @@ function openModal(html) { $('#sheet').innerHTML = html; $('#modal').hidden = fa
 $('#modalClose').onclick = () => { sfx.click(); $('#modal').hidden = true; };
 function openMachine() {
   if (!run || !run.cls) return openHelp();
-  const strips = run.fight ? run.fight.strips : run.strips;
-  const bet = run.bet, m = machine(run, strips, bet);
-  const cols = [1, 2, 3, 4, 5];
-  const head = `<div class="pt head"><span></span>${cols.map(n => `<span>${n}</span>`).join('')}</div>`;
-  const rows = PAY_ORDER.map(t => `<div class="pt">${px(t)}${cols.map(n => {
-    const b = PAYTABLE[t][n];
-    const v = b ? b * m.scale * bet : 0;
-    return `<span>${b ? (v < 10 ? v.toFixed(1) : Math.round(v)) : ''}</span>`;
-  }).join('')}</div>`).join('');
-  const powerRows = WEAPONS.map(t => `<div class="row"><div class="ic">${px(t)}</div><p><b>${POWER_NAME[t][3]} / ${POWER_NAME[t][4]} / ${POWER_NAME[t][5]}</b><br>${t === 'shield' ? 'block' : 'damage'}: ${[3, 4, 5].map(n => POWER_X[n] * bet * (has(run, 'rage') ? 2 : 1)).join(' / ')}</p><span></span></div>`).join('');
+  const bet = run.bet;
+  const head = `<div class="pt head"><span></span><span>3</span><span>4</span><span>5</span></div>`;
+  const rows = Object.keys(PAYTABLE).map(t => `<div class="pt">${px(t)}${[3, 4, 5].map(n => `<span>${Math.round(PAYTABLE[t][n] * bet)}</span>`).join('')}</div>`).join('');
+  const powers = [
+    ['sword', `Damage ${[3, 4, 5].map(n => LINE_HIT[n] * bet / 10).join(' / ')}`],
+    ['fire', `Damage ${[3, 4, 5].map(n => LINE_HIT[n] * bet / 10).join(' / ')}, ignores armor`],
+    ['shield', `Block ${[3, 4, 5].map(n => LINE_HIT[n] * bet / 10).join(' / ')}`],
+    ['bar', 'Stun: the enemy attacks one spin later'],
+    ['seven', 'Crit: all damage this spin ×2'],
+    ['cherry', `Charge your special +${run.cls === 'rogue' ? 6 : 3}`],
+  ];
   const C = CLASSES[run.cls];
   openModal(`
-    <h3>The machine</h3>
-    <div class="kpis">
-      <div><b>${pct(m.rtp)}</b><span>RTP</span></div>
-      <div><b>${pct(m.hit)}</b><span>hit rate</span></div>
-      <div><b>${volLabel(m.sd)}</b><span>volatility</span></div>
-    </div>
-    <p class="txt">RTP means the machine pays back <b>${pct(m.rtp)}</b> of everything you bet, on average. The remaining ${pct(1 - m.rtp)} is the house edge. The numbers are calculated exactly from your reels.</p>
-    <h3>Bet and RTP</h3>
-    <div class="denoms">${BETS.map(b => `<div class="${b === bet ? 'on' : ''} ${betsFor(run).includes(b) ? '' : 'lockd'}"><b>${b}</b>${pct(rtpFor(run, b))}</div>`).join('')}</div>
-    <p class="txt">As in real casinos, higher denominations pay back more. But a high bet drains your life faster when luck turns.</p>
-    <h3>Paytable at bet ${bet} (gold)</h3>
-    <p class="txt">In a row on the middle line, starting from reel 1.</p>
-    ${head}${rows}
-    <h3>Weapon combos (3 / 4 / 5 in a row)</h3>
-    ${powerRows}
-    <p class="txt">Combos replace the single effects of the symbols in them, and ignore armor. Nudged spins pay no gold. The casino re-calibrates the paytable whenever your reels change.</p>
-    <h3>Your reels${run.fight ? ' (with curses)' : ''}</h3>
-    ${strips.map((s, c) => `<div><div class="lbl">Reel ${c + 1} · ${s.length} stops</div><div class="chips">${reelChips(s)}</div></div>`).join('')}
+    <h3>Your charms (${run.charms.length}/${CHARM_SLOTS})</h3>
+    ${run.charms.length ? run.charms.map(id => `<div class="row">${px(CHARMS[id].icon)}<p><b>${CHARMS[id].name}</b><br>${CHARMS[id].desc}</p><span></span></div>`).join('') : '<p class="txt">None yet. Win fights, open chests and visit the merchant.</p>'}
+    <p class="txt">Attack row: Sword +${run.boost.sword} · Fire +${run.boost.fire} · Shield +${run.boost.shield}</p>
     <h3>${C.name}</h3>
-    <p class="txt">${C.passive}</p>
-    <h3>Relics</h3>
-    ${run.relics.length ? run.relics.map(r => `<div class="row">${px(RELICS[r].icon)}<p><b>${RELICS[r].name}</b><br>${RELICS[r].desc}</p><span></span></div>`).join('') : '<p class="txt">None yet. Find them in chests, at the merchant, and on elite enemies.</p>'}
+    <p class="txt">${C.passive}<br><b>${C.special.name}:</b> ${C.special.desc}</p>
+    <h3>What every win does</h3>
+    ${powers.map(([t, d]) => `<div class="row">${px(t)}<p><b>${SYM[t].name} line</b><br>${d}</p><span></span></div>`).join('')}
+    <p class="txt">Every winning line also adds +1 charge. Line hits scale with your bet (shown at bet ${bet}).</p>
+    <h3>The machine (PAR sheet)</h3>
+    <div class="kpis">
+      <div><b>${pct(PAR.rtp)}</b><span>RTP</span></div>
+      <div><b>${pct(PAR.hit)}</b><span>hit rate</span></div>
+      <div><b>${PAR.vol}</b><span>volatility</span></div>
+    </div>
+    <p class="txt">Base game ${pct(PAR.base)} · Free spins ${pct(PAR.free)} · Hold &amp; Spin ${pct(PAR.hold)}. Free spins about 1 in ${PAR.freeEvery} spins, Hold &amp; Spin about 1 in ${PAR.holdEvery}. From a 20 million spin simulation of this exact machine. Nothing in your run changes it.</p>
+    <h3>Paytable at bet ${bet} (gold)</h3>
+    <p class="txt">10 fixed lines, left to right from reel 1. Wilds appear on reels 2–4, nudge to fill the reel and stand in for everything except Scatter and Coin.</p>
+    ${head}${rows}
+    <div class="row">${px('star')}<p><b>Scatter</b><br>3 / 4 / 5 anywhere: ${FREE_SPINS[3]} / ${FREE_SPINS[4]} / ${FREE_SPINS[5]} free spins, wins ×${FREE_MULT}, enemy frozen</p><span></span></div>
+    <div class="row">${px('coin')}<p><b>Coin</b><br>${HS_TRIGGER}+ anywhere: Hold &amp; Spin. Coins pay their value and hit the enemy. Fill all 15: GRAND ${HS_GRAND}× bet</p><span></span></div>
+    <div class="row">${px('chestOpen')}<p><b>Bonus buy</b><br>${FREE_SPINS[3]} free spins for ${BONUS_BUY_X}× bet (${bonusBuyPrice(run)} gold), average return 22.6×</p><span></span></div>
     <button class="btn ghost" id="sound">${muted ? 'Sound on' : 'Sound off'}</button>
     <button class="btn ghost" id="quit">Give up this run</button>
   `);
   $('#sound').onclick = () => { muted = !muted; try { localStorage.setItem('oah-muted', muted ? '1' : '0'); } catch (e) {} openMachine(); };
   $('#quit').onclick = () => {
     const b = $('#quit');
-    if (b.dataset.sure) { $('#modal').hidden = true; busy = false; run.screen = 'over'; save(); render(); }
+    if (b.dataset.sure) { $('#modal').hidden = true; busy = false; auto = false; run.screen = 'over'; save(); render(); }
     else { b.dataset.sure = '1'; b.textContent = 'Tap again to give up'; }
   };
 }
 function openHelp() {
   openModal(`
     <h3>How to play</h3>
-    <p class="txt"><b>1. Gold is your life.</b> Every spin is paid with your life. At 0 the run is over.</p>
-    <p class="txt"><b>2. Bet.</b> The bet multiplies payouts and weapon combos. It does not change single attacks. A low bet is safe and slow, a high bet is a gamble on huge blows.</p>
-    <p class="txt"><b>3. Spin.</b> Five real reels with fixed strips. <b>Only the middle row</b> counts, read from the left.</p>
-    <p class="txt"><b>4. Attack.</b> Every weapon on the line acts at once, even without a win: Sword and Fire deal 3 damage, Shield gives 4 block.</p>
-    <p class="txt"><b>5. Power strike.</b> Three or more of the same weapon from the left (wilds count) make a combo: <b>10 / 25 / 60 × your bet</b> in damage for 3 / 4 / 5 in a row, plus a payout.</p>
-    <p class="txt"><b>6. Win.</b> Runs in the paytable pay gold. The machine pays back 94–97% on average. The house wins in the long run.</p>
-    <p class="txt"><b>7. Nudge.</b> After the reels stop, if a nudge could help, you can tap the symbol just above or below the line to pull it in. A nudged spin pays no gold, it only fights. You get a nudge every fight, and losing spins sometimes award one.</p>
-    <p class="txt"><b>8. Hold.</b> Hold up to three reels so they stay for the next spin. A hold costs at least half the bet per reel, more if it sets up a big win. A reel cannot be held twice in a row.</p>
-    <p class="txt"><b>9. Pocket.</b> Tap a symbol on the line to save it. Put it on any reel later, when it suits you. It counts as a hold.</p>
-    <p class="txt"><b>10. The enemy</b> shows when it attacks and how much gold it takes. Block absorbs the hit and then resets. Skulls on the line make the enemy attack sooner.</p>
-    <h3>Symbols</h3>
-    ${['sword', 'fire', 'shield', 'cherry', 'bar', 'seven', 'gem', 'skull', 'blank'].map(t => `<div class="row">${t === 'blank' ? '<span style="width:32px"></span>' : px(t)}<p><b>${SYM[t].name}</b><br>${symDesc(t, 0)}</p><span></span></div>`).join('')}
+    <p class="txt"><b>Gold is your life.</b> Every spin is paid with it. At 0 the run is over.</p>
+    <p class="txt"><b>The machine is real.</b> Five reels, 10 lines, wilds, scatters and Hold &amp; Spin, certified at ${pct(PAR.rtp)} RTP. You will lose money in the long run, like at any casino. Nothing in your run changes the payouts.</p>
+    <p class="txt"><b>The attack row.</b> Weapons on the middle row always strike, win or not: Sword and Fire 3 damage, Shield 4 block. The bet does not change this.</p>
+    <p class="txt"><b>Every win fights.</b> Each winning line fires its symbol's power. Sword and Fire lines hit, Shield lines block, BAR stuns, Seven crits, Cherry charges your special. Line hits grow with your bet: a high bet is a gamble on huge blows.</p>
+    <p class="txt"><b>Features.</b> Scatters give free spins: wins ×${FREE_MULT} and the enemy is frozen. Coins trigger Hold &amp; Spin: the coins pay out and pelt the enemy. You can also buy free spins.</p>
+    <p class="txt"><b>Your special</b> charges with every win. Use it when it is full.</p>
+    <p class="txt"><b>Charms</b> (${CHARM_SLOTS} slots) change what wins and symbols do in combat. That is where your run grows.</p>
+    <p class="txt"><b>The enemy</b> shows when it attacks and how much gold it takes. Block absorbs the hit and then resets. Skulls on the attack row make it attack sooner. Elites and bosses bend the rules.</p>
     <h3>The map</h3>
     ${Object.entries(ROOM).map(([k, R]) => `<div class="row">${px(R.icon)}<p><b>${R.name}</b><br>${{
-      fight: 'A regular enemy. Gives a bounty and a new symbol.', elite: 'A tough enemy that curses your reels. Bigger bounty and a relic.',
-      chest: 'Pick one of three chests.', forge: 'Upgrade a weapon.', shop: 'Buy symbols, relics and nudges with your life.',
-      altar: 'Remove a stop from a reel.', event: 'Something unexpected.', boss: 'The final boss.' }[k]}</p><span></span></div>`).join('')}
+      fight: 'A regular enemy. Gives a bounty and a charm.', elite: 'A tough enemy with a special rule. Bigger bounty and two charms.',
+      chest: 'Pick one of three chests.', forge: 'Improve your attack row.', shop: 'Buy charms and services with your life.',
+      event: 'Something unexpected.', boss: 'The final boss.' }[k]}</p><span></span></div>`).join('')}
   `);
 }
 $('#machBtn').onclick = () => { sfx.click(); openMachine(); };
 $('#helpBtn').onclick = () => { sfx.click(); openHelp(); };
+$('#turboBtn').onclick = () => { turbo = !turbo; try { localStorage.setItem('oah-turbo', turbo ? '1' : '0'); } catch (e) {} sfx.click(); updateHud(); };
 
 // ---------- boot ----------
 window.claude?.hot?.snapshot?.(() => ({ run }));

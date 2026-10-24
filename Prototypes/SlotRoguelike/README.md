@@ -1,25 +1,49 @@
 # One-Armed Hero (prototype)
 
-A roguelike played on a real one-armed bandit. Gold is your life, and the house always wins in the long run.
+A roguelike played on a real five-reel online slot. The machine is fixed and certified at 96% RTP, so you lose money in the long run, like at any casino. The run is where you grow: charms change what every win does in combat.
 
 Open `index.html` in a browser. It is a single file with no dependencies besides Google Fonts. All pixel art is hand-drawn in code (`SPR`).
 
 ## The machine
 
-- **Five real reels** with fixed strips (19 stops each at the start). Each spin picks one stop per reel.
-- **One payline:** only the middle row counts, read from the left (3, 4 or 5 in a row; 1–2 cherries on the first reels). Wilds stand in for anything.
-- **Calibrated paytable:** `PAYTABLE` holds base pays. `machine()` enumerates the strips exactly (a PAR sheet in miniature) and scales the table so the RTP is always the target. Changing the reels changes hit rate and volatility, never RTP.
-- **Denominations:** higher bets return slightly more, as in real casinos (`RTP_BY_BET`: 94% at bet 1 up to 96.5% at bet 10).
-- **Holds:** price is `max(bet + 50% per held reel, expected win / RTP)`, so a hold can never beat the house in gold. Reels rest after being held.
-- **Nudges:** after the reels stop, pull the symbol above or below onto the line. A nudged spin pays no gold, it only fights, so the house edge stays intact. One nudge per fight, more from the Rogue, relics, the merchant, and a 5% award after losing spins.
-- **Pocket:** save a symbol from the line and drop it on any reel later. It counts and is priced as a hold.
+Fixed math, the same for every player and every run (`STRIPS`, `PAYTABLE`, `LINES`):
 
-## Combat
+- 5×3 reels, 30 stops per reel, generated once from a fixed seed.
+- 10 fixed paylines, left to right from reel 1.
+- **Nudging wild** on reels 2–4: nudges to the middle and expands over the whole reel.
+- **Scatter:** 3 / 4 / 5 anywhere give 10 / 15 / 25 free spins with wins ×3. Retriggers.
+- **Hold & Spin:** 6+ coins. Coins stick, 3 respins, every new coin resets the count. Coin values 0.5×–50× bet, filling all 15 cells adds a GRAND of 100× bet.
+- **Bonus buy:** 10 free spins for 24× bet (average return 22.6×).
+- Big Win (10×), Mega Win (25×) and Epic Win (50×) celebrations, a teasing slow-down when two scatters are showing, autoplay and turbo.
 
-- A weapon on the line deals a flat effect regardless of the bet (Sword and Fire 3 damage, Shield 4 block).
-- 3/4/5 of a weapon from the left is a combo: `10 / 25 / 60 × bet` damage (or block), ignoring armor, plus the payout.
-- Enemies attack for flat gold on a countdown. Skulls on the line rush them.
+### PAR sheet
+
+From a 20 million spin simulation of this exact machine:
+
+| | |
+|---|---|
+| RTP | 96.01% |
+| Base game | 65.12% |
+| Free spins | 19.92% |
+| Hold & Spin | 10.97% |
+| Hit rate | 24.2% |
+| Free spins | about 1 in 117 spins |
+| Hold & Spin | about 1 in 411 spins |
+| Std. dev. per spin | 5.2× bet |
+
+If you change `STRIPS`, `PAYTABLE` or the feature constants, re-run the simulation and update `PAR`.
+
+## The meta game
+
+Nothing in the run touches the payouts. Everything below is combat:
+
+- **Attack row** (the middle row): weapons there always strike, win or not. Sword and Fire deal 3, Shield gives 4 block. The bet does not change this.
+- **Every win fights.** Each winning line fires its symbol's power. Sword and Fire lines hit for 4 / 10 / 25 per 10 gold of bet, Shield lines block as much, BAR stuns (the enemy attacks a spin later), Seven crits (all damage ×2), Cherry charges your special. Every winning line also adds +1 charge.
+- **Free spins** freeze the enemy. **Hold & Spin** coins also pelt the enemy.
+- **Special:** each class has one, ready at 10 charge (Berserk, Meteor, Lucky Break).
+- **Charms** (5 slots, 18 in total) change those rules, in the style of Balatro's jokers. Forge boosts improve the attack row.
+- **Elites and bosses bend the rules:** armor, a reel that stays put, wilds that don't expand, halved block.
 
 ## Balance
 
-The logic sits between `// ===== LOGIC START =====` and `// ===== LOGIC END =====` and runs in Node for simulation. A simple bot (greedy nudges, no holds or pocket) beats the dragon in roughly half its runs.
+The logic sits between `// ===== LOGIC START =====` and `// ===== LOGIC END =====` and runs in Node for simulation. A simple bot (no bonus buys, greedy charm picks) beats the dragon in about 40–47% of runs.
