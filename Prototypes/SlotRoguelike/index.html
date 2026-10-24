@@ -1,11 +1,11 @@
-<title>Enarmad Hjälte</title>
+<title>One-Armed Hero</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#120e1c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Silkscreen&display=swap">
 <style>
-/* Layout: one portrait cabinet column. HUD, battle stage, LED strip, three reels with one lit payline, then bet / pocket / lever at thumb height. */
+/* Layout: one portrait cabinet column. HUD, battle stage, LED strip, five reels with one lit payline, then bet / nudges / pocket / lever at thumb height. */
 :root {
   --ink: #120e1c;
   --stone: #1e172e;
@@ -170,15 +170,15 @@ button.chip.sel { border-color: var(--brass); }
 .led span { display: flex; flex-direction: column; align-items: center; font-family: var(--mono); font-size: 8px; color: #8a5a4a; letter-spacing: 0.08em; line-height: 1.1; }
 .led b { font-family: var(--mono); font-weight: 400; font-size: 15px; color: var(--led); text-shadow: 0 0 6px rgba(255,90,60,0.6); font-variant-numeric: tabular-nums; }
 .led b.hot { color: #ffd23c; text-shadow: 0 0 8px rgba(255,210,60,0.8); }
-.reels { position: relative; flex: 1; min-height: 120px; max-height: 300px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.reels { position: relative; flex: 1; min-height: 120px; max-height: 260px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
 .reel { position: relative; overflow: hidden; background: #f3e6c9; border-radius: 3px; box-shadow: inset 0 0 0 2px #000; }
 .reel::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
   background: linear-gradient(to bottom, rgba(18,14,28,0.72), rgba(18,14,28,0.45) 33.3%, transparent 33.4%, transparent 66.6%, rgba(18,14,28,0.45) 66.7%, rgba(18,14,28,0.72)); }
 .reel.locked { box-shadow: inset 0 0 0 3px var(--brass); }
 .strip { position: absolute; left: 0; right: 0; top: 0; height: 100%; will-change: transform; }
 .cell { position: relative; display: grid; place-items: center; height: 33.333%; }
-.cell img { height: 70%; width: auto; max-width: 86%; aspect-ratio: 1; }
-.cell .lv { position: absolute; right: 3px; top: 3px; font-family: var(--mono); font-style: normal; font-size: 10px; color: #fff; background: var(--brass-dk); padding: 0 3px; border-radius: 2px; }
+.cell img { height: 66%; width: auto; max-width: 88%; aspect-ratio: 1; }
+.cell .lv { position: absolute; right: 2px; top: 2px; font-family: var(--mono); font-style: normal; font-size: 9px; color: #fff; background: var(--brass-dk); padding: 0 3px; border-radius: 2px; }
 .cell .tmp { position: absolute; left: 3px; top: 3px; font-family: var(--mono); font-style: normal; font-size: 8px; color: #fff; background: var(--hex); padding: 0 3px; border-radius: 2px; }
 .cell .pk { position: absolute; left: 3px; bottom: 3px; font-family: var(--mono); font-style: normal; font-size: 8px; color: var(--ink); background: var(--leaf); padding: 0 3px; border-radius: 2px; }
 .cell.win { background: rgba(240,182,72,0.6); }
@@ -191,16 +191,20 @@ button.chip.sel { border-color: var(--brass); }
 .payline::after { right: -3px; border-right-color: var(--brass); }
 .payline.flash { animation: flash 0.25s steps(2) 4; }
 @keyframes flash { 50% { border-color: #fff; } }
-.tag { position: absolute; left: 50%; top: calc(66.666% - 9px); transform: translateX(-50%); z-index: 4; white-space: nowrap;
-  font-family: var(--mono); font-size: 10px; line-height: 16px; padding: 0 5px; border-radius: 2px; color: #fff; background: #000; }
+.tag { position: absolute; left: 50%; top: calc(66.666% - 8px); transform: translateX(-50%); z-index: 4; white-space: nowrap;
+  font-family: var(--mono); font-size: 8px; line-height: 14px; padding: 0 3px; border-radius: 2px; color: #fff; background: #000; }
 .tag:empty { display: none; }
 .tag.dmg { background: var(--blood); }
 .tag.block { background: #2a6fc0; }
 .tag.hex { background: var(--hex); }
 .tag.none { background: rgba(0,0,0,0.6); color: #bbb; }
-.reel .tap { position: absolute; inset: 33.333% 0; z-index: 5; background: none; border: 0; padding: 0; }
-.locks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.lockbtn { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; padding: 6px 0; background: #1a120a; color: var(--brass);
+.reel .tap { position: absolute; left: 0; right: 0; height: 33.333%; z-index: 5; background: none; border: 0; padding: 0; }
+.reel .tap.top { top: 0; } .reel .tap.mid { top: 33.333%; } .reel .tap.bot { top: 66.666%; }
+.reel.nudgeable .cell:nth-child(1), .reel.nudgeable .cell:nth-child(3) { outline: 2px dashed var(--leaf); outline-offset: -4px; animation: throb 0.7s steps(2) infinite; }
+.reel.nudgeable .cell:nth-child(1)::after { content: "▼"; position: absolute; bottom: 1px; font-size: 10px; color: var(--leaf); z-index: 3; }
+.reel.nudgeable .cell:nth-child(3)::after { content: "▲"; position: absolute; top: 1px; font-size: 10px; color: var(--leaf); z-index: 3; }
+.locks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.lockbtn { font-family: var(--mono); font-size: 9px; letter-spacing: 0.04em; padding: 6px 0; background: #1a120a; color: var(--brass);
   border: 2px solid var(--brass-dk); border-radius: 3px; }
 .lockbtn.on { background: var(--brass); color: var(--ink); border-color: var(--brass); }
 .lockbtn.put { background: var(--leaf); color: var(--ink); border-color: var(--leaf); animation: throb 0.6s steps(2) infinite; }
@@ -208,8 +212,13 @@ button.chip.sel { border-color: var(--brass); }
 .log { font-size: 13px; color: var(--muted); min-height: 2.7em; line-height: 1.35; text-align: center; }
 .log b { color: var(--parch); font-weight: 600; }
 .log .d { color: var(--blood); } .log .g { color: var(--brass); } .log .bl { color: var(--mana); }
-.controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; }
-.bet { display: grid; grid-template-columns: 44px 1fr 44px; align-items: stretch; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; }
+.controls { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: stretch; }
+.nudges { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 52px; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; padding: 2px 4px; }
+.nudges .lbl { font-size: 8px; }
+.nudges b { font-family: var(--mono); font-weight: 400; font-size: 20px; color: var(--leaf); }
+.nudges.live { border-color: var(--leaf); animation: throb 0.7s steps(2) infinite; }
+.nudges.pop, #nudges.pop { animation: pop 0.3s steps(3); }
+.bet { display: grid; grid-template-columns: 40px 1fr 40px; align-items: stretch; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; }
 .bet button { background: var(--stone-2); border: 0; font-family: var(--mono); font-size: 20px; color: var(--brass); }
 .bet button:disabled { opacity: 0.3; }
 .bet div { display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
@@ -217,14 +226,19 @@ button.chip.sel { border-color: var(--brass); }
 .bet small { font-size: 10px; color: var(--muted); }
 .pocket { display: flex; align-items: center; gap: 5px; background: var(--stone); border: 2px solid var(--line); border-radius: 4px; padding: 3px 6px; }
 .pocket .lbl { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8px; }
-.slot { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; background: #0f0b18; border: 2px dashed var(--line); border-radius: 3px; position: relative; }
+.slot { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; background: #0f0b18; border: 2px dashed var(--line); border-radius: 3px; position: relative; }
 .slot img { width: 32px; height: 32px; }
 .slot.full { border-style: solid; border-color: var(--leaf); }
 .slot.sel { background: var(--leaf); }
 .slot.used { opacity: 0.4; }
 .slot i { position: absolute; right: 1px; top: 0; font-family: var(--mono); font-style: normal; font-size: 9px; color: var(--brass); }
 .spin { font-size: 22px; padding-block: 12px; letter-spacing: 0.04em; flex-direction: column; gap: 0; line-height: 1.1; }
-.spin small { font-family: var(--mono); font-size: 11px; font-weight: 400; opacity: 0.8; letter-spacing: 0; }
+.spin small { font-family: var(--mono); font-size: 10px; font-weight: 400; opacity: 0.8; letter-spacing: 0; }
+.spin.collect { background: var(--leaf); box-shadow: 0 5px 0 #4f8a3a; }
+.shake { animation: hit 0.32s steps(4); }
+.pt { display: grid; grid-template-columns: 28px repeat(5, 1fr); gap: 4px; align-items: center; font-family: var(--mono); font-size: 12px; color: var(--brass); text-align: center; font-variant-numeric: tabular-nums; }
+.pt img { width: 24px; height: 24px; }
+.pt.head { color: var(--muted); font-size: 10px; }
 
 .float { position: absolute; z-index: 20; pointer-events: none; font-family: var(--mono); font-size: 18px; text-shadow: 2px 2px 0 #000;
   transform: translate(-50%, -50%); animation: floatUp 1s steps(10) forwards; white-space: nowrap; }
@@ -298,15 +312,15 @@ button.reelcard:active, button.reelcard:hover { border-color: var(--brass); }
 
 <div id="app">
   <div class="hud" id="hud" hidden>
-    <div class="gold" id="gold"><img class="px" id="goldIcon" alt=""><span id="goldN">0</span><small>LIV</small></div>
+    <div class="gold" id="gold"><img class="px" id="goldIcon" alt=""><span id="goldN">0</span><small>LIFE</small></div>
     <div class="floor" id="floorLbl"></div>
-    <button class="iconbtn" id="machBtn" aria-label="Automaten och vinsttabell"><img class="px" id="machIcon" alt=""></button>
-    <button class="iconbtn" id="helpBtn" aria-label="Regler">?</button>
+    <button class="iconbtn" id="machBtn" aria-label="The machine and paytable"><img class="px" id="machIcon" alt=""></button>
+    <button class="iconbtn" id="helpBtn" aria-label="How to play">?</button>
   </div>
   <div id="screen"></div>
   <div class="modal" id="modal" hidden>
     <div class="sheet" id="sheet"></div>
-    <button class="btn ghost" id="modalClose">Stäng</button>
+    <button class="btn ghost" id="modalClose">Close</button>
   </div>
 </div>
 
@@ -753,67 +767,71 @@ const pick = arr => arr[Math.floor(rng() * arr.length)];
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 // rounds 7.4 to 7 (60%) or 8 (40%): keeps the expected payout exact
 const randRound = x => Math.floor(x) + (rng() < x - Math.floor(x) ? 1 : 0);
+const mod = (i, n) => ((i % n) + n) % n;
 
-// --- Machine: denominations ---------------------------------------
-// Like real casinos, higher denominations pay back a larger share.
+// --- Machine -----------------------------------------------------------
+const REELS = 5;
+// Denominations: like real casinos, higher stakes return a larger share.
 const BETS = [1, 2, 3, 5, 10, 20];
 const RTP_BY_BET = { 1: 0.94, 2: 0.95, 3: 0.955, 5: 0.96, 10: 0.965, 20: 0.97 };
-const LOCK_FEE = 0.5;   // minimum extra cost per locked reel, as a share of the bet
-const MAX_LOCKS = 2;
+const HOLD_FEE = 0.5;     // minimum extra cost per held reel, as a share of the bet
+const MAX_HOLDS = 3;
 const MIN_STOPS = 10;
+const NUDGE_AWARD = 0.05; // chance of a free nudge after a losing spin, fruit-machine style
+const MAX_NUDGES = 6;
 
 const SYM = {
-  seven:  { name: 'Sjua' },
-  bar:    { name: 'BAR' },
-  cherry: { name: 'Körsbär' },
-  gem:    { name: 'Joker' },
-  sword:  { name: 'Svärd' },
-  fire:   { name: 'Eld' },
-  shield: { name: 'Sköld' },
-  skull:  { name: 'Dödskalle' },
-  blank:  { name: 'Tom' },
+  seven: { name: 'Seven' }, bar: { name: 'BAR' }, cherry: { name: 'Cherry' }, gem: { name: 'Wild' },
+  sword: { name: 'Sword' }, fire: { name: 'Fire' }, shield: { name: 'Shield' }, skull: { name: 'Skull' }, blank: { name: 'Blank' },
 };
 const WEAPONS = ['sword', 'fire', 'shield'];
-// Base pays per 1 gold bet, before calibration. Order = priority.
-const PAYS = [
-  { id: 'gem3',    name: '3 Jokrar',          icons: ['gem', 'gem', 'gem'],          base: 500 },
-  { id: 'seven',   name: '3 Sjuor',           icons: ['seven', 'seven', 'seven'],    base: 100 },
-  { id: 'bar',     name: '3 BAR',             icons: ['bar', 'bar', 'bar'],          base: 25 },
-  { id: 'cherry3', name: '3 Körsbär',         icons: ['cherry', 'cherry', 'cherry'], base: 15 },
-  { id: 'sword',   name: 'POWER STRIKE',      icons: ['sword', 'sword', 'sword'],    base: 12, power: 'sword' },
-  { id: 'fire',    name: 'ELDKLOT',           icons: ['fire', 'fire', 'fire'],       base: 12, power: 'fire' },
-  { id: 'shield',  name: 'FÄSTNING',          icons: ['shield', 'shield', 'shield'], base: 8,  power: 'shield' },
-  { id: 'cherry2', name: '2 Körsbär',         icons: ['cherry', 'cherry'],           base: 4 },
-  { id: 'cherry1', name: '1 Körsbär',         icons: ['cherry'],                     base: 1 },
-];
-const PAY = Object.fromEntries(PAYS.map(p => [p.id, p]));
+// Base pays per 1 gold bet for N in a row from the left, before calibration.
+const PAYTABLE = {
+  gem:    { 3: 50, 4: 250, 5: 1000 },
+  seven:  { 3: 25, 4: 100, 5: 500 },
+  bar:    { 3: 10, 4: 40,  5: 150 },
+  cherry: { 1: 1,  2: 3,   3: 8,  4: 25, 5: 100 },
+  sword:  { 3: 5,  4: 20,  5: 80 },
+  fire:   { 3: 5,  4: 20,  5: 80 },
+  shield: { 3: 4,  4: 15,  5: 60 },
+};
+const PAY_ORDER = ['gem', 'seven', 'bar', 'cherry', 'sword', 'fire', 'shield'];
+// Weapon combos: damage (or block) per 1 gold bet.
+const POWER_X = { 3: 10, 4: 25, 5: 60 };
+const POWER_NAME = {
+  sword:  { 3: 'POWER STRIKE', 4: 'MEGA STRIKE', 5: 'ULTRA STRIKE' },
+  fire:   { 3: 'FIREBALL', 4: 'FIRESTORM', 5: 'METEOR' },
+  shield: { 3: 'FORTRESS', 4: 'CITADEL', 5: 'BASTION' },
+};
+const comboName = c => WEAPONS.includes(c.t) ? POWER_NAME[c.t][c.n] : `${c.n} × ${SYM[c.t].name}`;
 
+// Best left-to-right run on the payline. Wilds substitute for anything.
 function evalLine(types) {
-  const nonG = types.filter(t => t !== 'gem');
-  if (!nonG.length) return 'gem3';
-  if (nonG.every(t => t === nonG[0])) {
-    const t = nonG[0];
-    if (t === 'seven') return 'seven';
-    if (t === 'bar') return 'bar';
-    if (t === 'cherry') return 'cherry3';
-    if (WEAPONS.includes(t)) return t;
+  let lead = 0; while (lead < types.length && types[lead] === 'gem') lead++;
+  let best = lead >= 3 ? { t: 'gem', n: lead, base: PAYTABLE.gem[lead] } : null;
+  for (const t of PAY_ORDER) {
+    if (t === 'gem') continue;
+    let n = 0; while (n < types.length && (types[n] === t || types[n] === 'gem')) n++;
+    if (n === lead) continue;
+    const base = PAYTABLE[t][n];
+    if (base && (!best || base > best.base)) best = { t, n, base };
   }
-  const ch = types.filter(t => t === 'cherry').length;
-  if (ch === 2) return 'cherry2';
-  if (ch === 1) return 'cherry1';
-  return null;
+  return best;
 }
 function counts(strip) { const c = {}; strip.forEach(s => { c[s.t] = (c[s.t] || 0) + 1; }); return c; }
 // Exact enumeration of the payline over the reel strips (a PAR sheet in miniature).
-function lineStats(strips, fixed = [null, null, null]) {
-  const dists = strips.map((s, i) => fixed[i] ? [[fixed[i], 1]] : Object.entries(counts(s)).map(([t, n]) => [t, n / s.length]));
+function lineStats(strips, fixed) {
+  const dists = strips.map((s, i) => fixed && fixed[i] ? [[fixed[i], 1]] : Object.entries(counts(s)).map(([t, n]) => [t, n / s.length]));
   let ev = 0, hit = 0, sq = 0;
-  for (const [a, pa] of dists[0]) for (const [b, pb] of dists[1]) for (const [c, pc] of dists[2]) {
-    const id = evalLine([a, b, c]);
-    if (!id) continue;
-    const p = pa * pb * pc, v = PAY[id].base;
-    ev += p * v; hit += p; sq += p * v * v;
-  }
+  const types = new Array(dists.length);
+  (function rec(i, p) {
+    if (i === dists.length) {
+      const r = evalLine(types);
+      if (r) { ev += p * r.base; hit += p; sq += p * r.base * r.base; }
+      return;
+    }
+    for (const [t, q] of dists[i]) { types[i] = t; rec(i + 1, p * q); }
+  })(0, 1);
   return { ev, hit, sq };
 }
 const has = (run, id) => run.relics.includes(id);
@@ -823,53 +841,50 @@ const MEMO = new Map();
 function machine(run, strips, bet) {
   const key = strips.map(s => JSON.stringify(counts(s))).join('|') + bet + run.relics.join();
   if (MEMO.has(key)) return MEMO.get(key);
-  if (MEMO.size > 200) MEMO.clear();
+  if (MEMO.size > 300) MEMO.clear();
   const st = lineStats(strips);
   const rtp = rtpFor(run, bet);
   const scale = rtp / st.ev;
-  const sd = Math.sqrt(Math.max(0, st.sq * scale * scale - rtp * rtp));
-  const out = { rtp, scale, hit: st.hit, sd };
+  const out = { rtp, scale, hit: st.hit, sd: Math.sqrt(Math.max(0, st.sq * scale * scale - rtp * rtp)) };
   MEMO.set(key, out);
   return out;
 }
-const volLabel = sd => sd < 4 ? 'Låg' : sd < 9 ? 'Medel' : 'Hög';
+const volLabel = sd => sd < 6 ? 'Low' : sd < 14 ? 'Medium' : 'High';
 const betsFor = run => BETS.filter(b => b < 20 || has(run, 'highroller'));
 
-// --- Classes, relics, enemies ---------------------------------------
+// --- Classes, relics, enemies --------------------------------------------
 const CLASSES = {
-  warrior: { name: 'Krigare', sprite: 'warrior', gold: 80, mod: { sword: +1, fire: -1 },
-             passive: 'Svärd gör +1 skada.' },
-  mage:    { name: 'Magiker', sprite: 'mage', gold: 70, mod: { sword: -2, fire: +3, blank: -1 },
-             passive: 'Två eller tre eld på linjen: all eldskada dubblas.' },
-  rogue:   { name: 'Tjuv', sprite: 'rogue', gold: 75, mod: { cherry: +1, blank: -1 },
-             passive: 'Fickan har 2 platser. Körsbär gör 2 skada.' },
+  warrior: { name: 'Warrior', sprite: 'warrior', gold: 80, mod: { sword: +1, fire: -1 },
+             passive: 'Swords deal +1 damage and cut through armor.' },
+  mage:    { name: 'Mage', sprite: 'mage', gold: 70, mod: { sword: -1, fire: +2, blank: -1 },
+             passive: 'Two or more Fire on the line: all fire damage is doubled.' },
+  rogue:   { name: 'Rogue', sprite: 'rogue', gold: 75, mod: { cherry: +1, blank: -1 },
+             passive: 'Pocket holds 2. Cherries deal 2 damage. +1 nudge every fight.' },
 };
-const BASE_REEL = [
-  { seven: 1, bar: 2, cherry: 4, gem: 1, sword: 4, fire: 2, shield: 3, skull: 1, blank: 4 },
-  { seven: 1, bar: 2, cherry: 3, gem: 1, sword: 4, fire: 2, shield: 3, skull: 1, blank: 5 },
-  { seven: 1, bar: 2, cherry: 2, gem: 1, sword: 4, fire: 2, shield: 3, skull: 1, blank: 6 },
-];
+// 19 stops per reel. Cherries thin out towards the right, like a real strip set.
+const BASE_REEL = [3, 3, 2, 2, 2].map(ch => ({ seven: 1, bar: 2, cherry: ch, gem: 1, sword: 4, fire: 2, shield: 3, skull: 1, blank: 5 - ch }));
 const RELICS = {
-  whetstone:  { name: 'Brynsten',          icon: 'sword',  desc: 'Svärd gör +1 skada.' },
-  oak:        { name: 'Ekskölden',         icon: 'shield', desc: 'Börja varje strid med 10 block.' },
-  screws:     { name: 'Lösa skruvar',      icon: 'anvil',  desc: 'Automaten betalar tillbaka 1,5 procentenheter mer (RTP).' },
-  crystal:    { name: 'Eldkristall',       icon: 'fire',   desc: 'Eld gör +1 skada.' },
-  clover:     { name: 'Fyrklöver',         icon: 'clover', desc: 'Låsavgiften halveras.' },
-  silk:       { name: 'Sidenfickan',       icon: 'bag',    desc: '+1 plats i fickan.' },
-  bonering:   { name: 'Benringen',         icon: 'skull',  desc: 'Dödskallar på linjen gör 5 skada i stället för att skynda på fienden.' },
-  magnet:     { name: 'Juvelmagnet',       icon: 'gem',    desc: 'Jokrar på linjen gör 4 skada.' },
-  rage:       { name: 'Raseribrygd',       icon: 'potion', desc: 'Power-kombos gör dubbel skada och block.' },
-  highroller: { name: 'Högrullarbrickan',  icon: 'seven',  desc: 'Låser upp insats 20 (RTP 97 %).' },
+  whetstone:  { name: 'Whetstone',        icon: 'sword',  desc: 'Swords deal +1 damage.' },
+  oak:        { name: 'Oak Shield',       icon: 'shield', desc: 'Start every fight with 10 block.' },
+  screws:     { name: 'Loose Screws',     icon: 'anvil',  desc: 'The machine pays back 1.5 points more (RTP).' },
+  crystal:    { name: 'Fire Crystal',     icon: 'fire',   desc: 'Fire deals +1 damage.' },
+  clover:     { name: 'Four-Leaf Clover', icon: 'clover', desc: 'The hold fee is halved.' },
+  silk:       { name: 'Silk Pocket',      icon: 'bag',    desc: '+1 pocket slot.' },
+  bonering:   { name: 'Bone Ring',        icon: 'skull',  desc: 'Skulls on the line deal 5 damage instead of rushing the enemy.' },
+  magnet:     { name: 'Wild Magnet',      icon: 'gem',    desc: 'Wilds on the line deal 4 damage.' },
+  rage:       { name: 'Rage Draught',     icon: 'potion', desc: 'Weapon combos deal double damage and block.' },
+  highroller: { name: 'High Roller Chip', icon: 'seven',  desc: 'Unlocks bet 20 (97% RTP).' },
+  grease:     { name: 'Greased Lever',    icon: 'chestOpen', desc: '+1 nudge every fight.' },
 };
 const ENEMIES = {
-  slime:    { name: 'Slemklump',       sprite: 'slime',    hp: 22,  atk: 5,  every: 2 },
-  bat:      { name: 'Grottfladdermus', sprite: 'bat',      hp: 14,  atk: 3,  every: 1 },
-  goblin:   { name: 'Goblin',          sprite: 'goblin',   hp: 28,  atk: 7,  every: 2 },
-  skeleton: { name: 'Skelettkrigare',  sprite: 'skeleton', hp: 34,  atk: 8, every: 2, armor: true },
-  bigslime: { name: 'Jätteslem',       sprite: 'slime',    hp: 50,  atk: 12, every: 3, big: true, filter: 'hue-rotate(250deg)' },
-  shaman:   { name: 'Goblinshaman',    sprite: 'goblin',   hp: 30,  atk: 4,  every: 1, curse: true, filter: 'hue-rotate(160deg)' },
-  orc:      { name: 'Orkhövding',      sprite: 'orc',      hp: 55,  atk: 9,  every: 2, curse: true, big: true },
-  dragon:   { name: 'Draken Glödkäft', sprite: 'dragon',   hp: 120, atk: 11, every: 2, armor: true, curse: true, enrage: 4, big: true },
+  slime:    { name: 'Slime',          sprite: 'slime',    hp: 30,  atk: 5,  every: 2 },
+  bat:      { name: 'Cave Bat',       sprite: 'bat',      hp: 20,  atk: 3,  every: 1 },
+  goblin:   { name: 'Goblin',         sprite: 'goblin',   hp: 38,  atk: 7,  every: 2 },
+  skeleton: { name: 'Skeleton Knight', sprite: 'skeleton', hp: 44, atk: 8,  every: 2, armor: true },
+  bigslime: { name: 'Giant Slime',    sprite: 'slime',    hp: 66,  atk: 12, every: 3, big: true, filter: 'hue-rotate(250deg)' },
+  shaman:   { name: 'Goblin Shaman',  sprite: 'goblin',   hp: 40,  atk: 4,  every: 1, curse: true, filter: 'hue-rotate(160deg)' },
+  orc:      { name: 'Orc Chieftain',  sprite: 'orc',      hp: 66,  atk: 9,  every: 2, curse: true, big: true },
+  dragon:   { name: 'Glowmaw the Dragon', sprite: 'dragon', hp: 150, atk: 10, every: 2, armor: true, curse: true, enrage: 4, big: true },
 };
 const TIER1 = ['slime', 'bat', 'goblin'];
 const TIER2 = ['skeleton', 'bigslime', 'shaman', 'goblin'];
@@ -884,47 +899,49 @@ function buildStrip(countsObj) {
   for (let i = 0; i < n; i++) out.push(at.has(i) && blanks.length ? blanks.pop() : syms.pop() || blanks.pop());
   return out;
 }
+function classReel(cls, i) {
+  const c = { ...BASE_REEL[i] };
+  for (const t in CLASSES[cls].mod) c[t] = Math.max(0, (c[t] || 0) + CLASSES[cls].mod[t]);
+  return c;
+}
 function newRun(cls) {
-  const C = CLASSES[cls];
-  const strips = BASE_REEL.map(base => {
-    const c = { ...base };
-    for (const t in C.mod) c[t] = Math.max(0, (c[t] || 0) + C.mod[t]);
-    return buildStrip(c);
-  });
-  return { cls, gold: C.gold, bet: 3, strips, pocket: [], relics: [], map: genMap(), pos: null, visited: [], screen: 'map',
-           room: null, fight: null, place: [], stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0 } };
+  return { cls, gold: CLASSES[cls].gold, bet: 2, strips: BASE_REEL.map((_, i) => buildStrip(classReel(cls, i))), pocket: [], nudges: 1,
+           relics: [], map: genMap(), pos: null, visited: [], screen: 'map', room: null, fight: null, place: [],
+           stats: { kills: 0, spins: 0, best: 0, bigWin: 0, wagered: 0, won: 0, nudges: 0 } };
 }
 const pocketCap = run => 1 + (run.cls === 'rogue' ? 1 : 0) + (has(run, 'silk') ? 1 : 0);
+const nudgesPerFight = run => 1 + (run.cls === 'rogue' ? 1 : 0) + (has(run, 'grease') ? 1 : 0);
 
-// --- Fight ------------------------------------------------------------
+// --- Fight -----------------------------------------------------------------
 function makeEnemy(id) { const d = ENEMIES[id]; return { ...d, id, maxHp: d.hp, timer: d.every, enraged: false }; }
 const enemyAtk = e => e.atk + (e.enraged ? e.enrage : 0);
 function startFightState(run, id, kind) {
   const strips = run.strips.map(s => s.map(x => ({ ...x })));
-  return { enemy: makeEnemy(id), kind, strips, pos: strips.map(s => ri(0, s.length - 1)), override: [null, null, null],
-           lock: [false, false, false], lastLock: [false, false, false], pocketUse: null, pocketed: false, block: has(run, 'oak') ? 10 : 0, spins: 0 };
+  run.nudges = Math.min(MAX_NUDGES, run.nudges + nudgesPerFight(run));
+  const off = () => Array(REELS).fill(false);
+  return { enemy: makeEnemy(id), kind, strips, pos: strips.map(s => ri(0, s.length - 1)), override: Array(REELS).fill(null),
+           lock: off(), lastLock: off(), pocketUse: null, pocketed: false, pending: null, block: has(run, 'oak') ? 10 : 0, spins: 0 };
 }
-const mod = (i, n) => ((i % n) + n) % n;
 const midSym = (f, c) => f.override[c] || f.strips[c][f.pos[c]];
 function fixedTypes(f) {
-  return [0, 1, 2].map(c => f.pocketUse && f.pocketUse.reel === c ? f.pocketUse.sym.t : f.lock[c] ? midSym(f, c).t : null);
+  return f.strips.map((_, c) => f.pocketUse && f.pocketUse.reel === c ? f.pocketUse.sym.t : f.lock[c] ? midSym(f, c).t : null);
 }
 function spinPrice(run, f, bet) {
   const fixed = fixedTypes(f), n = fixed.filter(Boolean).length;
   if (!n) return { total: bet, fee: 0, n: 0 };
   const m = machine(run, f.strips, bet);
   const ev = bet * m.scale * lineStats(f.strips, fixed).ev;
-  const minP = bet + Math.ceil(bet * LOCK_FEE * (has(run, 'clover') ? 0.5 : 1) * n);
-  const total = Math.max(minP, Math.ceil(ev / m.rtp));   // a lock never beats the house
+  const minP = bet + Math.ceil(bet * HOLD_FEE * (has(run, 'clover') ? 0.5 : 1) * n);
+  const total = Math.max(minP, Math.ceil(ev / m.rtp));   // a hold never beats the house
   return { total, fee: total - bet, n };
 }
-// One symbol on the payline, no combo: flat effect, the bet does not change it.
+// A single symbol on the payline, outside a combo: flat effect, the bet does not change it.
 function cellFx(run, f, s, firesOnLine) {
-  const t = s.t, e = f.enemy;
+  const t = s.t;
   const fx = { t, dmg: 0, block: 0, rush: 0, half: false };
   if (t === 'sword') {
     fx.dmg = 3 + s.lvl + (run.cls === 'warrior' ? 1 : 0) + (has(run, 'whetstone') ? 1 : 0);
-    if (e.armor) { fx.dmg = Math.ceil(fx.dmg / 2); fx.half = true; }
+    if (f.enemy.armor && run.cls !== 'warrior') { fx.dmg = Math.ceil(fx.dmg / 2); fx.half = true; }
   } else if (t === 'fire') {
     fx.dmg = 3 + s.lvl + (has(run, 'crystal') ? 1 : 0);
     if (run.cls === 'mage' && firesOnLine >= 2) fx.dmg *= 2;
@@ -934,58 +951,90 @@ function cellFx(run, f, s, firesOnLine) {
   else if (t === 'skull') { if (has(run, 'bonering')) fx.dmg = 5; else fx.rush = 1; }
   return fx;
 }
-// Three of a weapon: the combo replaces the single effects. Same number as the payout, times the bet.
-function powerFx(run, power, line, bet) {
-  const lv = line.reduce((a, s) => a + (s.lvl || 0), 0);
-  const v = (PAY[power].base + lv * 2) * bet * (has(run, 'rage') ? 2 : 1);
-  return power === 'shield' ? { block: v, dmg: 0 } : { dmg: v, block: 0 };
+// Weapon combo of N from the left: POWER_X[N] × bet, ignores armor.
+function powerFx(run, combo, line, bet) {
+  const lv = line.slice(0, combo.n).reduce((a, s) => a + (s.lvl || 0), 0);
+  const v = (POWER_X[combo.n] + lv * 2) * bet * (has(run, 'rage') ? 2 : 1);
+  return combo.t === 'shield' ? { block: v, dmg: 0 } : { dmg: v, block: 0 };
 }
-function addCurse(f) {
-  const blanks = [];
-  f.strips.forEach((s, c) => s.forEach((x, i) => { if (x.t === 'blank') blanks.push([c, i]); }));
-  if (blanks.length) { const [c, i] = pick(blanks); f.strips[c][i] = { t: 'skull', lvl: 0, temp: true }; return c; }
-  const c = ri(0, 2); f.strips[c].push({ t: 'skull', lvl: 0, temp: true }); return c;
+// What the payline does right now, without changing anything.
+function outcome(run, f, bet) {
+  const line = f.strips.map((_, c) => midSym(f, c));
+  const types = line.map(s => s.t);
+  const combo = evalLine(types);
+  const m = machine(run, f.strips, bet);
+  const mult = combo ? combo.base * m.scale : 0;
+  const power = combo && WEAPONS.includes(combo.t) ? combo : null;
+  const fires = types.filter(t => t === 'fire').length;
+  const cells = line.map((s, i) => power && i < power.n ? { power: true, dmg: 0, block: 0, rush: 0 } : cellFx(run, f, s, fires));
+  const pfx = power ? powerFx(run, power, line, bet) : null;
+  const sum = k => cells.reduce((a, x) => a + x[k], 0) + (pfx ? pfx[k] || 0 : 0);
+  return { line, combo, mult, power, pfx, cells, dmg: sum('dmg'), block: sum('block'), rush: sum('rush'), winEV: mult * bet };
 }
-function applySpin(run, f) {
+const outcomeValue = (o, nudged) => (nudged ? 0 : o.winEV) + o.dmg + o.block * 0.5 - o.rush * 4;
+
+// Step 1: pay, spin the reels that are not held.
+function startSpin(run, f) {
   const bet = run.bet;
   const price = spinPrice(run, f, bet).total;
   run.gold -= price;
   run.stats.wagered += price;
-  const m = machine(run, f.strips, bet);
   const pu = f.pocketUse;
-  const nextOverride = [null, null, null];
-  const held = [false, false, false];
-  for (let c = 0; c < 3; c++) {
-    if (pu && pu.reel === c) { nextOverride[c] = pu.sym; held[c] = true; }
-    else if (f.lock[c]) { nextOverride[c] = f.override[c]; held[c] = true; }
+  const next = Array(REELS).fill(null), held = Array(REELS).fill(false);
+  for (let c = 0; c < REELS; c++) {
+    if (pu && pu.reel === c) { next[c] = pu.sym; held[c] = true; }
+    else if (f.lock[c]) { next[c] = f.override[c]; held[c] = true; }
     else f.pos[c] = ri(0, f.strips[c].length - 1);
   }
-  f.override = nextOverride;
+  f.override = next;
   if (pu) run.pocket.splice(pu.idx, 1);
-  const line = [0, 1, 2].map(c => midSym(f, c));
-  const types = line.map(s => s.t);
-  const payId = evalLine(types);
-  const mult = payId ? PAY[payId].base * m.scale : 0;
-  const win = payId ? randRound(mult * bet) : 0;
-  const power = payId ? PAY[payId].power || null : null;
-  const fires = types.filter(t => t === 'fire').length;
-  const cells = power ? line.map(() => ({ power: true, dmg: 0, block: 0, rush: 0 })) : line.map(s => cellFx(run, f, s, fires));
-  const pfx = power ? powerFx(run, power, line, bet) : null;
-  const dmg = pfx ? pfx.dmg : cells.reduce((a, x) => a + x.dmg, 0);
-  const block = pfx ? pfx.block : cells.reduce((a, x) => a + x.block, 0);
-  const rush = cells.reduce((a, x) => a + x.rush, 0);
-  f.lastLock = held; f.lock = [false, false, false]; f.pocketUse = null; f.pocketed = false; f.spins++;
-  run.stats.spins++; run.stats.won += win;
-  if (dmg > run.stats.best) run.stats.best = dmg;
+  f.lastLock = held; f.lock = Array(REELS).fill(false); f.pocketUse = null; f.pocketed = false;
+  f.pending = { bet, price, held };
+  return f.pending;
+}
+// Step 2 (optional): nudge a reel one stop. dir -1 pulls the symbol above onto the line, +1 the one below.
+// A nudged spin pays no gold: nudges are for fighting, so the house edge stays intact.
+const canNudge = (run, f, c) => !!f.pending && run.nudges > 0 && !f.override[c];
+function nudge(run, f, c, dir) {
+  if (!canNudge(run, f, c)) return false;
+  f.pos[c] = mod(f.pos[c] + dir, f.strips[c].length);
+  f.pending.nudged = true;
+  run.nudges--; run.stats.nudges++;
+  return true;
+}
+function bestNudge(run, f) {
+  const bet = f.pending.bet, base = outcomeValue(outcome(run, f, bet), f.pending.nudged);
+  let best = { gain: 0, c: -1, dir: 0 };
+  for (let c = 0; c < REELS; c++) {
+    if (f.override[c]) continue;
+    for (const dir of [-1, 1]) {
+      const p = f.pos[c];
+      f.pos[c] = mod(p + dir, f.strips[c].length);
+      const g = outcomeValue(outcome(run, f, bet), true) - base;
+      f.pos[c] = p;
+      if (g > best.gain) best = { gain: g, c, dir };
+    }
+  }
+  return best;
+}
+// Step 3: the line acts, the payout is made, then the enemy's turn.
+function resolveSpin(run, f) {
+  const { bet, price, held, nudged } = f.pending;
+  f.pending = null;
+  const o = outcome(run, f, bet);
+  const win = o.combo && !nudged ? randRound(o.mult * bet) : 0;
+  f.spins++; run.stats.spins++; run.stats.won += win;
+  if (o.dmg > run.stats.best) run.stats.best = o.dmg;
   if (win > run.stats.bigWin) run.stats.bigWin = win;
-  f.block += block;
+  f.block += o.block;
   const e = f.enemy;
-  e.hp = Math.max(0, e.hp - dmg);
+  e.hp = Math.max(0, e.hp - o.dmg);
   run.gold += win;
-  const res = { bet, price, win, mult, payId, power, pfx, cells, dmg, block, rush, held, blockTotal: f.block };
+  const res = { ...o, bet, price, win, held, nudged: !!nudged, blockTotal: f.block };
   if (e.hp <= 0) { res.killed = true; return res; }
+  if (!win && run.nudges < MAX_NUDGES && rng() < NUDGE_AWARD) { run.nudges++; res.nudgeAward = true; }
   if (e.enrage && !e.enraged && e.hp <= e.maxHp / 2) { e.enraged = true; res.enraged = true; }
-  e.timer -= 1 + rush;
+  e.timer -= 1 + o.rush;
   if (e.timer <= 0) {
     e.timer = e.every;
     const atk = enemyAtk(e);
@@ -998,8 +1047,14 @@ function applySpin(run, f) {
   if (run.gold <= 0) res.dead = true;
   return res;
 }
+function addCurse(f) {
+  const blanks = [];
+  f.strips.forEach((s, c) => s.forEach((x, i) => { if (x.t === 'blank') blanks.push([c, i]); }));
+  if (blanks.length) { const [c, i] = pick(blanks); f.strips[c][i] = { t: 'skull', lvl: 0, temp: true }; return c; }
+  const c = ri(0, REELS - 1); f.strips[c].push({ t: 'skull', lvl: 0, temp: true }); return c;
+}
 
-// --- Map ------------------------------------------------------------
+// --- Map ---------------------------------------------------------------------
 const FLOORS = 8, COLS = 4;
 function genMap() {
   const nodes = {}, edges = [];
@@ -1043,13 +1098,13 @@ function reachable(run) {
 const floorOf = run => run.pos ? run.map.nodes[run.pos].f : -1;
 function rewardSymbols(run) {
   const f = floorOf(run);
-  const pool = [['sword', 24], ['fire', 20], ['shield', 16], ['cherry', 12], ['bar', 10], ['seven', 5], ['gem', 6]];
+  const pool = [['sword', 24], ['fire', 20], ['shield', 16], ['cherry', 10], ['bar', 10], ['seven', 5], ['gem', 7]];
   const tot = pool.reduce((a, [, w]) => a + w, 0);
   const out = [];
   for (let guard = 0; out.length < 3 && guard < 50; guard++) {
     let x = rng() * tot, t = 'sword';
     for (const [k, w] of pool) { if ((x -= w) < 0) { t = k; break; } }
-    const lvl = WEAPONS.includes(t) && rng() < 0.15 + f * 0.05 ? 1 : 0;
+    const lvl = WEAPONS.includes(t) && rng() < 0.2 + f * 0.05 ? 1 : 0;
     if (out.some(o => o.t === t && o.lvl === lvl)) continue;
     out.push({ t, lvl });
   }
@@ -1071,7 +1126,7 @@ function placeOnReel(strips, c, sym) {
 // SOUND
 // ===================================================================
 let actx = null, muted = false;
-try { muted = localStorage.getItem('eh-muted') === '1'; } catch (e) {}
+try { muted = localStorage.getItem('oah-muted') === '1'; } catch (e) {}
 function tone(freq, dur, type = 'square', vol = 0.04, slide = 0, delay = 0) {
   if (muted) return;
   try {
@@ -1086,8 +1141,8 @@ function tone(freq, dur, type = 'square', vol = 0.04, slide = 0, delay = 0) {
   } catch (e) {}
 }
 const sfx = {
-  tick: () => tone(1200, 0.02, 'square', 0.012),
-  stop: () => tone(260, 0.05, 'square', 0.04),
+  tick: () => tone(1200, 0.02, 'square', 0.01),
+  stop: () => tone(260, 0.05, 'square', 0.035),
   hit:  () => tone(180, 0.12, 'sawtooth', 0.06, -120),
   big:  () => { tone(140, 0.25, 'sawtooth', 0.07, -100); tone(70, 0.3, 'square', 0.05, 0, 0.05); },
   coin: () => { tone(988, 0.05, 'square', 0.025); tone(1319, 0.08, 'square', 0.025, 0, 0.05); },
@@ -1098,6 +1153,7 @@ const sfx = {
   die:  () => [400, 300, 200, 120].forEach((f, i) => tone(f, 0.12, 'square', 0.04, 0, i * 0.09)),
   click:() => tone(700, 0.03, 'square', 0.02),
   lock: () => tone(420, 0.05, 'square', 0.03),
+  nudge:() => { tone(330, 0.04, 'square', 0.04); tone(495, 0.05, 'square', 0.04, 0, 0.05); },
 };
 function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
 
@@ -1106,11 +1162,11 @@ function buzz(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e
 // ===================================================================
 const $ = s => document.querySelector(s);
 const app = $('#app'), screen = $('#screen');
-const SAVE = 'enarmad-hjalte-run-v2';
+const SAVE = 'one-armed-hero-run-v3';
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, reduced ? ms * 0.3 : ms));
-const pct = x => (x * 100).toFixed(1).replace('.', ',') + ' %';
-const fmtMult = x => '×' + (x >= 10 ? Math.round(x) : x.toFixed(1).replace('.', ','));
+const pct = x => (x * 100).toFixed(1) + '%';
+const fmtMult = x => '×' + (x >= 10 ? Math.round(x) : x.toFixed(1));
 let run = null, busy = false, pocketSel = null;
 
 function save() { try { if (run && run.cls) localStorage.setItem(SAVE, JSON.stringify(run)); } catch (e) {} }
@@ -1126,7 +1182,7 @@ function updateHud(goldShown) {
   const g = goldShown ?? run.gold;
   $('#goldN').textContent = g;
   $('#gold').classList.toggle('low', g <= 12);
-  $('#floorLbl').innerHTML = `${CLASSES[run.cls].name.toUpperCase()}<br>VÅNING ${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}`;
+  $('#floorLbl').innerHTML = `${CLASSES[run.cls].name.toUpperCase()}<br>FLOOR ${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}`;
 }
 function floatAt(el, text, cls) {
   const a = app.getBoundingClientRect(), b = el.getBoundingClientRect();
@@ -1144,7 +1200,7 @@ async function fly(fromEl, toEl, sprite) {
   s.style.left = (b.left - a.left + b.width / 2) + 'px'; s.style.top = (b.top - a.top + b.height / 2) + 'px';
   app.appendChild(s); void s.offsetWidth;
   s.style.transform = `translate(${t.left - b.left + t.width / 2 - b.width / 2}px, ${t.top - b.top + t.height / 2 - b.height / 2}px) rotate(200deg)`;
-  await sleep(250); s.remove();
+  await sleep(240); s.remove();
 }
 function go(name) { run.screen = name; save(); render(); }
 function render() {
@@ -1158,7 +1214,7 @@ function reelChips(strip, opts = {}) {
   const c = counts(strip);
   const order = ['seven', 'bar', 'cherry', 'gem', 'sword', 'fire', 'shield', 'skull', 'blank'];
   return order.filter(t => c[t]).map(t => {
-    const inner = t === 'blank' ? `tom ${c[t]}` : `${px(t, SYM[t].name)}${c[t]}`;
+    const inner = t === 'blank' ? `blank ${c[t]}` : `${px(t, SYM[t].name)}${c[t]}`;
     return opts.button ? `<button class="chip ${t === 'blank' ? 'blank' : ''} ${opts.sel === t ? 'sel' : ''}" data-t="${t}">${inner}</button>`
                        : `<span class="chip ${t === 'blank' ? 'blank' : ''}">${inner}</span>`;
   }).join('');
@@ -1171,12 +1227,12 @@ function renderTitle() {
   screen.innerHTML = `
     <div class="scr title">
       <div class="trio">${px('warrior')}${px('seven')}${px('rogue')}</div>
-      <h1 class="logo">Enarmad<span>Hjälte</span></h1>
-      <p class="tagline">Ett roguelike på en riktig enarmad bandit. Guldet är ditt liv, och huset vinner alltid till slut.</p>
+      <h1 class="logo">One-Armed<span>Hero</span></h1>
+      <p class="tagline">A roguelike on a real one-armed bandit. Your gold is your life, and the house always wins in the end. Almost.</p>
       <div class="stack">
-        ${canContinue ? `<button class="btn" id="cont">Fortsätt rundan</button>` : ''}
-        <button class="btn ${canContinue ? 'ghost' : ''}" id="new">Ny runda</button>
-        <button class="btn ghost" id="rules">Så spelar du</button>
+        ${canContinue ? `<button class="btn" id="cont">Continue run</button>` : ''}
+        <button class="btn ${canContinue ? 'ghost' : ''}" id="new">New run</button>
+        <button class="btn ghost" id="rules">How to play</button>
       </div>
     </div>`;
   $('#new').onclick = () => { sfx.click(); run = { screen: 'class' }; render(); };
@@ -1188,23 +1244,23 @@ function renderTitle() {
 function renderClass() {
   screen.innerHTML = `
     <div class="scr">
-      <h2>Välj din hjälte</h2>
+      <h2>Choose your hero</h2>
       <div class="cls-list">
         ${Object.entries(CLASSES).map(([k, C]) => {
-          const reel = { ...BASE_REEL[1] }; for (const t in C.mod) reel[t] = Math.max(0, reel[t] + C.mod[t]);
-          const strip = []; for (const t in reel) for (let i = 0; i < reel[t]; i++) strip.push({ t });
+          const reel = classReel(k, 0), strip = [];
+          for (const t in reel) for (let i = 0; i < reel[t]; i++) strip.push({ t });
           return `
           <button class="cls" data-c="${k}">
             ${px(C.sprite)}
             <div>
               <h3>${C.name}</h3>
               <p class="passive">${C.passive}</p>
-              <p>Startguld ${C.gold}. Mitthjulet:</p>
+              <p>Starting gold ${C.gold}. Reel 1:</p>
               <div class="chips">${reelChips(strip)}</div>
             </div>
           </button>`; }).join('')}
       </div>
-      <button class="btn ghost" id="back">Tillbaka</button>
+      <button class="btn ghost" id="back">Back</button>
     </div>`;
   screen.querySelectorAll('.cls').forEach(b => b.onclick = () => { sfx.win(); run = newRun(b.dataset.c); save(); render(); });
   $('#back').onclick = () => { run = null; render(); };
@@ -1212,9 +1268,9 @@ function renderClass() {
 
 // ---------- map ----------
 const ROOM = {
-  fight: { name: 'Strid', icon: 'sword' }, elite: { name: 'Elit', icon: 'skull' }, chest: { name: 'Skattkammare', icon: 'chest' },
-  forge: { name: 'Smedja', icon: 'anvil' }, shop: { name: 'Handlare', icon: 'bag' }, altar: { name: 'Altare', icon: 'altar' },
-  event: { name: 'Mysterium', icon: 'mystery' }, boss: { name: 'Draken', icon: 'dragon' },
+  fight: { name: 'Fight', icon: 'sword' }, elite: { name: 'Elite', icon: 'skull' }, chest: { name: 'Treasure', icon: 'chest' },
+  forge: { name: 'Forge', icon: 'anvil' }, shop: { name: 'Merchant', icon: 'bag' }, altar: { name: 'Altar', icon: 'altar' },
+  event: { name: 'Mystery', icon: 'mystery' }, boss: { name: 'Dragon', icon: 'dragon' },
 };
 function renderMap() {
   const ROWH = 78, PAD = 52, H = PAD * 2 + FLOORS * ROWH;
@@ -1270,7 +1326,8 @@ function enterRoom(k) {
       const PRICE = { sword: 10, fire: 10, shield: 8, cherry: 6, bar: 8, seven: 14, gem: 18 };
       const syms = rewardSymbols(run).map(s => ({ ...s, price: PRICE[s.t] + s.lvl * 8, sold: false }));
       const relic = randomRelic(run);
-      run.room = { syms, relic: relic ? { id: relic, price: 40, sold: false } : null, purge: { price: 12, sold: false }, msg: null };
+      run.room = { syms, relic: relic ? { id: relic, price: 40, sold: false } : null, purge: { price: 12, sold: false },
+                   nudge: { price: 10, sold: false }, msg: null };
       return go('shop');
     }
     case 'event': run.room = { id: pick(Object.keys(EVENTS)), result: null }; return go('event');
@@ -1280,26 +1337,25 @@ function enterRoom(k) {
 // ---------- fight ----------
 function startFight(id, kind) { run.fight = startFightState(run, id, kind); pocketSel = null; go('fight'); }
 function cellHTML(s, extra = '') {
-  return `<div class="cell" data-t="${s.t}">${px(s.t, SYM[s.t].name)}${s.lvl ? `<i class="lv">+${s.lvl}</i>` : ''}${s.temp ? '<i class="tmp">FÖRB</i>' : ''}${extra}</div>`;
+  return `<div class="cell" data-t="${s.t}">${px(s.t, SYM[s.t].name)}${s.lvl ? `<i class="lv">+${s.lvl}</i>` : ''}${s.temp ? '<i class="tmp">CURSE</i>' : ''}${extra}</div>`;
 }
 function windowHTML(f, c, preview) {
   const s = f.strips[c], n = s.length, p = f.pos[c];
-  const mid = preview || midSym(f, c);
-  return cellHTML(s[mod(p - 1, n)]) + cellHTML(mid, preview ? '<i class="pk">FICKA</i>' : '') + cellHTML(s[mod(p + 1, n)]);
+  return cellHTML(s[mod(p - 1, n)]) + cellHTML(preview || midSym(f, c), preview ? '<i class="pk">POCKET</i>' : '') + cellHTML(s[mod(p + 1, n)]);
 }
 function intentHTML(e) {
   const pips = Array.from({ length: e.every }, (_, i) => `<i class="${i < e.timer ? '' : 'off'}"></i>`).join('');
-  const when = e.timer <= 1 ? 'NÄSTA SNURR' : `OM ${e.timer} SNURR`;
-  return `${px('sword')}<span>ANFALL ${when}<br><b>−${enemyAtk(e)} guld</b>${e.curse ? ' + förbannelse' : ''}</span><span class="pips">${pips}</span>`;
+  const when = e.timer <= 1 ? 'NEXT SPIN' : `IN ${e.timer} SPINS`;
+  return `${px('sword')}<span>ATTACKS ${when}<br><b>−${enemyAtk(e)} gold</b>${e.curse ? ' + curse' : ''}</span><span class="pips">${pips}</span>`;
 }
 function renderFight() {
   const f = run.fight, e = f.enemy;
-  const kindLbl = f.kind === 'elite' ? 'ELIT · ' : f.kind === 'boss' ? 'BOSS · ' : '';
+  const kindLbl = f.kind === 'elite' ? 'ELITE · ' : f.kind === 'boss' ? 'BOSS · ' : '';
   screen.innerHTML = `
     <div class="scr fight">
       <div class="stage" id="stage">
         <div class="ehead">
-          <div class="ename"><span class="lbl">${kindLbl}${e.armor ? 'RUSTNING · ' : ''}</span>${e.name}</div>
+          <div class="ename"><span class="lbl">${kindLbl}${e.armor ? 'ARMOR · ' : ''}</span>${e.name}</div>
           <div class="hpbar"><i id="hpFill" style="width:${(e.hp / e.maxHp) * 100}%"></i><b id="hpTxt">${e.hp}/${e.maxHp}</b></div>
           <div class="intent" id="intent"></div>
         </div>
@@ -1311,27 +1367,31 @@ function renderFight() {
         <div class="banner" id="banner"><b></b><span></span></div>
       </div>
       <div class="machine">
-        <div class="led"><span>INSATS<b id="ledBet"></b></span><span>RTP<b id="ledRtp"></b></span><span>VINST<b id="ledWin">0</b></span></div>
+        <div class="led"><span>BET<b id="ledBet"></b></span><span>RTP<b id="ledRtp"></b></span><span>WIN<b id="ledWin">0</b></span></div>
         <div class="reels" id="reels">
-          ${[0, 1, 2].map(c => `<div class="reel" data-c="${c}"><div class="strip"></div><div class="tag" id="tag${c}"></div><button class="tap" data-c="${c}" aria-label="Spara symbolen i fickan"></button></div>`).join('')}
+          ${f.strips.map((_, c) => `<div class="reel" data-c="${c}"><div class="strip"></div><div class="tag" id="tag${c}"></div>
+            <button class="tap top" data-c="${c}" data-z="top" aria-label="Nudge reel ${c + 1} down"></button>
+            <button class="tap mid" data-c="${c}" data-z="mid" aria-label="Save this symbol to the pocket"></button>
+            <button class="tap bot" data-c="${c}" data-z="bot" aria-label="Nudge reel ${c + 1} up"></button></div>`).join('')}
           <div class="payline" id="payline"></div>
         </div>
-        <div class="locks">${[0, 1, 2].map(c => `<button class="lockbtn" data-c="${c}"></button>`).join('')}</div>
+        <div class="locks">${f.strips.map((_, c) => `<button class="lockbtn" data-c="${c}"></button>`).join('')}</div>
       </div>
       <div class="log" id="log"></div>
       <div class="controls">
-        <div class="bet"><button id="betDn" aria-label="Sänk insatsen">−</button><div><small>INSATS</small><b id="betN"></b><small id="betRtp"></small></div><button id="betUp" aria-label="Höj insatsen">+</button></div>
+        <div class="bet"><button id="betDn" aria-label="Lower the bet">−</button><div><small>BET</small><b id="betN"></b><small id="betRtp"></small></div><button id="betUp" aria-label="Raise the bet">+</button></div>
+        <div class="nudges" id="nudges"></div>
         <div class="pocket" id="pocket"></div>
       </div>
       <button class="btn spin" id="spinBtn"></button>
     </div>`;
-  [0, 1, 2].forEach(c => drawReel(c));
-  $('#log').innerHTML = f.spins ? '' : `<b>${e.name}</b> spärrar vägen. Välj insats och dra i spaken. Bara <b>mittenraden</b> räknas.`;
-  $('#spinBtn').onclick = doSpin;
+  f.strips.forEach((_, c) => drawReel(c));
+  $('#log').innerHTML = f.pending ? nudgeHint() : f.spins ? '' : `<b>${e.name}</b> blocks the way. Pick a bet and pull the lever. Only the <b>middle row</b> counts, read from the left.`;
+  $('#spinBtn').onclick = () => run.fight.pending ? collect() : doSpin();
   $('#betDn').onclick = () => changeBet(-1);
   $('#betUp').onclick = () => changeBet(1);
-  screen.querySelectorAll('.lockbtn').forEach(b => b.onclick = () => onLock(+b.dataset.c));
-  screen.querySelectorAll('.reel .tap').forEach(b => b.onclick = () => onPocketCell(+b.dataset.c));
+  screen.querySelectorAll('.lockbtn').forEach(b => b.onclick = () => onHold(+b.dataset.c));
+  screen.querySelectorAll('.reel .tap').forEach(b => b.onclick = () => onReelTap(+b.dataset.c, b.dataset.z));
   refreshFight();
 }
 function drawReel(c) {
@@ -1342,63 +1402,77 @@ function drawReel(c) {
   strip.style.transition = 'none'; strip.style.transform = 'none'; strip.style.height = '100%';
   strip.innerHTML = windowHTML(f, c, preview);
   reel.classList.toggle('locked', !!(f.lock[c] || preview));
+  reel.classList.toggle('nudgeable', !!(f.pending && canNudge(run, f, c)));
 }
 function refreshFight() {
   const f = run.fight, e = f.enemy;
-  // keep the bet affordable
   const bets = betsFor(run);
-  while (run.bet > run.gold && run.bet > 1) run.bet = bets[Math.max(0, bets.indexOf(run.bet) - 1)] || 1;
-  const pr = spinPrice(run, f, run.bet);
+  if (!f.pending) while (run.bet > run.gold && run.bet > 1) run.bet = bets[Math.max(0, bets.indexOf(run.bet) - 1)] || 1;
   const m = machine(run, f.strips, run.bet);
   $('#ledBet').textContent = run.bet;
-  $('#ledRtp').textContent = pct(m.rtp).replace(' ', '');
+  $('#ledRtp').textContent = pct(m.rtp);
   $('#betN').textContent = run.bet;
   $('#betRtp').textContent = 'RTP ' + pct(m.rtp);
   const bi = bets.indexOf(run.bet);
-  $('#betDn').disabled = busy || bi <= 0;
-  $('#betUp').disabled = busy || bi >= bets.length - 1 || bets[bi + 1] > run.gold;
+  const lockedPhase = busy || !!f.pending;
+  $('#betDn').disabled = lockedPhase || bi <= 0;
+  $('#betUp').disabled = lockedPhase || bi >= bets.length - 1 || bets[bi + 1] > run.gold;
   const it = $('#intent'); it.innerHTML = intentHTML(e); it.classList.toggle('now', e.timer <= 1);
-  const bb = $('#blockBadge'); bb.hidden = !f.block; $('#blockN').textContent = `${f.block} BLOCK`;
-  // locks
-  const nLocked = f.lock.filter(Boolean).length + (f.pocketUse ? 1 : 0);
+  $('#blockBadge').hidden = !f.block; $('#blockN').textContent = `${f.block} BLOCK`;
+  f.strips.forEach((_, c) => document.querySelectorAll('.reel')[c].classList.toggle('nudgeable', !!(f.pending && canNudge(run, f, c))));
+  // holds
+  const nHeld = f.lock.filter(Boolean).length + (f.pocketUse ? 1 : 0);
   screen.querySelectorAll('.lockbtn').forEach(b => {
     const c = +b.dataset.c;
     const isPU = f.pocketUse && f.pocketUse.reel === c;
     b.className = 'lockbtn';
-    if (pocketSel !== null && !f.lastLock[c] && !f.lock[c] && !isPU) {
-      b.textContent = 'LÄGG HÄR'; b.classList.add('put'); b.disabled = busy || nLocked >= MAX_LOCKS;
-    } else if (isPU) { b.textContent = 'FICKA ✕'; b.classList.add('on'); b.disabled = busy; }
-    else if (f.lock[c]) { b.textContent = 'LÅST ✕'; b.classList.add('on'); b.disabled = busy; }
-    else if (f.lastLock[c]) { b.textContent = 'VILAR'; b.disabled = true; }
-    else { b.textContent = 'LÅS'; b.disabled = busy || !f.spins || nLocked >= MAX_LOCKS; }
+    if (f.pending) { b.textContent = '▲▼'; b.disabled = true; }
+    else if (pocketSel !== null && !f.lastLock[c] && !f.lock[c] && !isPU) { b.textContent = 'PUT'; b.classList.add('put'); b.disabled = busy || nHeld >= MAX_HOLDS; }
+    else if (isPU) { b.textContent = 'POCKET'; b.classList.add('on'); b.disabled = busy; }
+    else if (f.lock[c]) { b.textContent = 'HELD'; b.classList.add('on'); b.disabled = busy; }
+    else if (f.lastLock[c]) { b.textContent = 'REST'; b.disabled = true; }
+    else { b.textContent = 'HOLD'; b.disabled = busy || !f.spins || nHeld >= MAX_HOLDS; }
   });
+  // nudges
+  $('#nudges').innerHTML = `<span class="lbl">NUDGE</span><b>${run.nudges}</b>`;
+  $('#nudges').classList.toggle('live', !!f.pending && run.nudges > 0);
   // pocket
   const cap = pocketCap(run);
-  let ph = '<span class="lbl">FICKA</span>';
+  let ph = '<span class="lbl">POCKET</span>';
   for (let i = 0; i < cap; i++) {
     const s = run.pocket[i];
     const used = f.pocketUse && f.pocketUse.idx === i;
-    ph += `<button class="slot ${s ? 'full' : ''} ${pocketSel === i ? 'sel' : ''} ${used ? 'used' : ''}" data-i="${i}" aria-label="${s ? SYM[s.t].name + ' i fickan' : 'Tom ficka'}">${s ? px(s.t) + (s.lvl ? `<i>+${s.lvl}</i>` : '') : ''}</button>`;
+    ph += `<button class="slot ${s ? 'full' : ''} ${pocketSel === i ? 'sel' : ''} ${used ? 'used' : ''}" data-i="${i}" aria-label="${s ? SYM[s.t].name + ' in pocket' : 'Empty pocket'}">${s ? px(s.t) + (s.lvl ? `<i>+${s.lvl}</i>` : '') : ''}</button>`;
   }
   $('#pocket').innerHTML = ph;
   $('#pocket').querySelectorAll('.slot').forEach(b => b.onclick = () => onPocketSlot(+b.dataset.i));
-  // spin button
+  // lever
   const sb = $('#spinBtn');
+  if (f.pending) {
+    sb.disabled = busy;
+    sb.classList.add('collect');
+    sb.innerHTML = `COLLECT<small>or nudge: tap the symbol above or below the line</small>`;
+    return;
+  }
+  sb.classList.remove('collect');
+  const pr = spinPrice(run, f, run.bet);
   const afford = pr.total <= run.gold;
   sb.disabled = busy || !afford;
+  const pw = POWER_X[3] * run.bet * (has(run, 'rage') ? 2 : 1);
   sb.innerHTML = afford
-    ? `SNURRA −${pr.total} GULD<small>${pr.n ? `insats ${run.bet} + lås ${pr.fee}` : `insats ${run.bet} · power strike ${12 * run.bet}`}</small>`
-    : `FÖR DYRT<small>ta bort lås eller sänk insatsen</small>`;
+    ? `SPIN −${pr.total} GOLD<small>${pr.n ? `bet ${run.bet} + hold ${pr.fee}` : `bet ${run.bet} · power strike ${pw}`}</small>`
+    : `TOO EXPENSIVE<small>release a hold or lower the bet</small>`;
 }
 function changeBet(d) {
-  if (busy) return;
+  const f = run.fight;
+  if (busy || f.pending) return;
   const bets = betsFor(run), i = bets.indexOf(run.bet), n = bets[i + d];
   if (!n || n > run.gold) return;
   run.bet = n; sfx.click(); refreshFight(); save();
 }
-function onLock(c) {
-  if (busy) return;
+function onHold(c) {
   const f = run.fight;
+  if (busy || f.pending) return;
   if (pocketSel !== null) {
     if (f.lastLock[c]) return;
     f.lock[c] = false;
@@ -1409,26 +1483,51 @@ function onLock(c) {
   drawReel(c); refreshFight(); save();
 }
 function onPocketSlot(i) {
-  if (busy) return;
   const f = run.fight;
-  if (!run.pocket[i]) { $('#log').innerHTML = 'Fickan är tom. Tryck på en symbol <b>på vinstlinjen</b> efter ett snurr för att spara den.'; return; }
+  if (busy || f.pending) return;
+  if (!run.pocket[i]) { $('#log').innerHTML = 'The pocket is empty. After a spin, tap a symbol <b>on the payline</b> to save it.'; return; }
   if (f.pocketUse && f.pocketUse.idx === i) { const c = f.pocketUse.reel; f.pocketUse = null; drawReel(c); }
   else pocketSel = pocketSel === i ? null : i;
-  if (pocketSel !== null) $('#log').innerHTML = `Välj vilket hjul <b>${SYM[run.pocket[i].t].name.toLowerCase()}</b> ska läggas på. Det räknas som ett lås.`;
+  if (pocketSel !== null) $('#log').innerHTML = `Choose a reel for the <b>${SYM[run.pocket[i].t].name.toLowerCase()}</b>. It counts as a hold.`;
   sfx.click(); refreshFight();
+}
+function onReelTap(c, zone) {
+  const f = run.fight;
+  if (busy) return;
+  if (f.pending) {
+    if (zone === 'mid') return;
+    if (!canNudge(run, f, c)) { $('#log').innerHTML = run.nudges ? 'That reel holds a pocket symbol and cannot be nudged.' : 'No nudges left.'; return; }
+    nudge(run, f, c, zone === 'top' ? -1 : 1);
+    sfx.nudge(); buzz(10);
+    drawReel(c); anim(midCell(c), 'pop');
+    $('#log').innerHTML = nudgeHint();
+    refreshFight(); save();
+    if (!run.nudges) setTimeout(() => { if (run.fight && run.fight.pending && !busy) collect(); }, 650);
+    return;
+  }
+  if (zone === 'mid') onPocketCell(c);
+}
+function linePreview() {
+  const f = run.fight, o = outcome(run, f, f.pending.bet);
+  if (!o.combo) return 'no win';
+  if (f.pending.nudged) return `${comboName(o.combo)} (nudged: no gold)`;
+  return `${comboName(o.combo)} ${fmtMult(o.mult)}`;
+}
+function nudgeHint() {
+  return `<b>Nudge?</b> Tap the symbol above or below the line to pull it in (${run.nudges} left). A nudged spin <b>pays no gold</b>, it only fights.<br>Line now: <b>${linePreview()}</b>`;
 }
 function onPocketCell(c) {
   const f = run.fight;
   if (busy || !f.spins) return;
   const s = midSym(f, c);
-  const why = f.pocketed ? 'Du har redan sparat en symbol det här snurret.'
-    : run.pocket.length >= pocketCap(run) ? 'Fickan är full.'
-    : f.override[c] ? 'Den symbolen kom från fickan.'
-    : ['blank', 'skull'].includes(s.t) ? 'Den går inte att spara.' : null;
+  const why = f.pocketed ? 'You already saved a symbol this spin.'
+    : run.pocket.length >= pocketCap(run) ? 'The pocket is full.'
+    : f.override[c] ? 'That symbol came from the pocket.'
+    : ['blank', 'skull'].includes(s.t) ? 'That one cannot be saved.' : null;
   if (why) { $('#log').innerHTML = why; return; }
   run.pocket.push({ t: s.t, lvl: s.lvl || 0 });
   f.pocketed = true;
-  sfx.coin(); $('#log').innerHTML = `<b>${SYM[s.t].name}</b> ligger i fickan. Använd den när du vill, även i senare strider.`;
+  sfx.coin(); $('#log').innerHTML = `<b>${SYM[s.t].name}</b> is in your pocket. Put it on any reel later, even in another fight.`;
   refreshFight(); save();
 }
 
@@ -1447,11 +1546,11 @@ async function animateReels(f, oldPos, held) {
     strip.innerHTML = seq.map(x => cellHTML(x).replace('class="cell"', `class="cell" style="height:${100 / len}%"`)).join('');
     strip.style.transform = `translateY(-${(k / len) * 100}%)`;
     void strip.offsetHeight;
-    const dur = (reduced ? 150 : 700) + c * (reduced ? 60 : 280);
+    const dur = (reduced ? 150 : 600) + c * (reduced ? 50 : 200);
     strip.style.transition = `transform ${dur}ms cubic-bezier(.2,.75,.3,1.05)`;
     strip.style.transform = 'translateY(0)';
     let ticks = 0;
-    const tk = setInterval(() => { sfx.tick(); if (++ticks > dur / 70) clearInterval(tk); }, 70);
+    const tk = setInterval(() => { sfx.tick(); if (++ticks > dur / 80) clearInterval(tk); }, 80);
     setTimeout(() => { clearInterval(tk); sfx.stop(); drawReel(c); resolve(); }, dur + 30);
   })));
 }
@@ -1471,72 +1570,88 @@ async function countUp(el, to, hudFrom) {
 
 async function doSpin() {
   const f = run.fight;
-  if (busy || !f) return;
+  if (busy || !f || f.pending) return;
   const pr = spinPrice(run, f, run.bet);
   if (pr.total > run.gold) return;
   busy = true; pocketSel = null;
-  [0, 1, 2].forEach(c => { $('#tag' + c).textContent = ''; $('#tag' + c).className = 'tag'; });
+  f.strips.forEach((_, c) => { $('#tag' + c).textContent = ''; $('#tag' + c).className = 'tag'; });
   $('#ledWin').textContent = '0'; $('#ledWin').classList.remove('hot');
-  $('#log').innerHTML = 'Hjulen snurrar…';
+  $('#log').innerHTML = 'The reels are spinning…';
   refreshFight();
   const oldPos = [...f.pos];
-  const goldBefore = run.gold;
-  const hpBefore = f.enemy.hp;
-  const res = applySpin(run, f);
-  let shown = goldBefore - res.price;
-  updateHud(shown);
-  floatAt($('#gold'), `−${res.price}`, 'loss');
-  await animateReels(f, oldPos, res.held);
-
-  // 1. the combination
-  if (res.payId) {
-    const P = PAY[res.payId];
-    [0, 1, 2].forEach(c => midCell(c).classList.add('win'));
-    anim($('#payline'), 'flash');
-    if (res.power) { sfx.big(); buzz(80); showBanner(P.name + '!', res.pfx.dmg ? `${res.pfx.dmg} skada (${PAY[res.power].base} × insats ${res.bet})` : `+${res.pfx.block} block (${PAY[res.power].base} × insats ${res.bet})`); await sleep(1000); }
-    else if (res.payId === 'gem3' || res.payId === 'seven') { sfx.jackpot(); buzz(200); showBanner('JACKPOTT!', P.name); await sleep(1000); }
+  const p = startSpin(run, f);
+  updateHud();
+  floatAt($('#gold'), `−${p.price}`, 'loss');
+  await animateReels(f, oldPos, p.held);
+  // Nudge phase only when a nudge could actually help.
+  if (run.nudges > 0 && bestNudge(run, f).gain > 0) {
+    busy = false; save();
+    $('#log').innerHTML = nudgeHint();
+    anim($('#nudges'), 'pop');
+    refreshFight();
+    return;
   }
-  // 2. the payline acts: a power combo as one big blow, otherwise each symbol left to right
+  busy = false;
+  await collect();
+}
+
+async function collect() {
+  const f = run.fight;
+  if (busy || !f || !f.pending) return;
+  busy = true;
+  const shown = run.gold;
+  const res = resolveSpin(run, f);
+  refreshFight();
+  // 1. the combination
+  if (res.combo) {
+    const n = res.combo.n;
+    for (let c = 0; c < n; c++) midCell(c).classList.add('win');
+    anim($('#payline'), 'flash');
+    if (res.power) { sfx.big(); buzz(80); showBanner(comboName(res.power) + '!', res.pfx.dmg ? `${res.pfx.dmg} damage (${POWER_X[n]}${has(run, 'rage') ? '×2' : ''} × bet ${res.bet})` : `+${res.pfx.block} block`); await sleep(1000); }
+    else if (['gem', 'seven'].includes(res.combo.t) && n >= 3 && !res.nudged) { sfx.jackpot(); buzz(200); showBanner('JACKPOT!', comboName(res.combo)); await sleep(1000); }
+  }
+  // 2. the payline acts: a weapon combo as one big blow, then every other symbol left to right
   if (res.power) {
-    [0, 1, 2].forEach(c => { anim(midCell(c), 'pop'); $('#tag' + c).textContent = 'POWER'; $('#tag' + c).className = 'tag ' + (res.pfx.dmg ? 'dmg' : 'block'); });
+    const n = res.power.n;
+    for (let c = 0; c < n; c++) { anim(midCell(c), 'pop'); $('#tag' + c).textContent = 'POWER'; $('#tag' + c).className = 'tag ' + (res.pfx.dmg ? 'dmg' : 'block'); }
     if (res.pfx.dmg) {
       anim($('#hero'), 'lunge-r');
-      await Promise.all([0, 1, 2].map(c => fly(midCell(c), $('#enemy'), res.power)));
-      sfx.big(); buzz(120); anim($('#enemy'), 'hit'); anim($('#stage'), 'hit');
+      await Promise.all(Array.from({ length: n }, (_, c) => fly(midCell(c), $('#enemy'), res.power.t)));
+      sfx.big(); buzz(120); anim($('#enemy'), 'hit'); anim($('#stage'), 'shake');
       floatAt($('#enemy'), res.pfx.dmg, 'dmg');
     } else { sfx.block(); floatAt($('#hero'), `+${res.pfx.block}`, 'block'); await sleep(300); }
-  } else for (let c = 0; c < 3; c++) {
+  }
+  for (let c = res.power ? res.power.n : 0; c < res.cells.length; c++) {
     const fx = res.cells[c], cell = midCell(c), tag = $('#tag' + c);
     anim(cell, 'pop');
     if (fx.dmg) {
-      tag.textContent = `${fx.dmg} SKADA${fx.half ? ' (½)' : ''}`; tag.className = 'tag dmg';
+      tag.textContent = `${fx.dmg} DMG`; tag.className = 'tag dmg';
       anim($('#hero'), 'lunge-r');
       await fly(cell, $('#enemy'), fx.t);
       sfx.hit(); buzz(15);
       anim($('#enemy'), 'hit'); floatAt($('#enemy'), fx.dmg, 'dmg');
     } else if (fx.block) {
-      tag.textContent = `+${fx.block} BLOCK`; tag.className = 'tag block';
+      tag.textContent = `+${fx.block} BLK`; tag.className = 'tag block';
       sfx.block(); floatAt($('#hero'), `+${fx.block}`, 'block');
-      await sleep(200);
+      await sleep(160);
     } else if (fx.rush) {
-      tag.textContent = 'SKYNDAR'; tag.className = 'tag hex';
+      tag.textContent = 'RUSH'; tag.className = 'tag hex';
       sfx.hurt(); anim($('#intent'), 'hit');
-      await sleep(250);
-    } else { tag.textContent = '–'; tag.className = 'tag none'; await sleep(90); }
+      await sleep(220);
+    } else { tag.textContent = '–'; tag.className = 'tag none'; await sleep(60); }
   }
-  // enemy hp after all hits
   $('#hpFill').style.width = (f.enemy.hp / f.enemy.maxHp) * 100 + '%';
   $('#hpTxt').textContent = `${f.enemy.hp}/${f.enemy.maxHp}`;
   if (res.block) { $('#blockBadge').hidden = false; $('#blockN').textContent = `${res.blockTotal} BLOCK`; }
   // 3. the payout
   if (res.win) {
-    if (!res.power && !['gem3', 'seven'].includes(res.payId)) sfx.win();
+    if (!res.power && !['gem', 'seven'].includes(res.combo.t)) sfx.win();
     $('#ledWin').classList.add('hot');
     floatAt($('#gold'), `+${res.win}`, 'gold');
     await countUp($('#ledWin'), res.win, shown);
-    shown += res.win;
   }
   $('#log').innerHTML = spinLog(res);
+  if (res.nudgeAward) { sfx.nudge(); showBanner('NUDGE AWARDED', '+1 nudge'); anim($('#nudges'), 'pop'); }
   await sleep(250);
 
   if (res.killed) {
@@ -1545,32 +1660,32 @@ async function doSpin() {
     busy = false;
     return winFight();
   }
-  if (res.enraged) { sfx.big(); showBanner('DRAKEN RASAR!', 'anfallet +' + f.enemy.enrage); await sleep(900); }
+  if (res.enraged) { sfx.big(); showBanner('THE DRAGON RAGES!', 'attack +' + f.enemy.enrage); await sleep(900); }
   if (res.enemy) {
     const a = res.enemy;
     anim($('#enemy'), 'lunge-l'); await sleep(140);
     if (a.absorbed) { sfx.block(); floatAt($('#hero'), `BLOCK ${a.absorbed}`, 'block'); }
     if (a.taken) { sfx.hurt(); buzz(90); anim($('#hero'), 'hit'); floatAt($('#gold'), `−${a.taken}`, 'loss'); }
-    $('#log').innerHTML += `<br>${f.enemy.name} anfaller: <b class="d">−${a.atk}</b>${a.absorbed ? `, block tar <b class="bl">${a.absorbed}</b>` : ''}.` +
-      (a.curseReel !== null ? ` En <b>dödskalle</b> hamnar på hjul ${a.curseReel + 1}.` : '');
+    $('#log').innerHTML += `<br>${f.enemy.name} attacks: <b class="d">−${a.atk}</b>${a.absorbed ? `, block stops <b class="bl">${a.absorbed}</b>` : ''}.` +
+      (a.curseReel !== null ? ` A <b>skull</b> lands on reel ${a.curseReel + 1}.` : '');
     await sleep(350);
   }
   updateHud();
   if (res.dead) { await sleep(500); busy = false; run.screen = 'over'; save(); return render(); }
   busy = false;
   save();
+  f.strips.forEach((_, c) => drawReel(c));
   refreshFight();
 }
 function spinLog(res) {
-  const P = res.payId ? PAY[res.payId] : null;
-  let out = P ? `<b>${P.name}</b> ${fmtMult(res.mult)} × insats ${res.bet} = <b class="g">+${res.win} guld</b>` : `Ingen vinst. Insatsen ${res.bet} är förlorad.`;
+  let out;
+  if (!res.combo) out = `No win. Your bet of ${res.bet} is gone.`;
+  else if (res.nudged) out = `<b>${comboName(res.combo)}</b>, but nudged spins pay no gold.`;
+  else out = `<b>${comboName(res.combo)}</b> ${fmtMult(res.mult)} × bet ${res.bet} = <b class="g">+${res.win} gold</b>`;
   const bits = [];
-  if (res.power) bits.push(res.pfx.dmg ? `<b class="d">${res.pfx.dmg} skada</b> (${PAY[res.power].base}${has(run, 'rage') ? '×2' : ''} × ${res.bet})` : `<b class="bl">+${res.pfx.block} block</b>`);
-  else {
-    if (res.dmg) bits.push(`<b class="d">${res.dmg} skada</b>`);
-    if (res.block) bits.push(`<b class="bl">+${res.block} block</b>`);
-    if (res.rush) bits.push(`<b>fienden skyndar</b>`);
-  }
+  if (res.dmg) bits.push(`<b class="d">${res.dmg} damage</b>`);
+  if (res.block) bits.push(`<b class="bl">+${res.block} block</b>`);
+  if (res.rush) bits.push(`<b>enemy rushes</b>`);
   return out + (bits.length ? '<br>' + bits.join(' · ') : '');
 }
 function winFight() {
@@ -1590,15 +1705,15 @@ function winFight() {
 function symDesc(t, lvl = 0) {
   const r = run && run.cls ? run : { cls: null, relics: [] };
   switch (t) {
-    case 'sword':  return `${3 + lvl + (r.cls === 'warrior' ? 1 : 0) + (has(r, 'whetstone') ? 1 : 0)} skada (halv mot rustning)`;
-    case 'fire':   return `${3 + lvl + (has(r, 'crystal') ? 1 : 0)} skada, går genom rustning`;
+    case 'sword':  return `${3 + lvl + (r.cls === 'warrior' ? 1 : 0) + (has(r, 'whetstone') ? 1 : 0)} damage` + (r.cls === 'warrior' ? '' : ', halved by armor');
+    case 'fire':   return `${3 + lvl + (has(r, 'crystal') ? 1 : 0)} damage, ignores armor`;
     case 'shield': return `+${4 + lvl} block`;
-    case 'cherry': return 'Ett ensamt körsbär ger insatsen tillbaka' + (r.cls === 'rogue' ? ', 2 skada' : '');
-    case 'bar':    return '3 BAR ger en stor vinst';
-    case 'seven':  return '3 sjuor ger jackpott';
-    case 'gem':    return 'Joker: ersätter alla symboler' + (has(r, 'magnet') ? ', 4 skada' : '');
-    case 'skull':  return has(r, 'bonering') ? '5 skada' : 'Fienden anfaller ett snurr tidigare';
-    case 'blank':  return 'Ingenting';
+    case 'cherry': return 'One on reel 1 returns your bet' + (r.cls === 'rogue' ? ', 2 damage' : '');
+    case 'bar':    return 'Pays well in a row';
+    case 'seven':  return 'The jackpot symbol';
+    case 'gem':    return 'Wild: stands in for anything' + (has(r, 'magnet') ? ', 4 damage' : '');
+    case 'skull':  return has(r, 'bonering') ? '5 damage' : 'The enemy attacks one spin sooner';
+    case 'blank':  return 'Nothing';
   }
 }
 function symTile(s, extra = '', attrs = '') {
@@ -1608,14 +1723,14 @@ function renderReward() {
   const R = run.room;
   screen.innerHTML = `
     <div class="scr room">
-      <h2>Seger!</h2>
-      <p>${R.enemy} är besegrad. Hittelön: <b style="color:var(--brass)">${R.gold} guld</b>.</p>
-      ${R.relic ? `<div class="result"><b>Relik: ${RELICS[R.relic].name}</b><br>${RELICS[R.relic].desc}</div>` : ''}
-      <div class="lbl">Välj en symbol att sätta på ett hjul</div>
+      <h2>Victory!</h2>
+      <p>${R.enemy} is defeated. Bounty: <b style="color:var(--brass)">${R.gold} gold</b>.</p>
+      ${R.relic ? `<div class="result"><b>Relic: ${RELICS[R.relic].name}</b><br>${RELICS[R.relic].desc}</div>` : ''}
+      <div class="lbl">Choose a symbol to put on a reel</div>
       <div class="tiles">${R.options.map((s, i) => symTile(s, '', `data-i="${i}"`)).join('')}</div>
-      <p class="lbl">Kasinot kalibrerar om vinsttabellen efter varje ändring, så RTP:n är alltid densamma. Det du bygger är din stridskraft och din volatilitet.</p>
+      <p class="lbl">The casino re-calibrates the paytable after every change, so the RTP never moves. What you build is your fighting power and your volatility.</p>
       <div class="spacer"></div>
-      <button class="btn ghost" id="skip">Hoppa över</button>
+      <button class="btn ghost" id="skip">Skip</button>
     </div>`;
   screen.querySelectorAll('.tile').forEach(b => b.onclick = () => { sfx.click(); queuePlace([R.options[+b.dataset.i]], 'map'); });
   $('#skip').onclick = () => { sfx.click(); toMap(); };
@@ -1624,18 +1739,18 @@ function toMap() { run.room = null; go('map'); }
 function queuePlace(syms, back) { run.place = syms.map(s => ({ t: s.t, lvl: s.lvl || 0 })); run.placeBack = back; go('place'); }
 function renderPlace() {
   const s = run.place[0];
-  const lineChance = (strip, t) => strip.filter(x => x.t === t).length / strip.length;
+  const chance = (strip, t) => strip.filter(x => x.t === t).length / strip.length;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px(s.t)}<div><h2>${SYM[s.t].name}${s.lvl ? ' +' + s.lvl : ''}</h2><p>Vilket hjul? Den ersätter en tom ruta. Finns ingen blir hjulet ett stopp längre.</p></div></div>
+      <div class="head">${px(s.t)}<div><h2>${SYM[s.t].name}${s.lvl ? ' +' + s.lvl : ''}</h2><p>Which reel? It replaces a blank. With no blank left, the reel grows by one stop. Combos count from the left, so reels 1–3 matter most.</p></div></div>
       <div class="reelcards">${run.strips.map((strip, c) => {
         const blank = strip.some(x => x.t === 'blank');
-        const before = lineChance(strip, s.t);
+        const before = chance(strip, s.t);
         const after = (strip.filter(x => x.t === s.t).length + 1) / (strip.length + (blank ? 0 : 1));
         return `<button class="reelcard" data-c="${c}">
-          <div class="top"><b>Hjul ${c + 1}</b><span>${strip.length} stopp</span></div>
+          <div class="top"><b>Reel ${c + 1}</b><span>${strip.length} stops</span></div>
           <div class="chips">${reelChips(strip)}</div>
-          <div class="note">Chans på linjen: ${pct(before)} → ${pct(after)}${blank ? '' : ' · hjulet blir längre'}</div>
+          <div class="note">Chance on the line: ${pct(before)} → ${pct(after)}${blank ? '' : ' · reel grows'}</div>
         </button>`; }).join('')}</div>
     </div>`;
   screen.querySelectorAll('.reelcard').forEach(b => b.onclick = () => {
@@ -1647,23 +1762,23 @@ function renderPlace() {
 }
 
 // ---------- chest ----------
-const CHEST_LBL = ['Träkista', 'Silverkista', 'Guldkista'];
+const CHEST_LBL = ['Wooden chest', 'Silver chest', 'Gold chest'];
 function chestContent(ch) {
   if (ch.kind === 'relic') return { icon: RELICS[ch.id].icon, title: RELICS[ch.id].name, text: RELICS[ch.id].desc };
-  if (ch.kind === 'gold') return { icon: 'coin', title: `${ch.v} guld`, text: 'En hög med mynt.' };
-  return { icon: ch.items[0].t, title: 'Symbolpaket', text: ch.items.map(s => SYM[s.t].name + (s.lvl ? ' +' + s.lvl : '')).join(' och ') };
+  if (ch.kind === 'gold') return { icon: 'coin', title: `${ch.v} gold`, text: 'A pile of coins.' };
+  return { icon: ch.items[0].t, title: 'Symbol pack', text: ch.items.map(s => SYM[s.t].name + (s.lvl ? ' +' + s.lvl : '')).join(' and ') };
 }
 function renderChest() {
   const R = run.room, open = R.picked !== null;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px('chest')}<div><h2>Skattkammaren</h2><p>Tre kistor. Du hinner öppna en innan golvet rasar.</p></div></div>
+      <div class="head">${px('chest')}<div><h2>The Treasury</h2><p>Three chests. You have time to open one before the floor gives way.</p></div></div>
       <div class="tiles chest-row">${R.chests.map((ch, i) => { const c = chestContent(ch), mine = R.picked === i;
         return `<button class="tile ${open ? (mine ? 'sel' : 'gone') : ''}" data-i="${i}" ${open ? 'disabled' : ''}>${open ? px(c.icon) : px('chest')}
-          <b>${open ? c.title : CHEST_LBL[i]}</b><span>${open ? c.text : 'Vad finns i den?'}</span></button>`; }).join('')}</div>
-      ${open ? `<div class="result">Du tar <b>${chestContent(R.chests[R.picked]).title}</b>. De andra kistorna försvinner i mörkret.</div>` : ''}
+          <b>${open ? c.title : CHEST_LBL[i]}</b><span>${open ? c.text : 'What is inside?'}</span></button>`; }).join('')}</div>
+      ${open ? `<div class="result">You take <b>${chestContent(R.chests[R.picked]).title}</b>. The other chests vanish into the dark.</div>` : ''}
       <div class="spacer"></div>
-      ${open ? `<button class="btn" id="next">Vidare</button>` : ''}
+      ${open ? `<button class="btn" id="next">Onward</button>` : ''}
     </div>`;
   if (!open) screen.querySelectorAll('.tile').forEach(b => b.onclick = () => {
     const i = +b.dataset.i, ch = R.chests[i];
@@ -1680,14 +1795,14 @@ function renderForge() {
   const R = run.room;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px('anvil')}<div><h2>Smedjan</h2><p>Smeden vässar ett vapen på dina hjul. Bara ett.</p></div></div>
+      <div class="head">${px('anvil')}<div><h2>The Forge</h2><p>The smith sharpens one weapon on your reels. Just one.</p></div></div>
       ${R.opts.length ? `<div class="tiles">${R.opts.map(([c, i], k) => { const s = run.strips[c][i], done = R.done === k, nl = done ? s.lvl : s.lvl + 1;
         return `<button class="tile ${done ? 'sel' : R.done !== null ? 'gone' : ''}" data-k="${k}" ${R.done !== null ? 'disabled' : ''}>
-          ${px(s.t)}<b>${SYM[s.t].name} +${nl}</b><span>Hjul ${c + 1}</span><span>${symDesc(s.t, nl)}</span></button>`; }).join('')}</div>`
-        : `<div class="result">Du har inga vapen kvar att uppgradera.</div>`}
-      <p class="lbl">Uppgraderingar ger mer skada eller block. De ändrar inte vinsttabellen.</p>
+          ${px(s.t)}<b>${SYM[s.t].name} +${nl}</b><span>Reel ${c + 1}</span><span>${symDesc(s.t, nl)}</span></button>`; }).join('')}</div>`
+        : `<div class="result">You have no weapons left to upgrade.</div>`}
+      <p class="lbl">Upgrades add damage or block, and +2 per level to combos. They never change the paytable.</p>
       <div class="spacer"></div>
-      <button class="btn ${R.done !== null ? '' : 'ghost'}" id="next">${R.done !== null ? 'Vidare' : 'Gå därifrån'}</button>
+      <button class="btn ${R.done !== null ? '' : 'ghost'}" id="next">${R.done !== null ? 'Onward' : 'Leave'}</button>
     </div>`;
   if (R.done === null) screen.querySelectorAll('.tile').forEach(b => b.onclick = () => {
     const k = +b.dataset.k, [c, i] = R.opts[k]; run.strips[c][i].lvl++; R.done = k; sfx.win(); save(); render();
@@ -1700,14 +1815,14 @@ function renderAltar() {
   const R = run.room;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px('altar')}<div><h2>Offeraltaret</h2><p>Offra ett stopp från ett hjul. Hjulet blir kortare och resten av symbolerna landar oftare på linjen.</p></div></div>
+      <div class="head">${px('altar')}<div><h2>The Altar</h2><p>Sacrifice one stop from a reel. The reel gets shorter, so everything else on it lands on the line more often.</p></div></div>
       ${R.done ? `<div class="result">${R.done}</div>` : `<div class="reelcards">${run.strips.map((strip, c) => `
-        <div class="reelcard"><div class="top"><b>Hjul ${c + 1}</b><span>${strip.length} stopp${strip.length <= MIN_STOPS ? ' · minimum' : ''}</span></div>
+        <div class="reelcard"><div class="top"><b>Reel ${c + 1}</b><span>${strip.length} stops${strip.length <= MIN_STOPS ? ' · minimum' : ''}</span></div>
         <div class="chips" data-c="${c}">${reelChips(strip, { button: true, sel: R.sel && R.sel[0] === c ? R.sel[1] : null })}</div></div>`).join('')}</div>`}
       <div class="spacer"></div>
-      ${R.done ? `<button class="btn" id="next">Vidare</button>` : `
-        <button class="btn" id="offer" ${R.sel ? '' : 'disabled'}>${R.sel ? `Offra ${SYM[R.sel[1]].name.toLowerCase()} från hjul ${R.sel[0] + 1}` : 'Välj en symbol'}</button>
-        <button class="btn ghost" id="next">Gå därifrån</button>`}
+      ${R.done ? `<button class="btn" id="next">Onward</button>` : `
+        <button class="btn" id="offer" ${R.sel ? '' : 'disabled'}>${R.sel ? `Sacrifice ${SYM[R.sel[1]].name.toLowerCase()} from reel ${R.sel[0] + 1}` : 'Choose a symbol'}</button>
+        <button class="btn ghost" id="next">Leave</button>`}
     </div>`;
   if (!R.done) {
     screen.querySelectorAll('.chips[data-c] .chip').forEach(b => b.onclick = () => {
@@ -1720,7 +1835,7 @@ function renderAltar() {
       let idx = -1;
       strip.forEach((s, i) => { if (s.t === t && (idx < 0 || s.lvl < strip[idx].lvl)) idx = i; });
       strip.splice(idx, 1);
-      R.done = `${SYM[t].name} på hjul ${c + 1} brinner upp i en blå låga. Hjulet har nu ${strip.length} stopp.`; R.sel = null;
+      R.done = `The ${SYM[t].name.toLowerCase()} on reel ${c + 1} burns away in a blue flame. The reel now has ${strip.length} stops.`; R.sel = null;
       sfx.die(); save(); render();
     };
   }
@@ -1734,27 +1849,29 @@ function renderShop() {
   const skulls = run.strips.flat().filter(s => s.t === 'skull').length;
   screen.innerHTML = `
     <div class="scr room">
-      <div class="head">${px('bag')}<div><h2>Handlaren</h2><p>"Allt har ett pris, vandrare. Även ditt liv." Du kan inte betala med ditt sista mynt.</p></div></div>
-      <div class="lbl">Symboler (du väljer hjul efter köpet)</div>
-      <div class="tiles">${R.syms.map((s, i) => symTile(s, s.sold ? '<span class="price">SÅLD</span>' : priceTag(s.price), `data-k="sym" data-i="${i}" ${s.sold || !can(s.price) ? 'disabled' : ''}`)).join('')}</div>
-      <div class="lbl">Relik och tjänster</div>
+      <div class="head">${px('bag')}<div><h2>The Merchant</h2><p>"Everything has a price, traveler. Even your life." You cannot pay with your last coin.</p></div></div>
+      <div class="lbl">Symbols (choose a reel after buying)</div>
+      <div class="tiles">${R.syms.map((s, i) => symTile(s, s.sold ? '<span class="price">SOLD</span>' : priceTag(s.price), `data-k="sym" data-i="${i}" ${s.sold || !can(s.price) ? 'disabled' : ''}`)).join('')}</div>
+      <div class="lbl">Relic and services</div>
       <div class="tiles">
-        ${R.relic ? `<button class="tile" data-k="relic" ${R.relic.sold || !can(R.relic.price) ? 'disabled' : ''}>${px(RELICS[R.relic.id].icon)}<b>${RELICS[R.relic.id].name}</b><span>${RELICS[R.relic.id].desc}</span>${R.relic.sold ? '<span class="price">SÅLD</span>' : priceTag(R.relic.price)}</button>` : ''}
-        <button class="tile" data-k="purge" ${R.purge.sold || !skulls || !can(R.purge.price) ? 'disabled' : ''}>${px('skull')}<b>Rensning</b><span>Byt en dödskalle mot en tom ruta (${skulls} kvar)</span>${R.purge.sold ? '<span class="price">KLAR</span>' : priceTag(R.purge.price)}</button>
+        ${R.relic ? `<button class="tile" data-k="relic" ${R.relic.sold || !can(R.relic.price) ? 'disabled' : ''}>${px(RELICS[R.relic.id].icon)}<b>${RELICS[R.relic.id].name}</b><span>${RELICS[R.relic.id].desc}</span>${R.relic.sold ? '<span class="price">SOLD</span>' : priceTag(R.relic.price)}</button>` : ''}
+        <button class="tile" data-k="purge" ${R.purge.sold || !skulls || !can(R.purge.price) ? 'disabled' : ''}>${px('skull')}<b>Cleansing</b><span>Turn one skull into a blank (${skulls} left)</span>${R.purge.sold ? '<span class="price">DONE</span>' : priceTag(R.purge.price)}</button>
+        <button class="tile" data-k="nudge" ${R.nudge.sold || run.nudges >= MAX_NUDGES || !can(R.nudge.price) ? 'disabled' : ''}>${px('chestOpen')}<b>Nudges</b><span>+2 nudges (you have ${run.nudges})</span>${R.nudge.sold ? '<span class="price">SOLD</span>' : priceTag(R.nudge.price)}</button>
       </div>
       ${R.msg ? `<div class="result">${R.msg}</div>` : ''}
       <div class="spacer"></div>
-      <button class="btn" id="next">Lämna butiken</button>
+      <button class="btn" id="next">Leave the shop</button>
     </div>`;
   screen.querySelectorAll('.tile[data-k]').forEach(b => b.onclick = () => {
     const k = b.dataset.k;
     sfx.coin();
     if (k === 'sym') { const s = R.syms[+b.dataset.i]; run.gold -= s.price; s.sold = true; R.msg = null; return queuePlace([s], 'shop'); }
-    if (k === 'relic') { run.gold -= R.relic.price; R.relic.sold = true; run.relics.push(R.relic.id); R.msg = `${RELICS[R.relic.id].name} är din.`; }
+    if (k === 'relic') { run.gold -= R.relic.price; R.relic.sold = true; run.relics.push(R.relic.id); R.msg = `${RELICS[R.relic.id].name} is yours.`; }
     if (k === 'purge') {
       for (const strip of run.strips) { const i = strip.findIndex(s => s.t === 'skull'); if (i >= 0) { strip[i] = { t: 'blank', lvl: 0 }; break; } }
-      run.gold -= R.purge.price; R.purge.sold = true; R.msg = 'Dödskallen krossas till damm.';
+      run.gold -= R.purge.price; R.purge.sold = true; R.msg = 'The skull crumbles to dust.';
     }
+    if (k === 'nudge') { run.gold -= R.nudge.price; R.nudge.sold = true; run.nudges = Math.min(MAX_NUDGES, run.nudges + 2); R.msg = 'Two nudges, freshly oiled.'; }
     save(); render();
   });
   $('#next').onclick = toMap;
@@ -1762,32 +1879,37 @@ function renderShop() {
 
 // ---------- events ----------
 const EVENTS = {
-  bandit: { title: 'Den enarmade banditen', icon: 'seven',
-    text: 'En rostig automat står ensam i grottan. Skylten lovar "38 guld!". Det finstilta säger "1 på 4".',
+  bandit: { title: 'The One-Armed Bandit', icon: 'seven',
+    text: 'A rusty slot machine stands alone in the cave. The sign promises "38 GOLD!". The small print says "1 in 4".',
     choices: [
-      { label: 'Dra i spaken (10 guld)', ok: r => r.gold > 10, run: r => { r.gold -= 10; if (rng() < 0.25) { r.gold += 38; return 'Tre sjuor! Automaten spottar ut 38 guld.'; } return 'Citron, plommon, dödskalle. Automaten behåller dina 10 guld. (Den betalar tillbaka 95 %, i snitt.)'; } },
-      { label: 'Gå förbi', run: () => 'Du lämnar automaten åt nästa stackare.' } ] },
-  well: { title: 'Den förbannade brunnen', icon: 'skull',
-    text: 'Guld glimmar på brunnens botten. En röst viskar: "Ta det. Allt har sitt pris."',
+      { label: 'Pull the lever (10 gold)', ok: r => r.gold > 10, run: r => { r.gold -= 10; if (rng() < 0.25) { r.gold += 38; return 'Three sevens! The machine spits out 38 gold.'; } return 'Lemon, plum, skull. The machine keeps your 10 gold. (It pays back 95% on average.)'; } },
+      { label: 'Walk past', run: () => 'You leave the machine for the next poor soul.' } ] },
+  well: { title: 'The Cursed Well', icon: 'skull',
+    text: 'Gold glints at the bottom of the well. A voice whispers: "Take it. Everything has a price."',
     choices: [
-      { label: 'Ta guldet (+25 guld, 2 dödskallar på hjulen)', run: r => { r.gold += 25; placeOnReel(r.strips, ri(0, 2), { t: 'skull' }); placeOnReel(r.strips, ri(0, 2), { t: 'skull' }); return 'Mynten är kalla. Två dödskallar följer med upp och sätter sig på dina hjul.'; } },
-      { label: 'Gå förbi', run: () => 'Viskningen tystnar bakom dig.' } ] },
-  monk: { title: 'Den vandrande munken', icon: 'altar',
-    text: '"Din automat luktar död, vän. För en liten gåva kan jag rena den, eller välsigna den."',
+      { label: 'Take the gold (+25 gold, 2 skulls on your reels)', run: r => { r.gold += 25; placeOnReel(r.strips, ri(0, REELS - 1), { t: 'skull' }); placeOnReel(r.strips, ri(0, REELS - 1), { t: 'skull' }); return 'The coins are cold. Two skulls climb out with you and settle on your reels.'; } },
+      { label: 'Walk past', run: () => 'The whisper fades behind you.' } ] },
+  monk: { title: 'The Wandering Monk', icon: 'altar',
+    text: '"Your machine smells of death, friend. For a small gift I can cleanse it, or bless it."',
     choices: [
-      { label: 'Rena (8 guld): en dödskalle blir tom', ok: r => r.gold > 8 && r.strips.flat().some(s => s.t === 'skull'), run: r => { r.gold -= 8; for (const s of r.strips) { const i = s.findIndex(x => x.t === 'skull'); if (i >= 0) { s[i] = { t: 'blank', lvl: 0 }; break; } } return 'Munken mumlar en bön. Dödskallen är borta.'; } },
-      { label: 'Välsigna (14 guld): få en joker', ok: r => r.gold > 14, run: r => { r.gold -= 14; r.room.place = [{ t: 'gem', lvl: 0 }]; return 'En joker glöder i munkens hand.'; } },
-      { label: 'Tacka nej', run: () => 'Munken nickar och vandrar vidare.' } ] },
-  mule: { title: 'Den döda mulåsnan', icon: 'bag',
-    text: 'En handelsmans mulåsna ligger död vid vägen. Sadelväskan är sprucken.',
+      { label: 'Cleanse (8 gold): a skull becomes a blank', ok: r => r.gold > 8 && r.strips.flat().some(s => s.t === 'skull'), run: r => { r.gold -= 8; for (const s of r.strips) { const i = s.findIndex(x => x.t === 'skull'); if (i >= 0) { s[i] = { t: 'blank', lvl: 0 }; break; } } return 'The monk mutters a prayer. The skull is gone.'; } },
+      { label: 'Bless (14 gold): gain a wild', ok: r => r.gold > 14, run: r => { r.gold -= 14; r.room.place = [{ t: 'gem', lvl: 0 }]; return 'A wild glows in the monk\'s hand.'; } },
+      { label: 'Decline', run: () => 'The monk nods and walks on.' } ] },
+  mule: { title: 'The Dead Mule', icon: 'bag',
+    text: 'A merchant\'s mule lies dead by the road. The saddlebag has split open.',
     choices: [
-      { label: 'Plocka upp mynten (+14 guld)', run: r => { r.gold += 14; return 'Fjorton mynt, lite blodiga.'; } },
-      { label: 'Leta i väskan (en slumpad symbol)', run: r => { const s = rewardSymbols(r)[0]; r.room.place = [s]; return `Du hittar en ${SYM[s.t].name.toLowerCase()}${s.lvl ? ' +' + s.lvl : ''}.`; } } ] },
-  shrine: { title: 'Krigsgudens altare', icon: 'sword',
-    text: 'Ett altare av svart sten. Inristat: "Blod för stål."',
+      { label: 'Pick up the coins (+14 gold)', run: r => { r.gold += 14; return 'Fourteen coins, slightly bloody.'; } },
+      { label: 'Search the bag (a random symbol)', run: r => { const s = rewardSymbols(r)[0]; r.room.place = [s]; return `You find a ${SYM[s.t].name.toLowerCase()}${s.lvl ? ' +' + s.lvl : ''}.`; } } ] },
+  shrine: { title: 'Shrine of the War God', icon: 'sword',
+    text: 'An altar of black stone. Carved into it: "Blood for steel."',
     choices: [
-      { label: 'Offra 15 guld: alla svärd +1', ok: r => r.gold > 15 && r.strips.flat().some(s => s.t === 'sword' && s.lvl < 2), run: r => { r.gold -= 15; r.strips.flat().forEach(s => { if (s.t === 'sword' && s.lvl < 2) s.lvl++; }); return 'Dina svärd glöder röda.'; } },
-      { label: 'Gå förbi', run: () => 'Gudarna får vänta.' } ] },
+      { label: 'Offer 15 gold: every sword +1', ok: r => r.gold > 15 && r.strips.flat().some(s => s.t === 'sword' && s.lvl < 2), run: r => { r.gold -= 15; r.strips.flat().forEach(s => { if (s.t === 'sword' && s.lvl < 2) s.lvl++; }); return 'Your swords glow red.'; } },
+      { label: 'Walk past', run: () => 'The gods can wait.' } ] },
+  oil: { title: 'The Tinker', icon: 'anvil',
+    text: 'A tinker with oily hands offers to loosen your lever.',
+    choices: [
+      { label: 'Accept (+2 nudges)', ok: r => r.nudges < MAX_NUDGES, run: r => { r.nudges = Math.min(MAX_NUDGES, r.nudges + 2); return 'The lever slides like butter. +2 nudges.'; } },
+      { label: 'Walk past', run: () => 'You keep your lever as it is.' } ] },
 };
 function renderEvent() {
   const R = run.room, E = EVENTS[R.id];
@@ -1795,7 +1917,7 @@ function renderEvent() {
     <div class="scr room">
       <div class="head">${px(E.icon)}<div><h2>${E.title}</h2></div></div>
       <p>${E.text}</p>
-      ${R.result ? `<div class="result">${R.result}</div><div class="spacer"></div><button class="btn" id="next">${R.place ? 'Välj hjul' : 'Vidare'}</button>` : `
+      ${R.result ? `<div class="result">${R.result}</div><div class="spacer"></div><button class="btn" id="next">${R.place ? 'Choose a reel' : 'Onward'}</button>` : `
       <div class="spacer"></div>
       <div class="choices">${E.choices.map((c, i) => `<button class="btn ${i ? 'ghost' : ''}" data-i="${i}" ${c.ok && !c.ok(run) ? 'disabled' : ''}>${c.label}</button>`).join('')}</div>`}
     </div>`;
@@ -1807,25 +1929,26 @@ function renderEvent() {
 function endStats() {
   const s = run.stats;
   return `<div class="stats">
-    <span>Klass</span><b>${CLASSES[run.cls].name}</b>
-    <span>Våning</span><b>${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}</b>
-    <span>Besegrade fiender</span><b>${s.kills}</b>
-    <span>Snurr</span><b>${s.spins}</b>
-    <span>Totalt insatt</span><b>${s.wagered}</b>
-    <span>Totalt vunnet</span><b>${s.won}</b>
-    <span>Din faktiska RTP</span><b>${s.wagered ? pct(s.won / s.wagered) : '–'}</b>
-    <span>Största vinst</span><b>${s.bigWin}</b>
-    <span>Största träff</span><b>${s.best}</b>
+    <span>Class</span><b>${CLASSES[run.cls].name}</b>
+    <span>Floor</span><b>${Math.max(1, floorOf(run) + 1)}/${FLOORS + 1}</b>
+    <span>Enemies defeated</span><b>${s.kills}</b>
+    <span>Spins</span><b>${s.spins}</b>
+    <span>Nudges used</span><b>${s.nudges}</b>
+    <span>Total wagered</span><b>${s.wagered}</b>
+    <span>Total won</span><b>${s.won}</b>
+    <span>Your actual RTP</span><b>${s.wagered ? pct(s.won / s.wagered) : '–'}</b>
+    <span>Biggest win</span><b>${s.bigWin}</b>
+    <span>Biggest hit</span><b>${s.best}</b>
   </div>`;
 }
 function renderOver() {
   screen.innerHTML = `
     <div class="scr room title">
       <div class="trio">${px('skull')}</div>
-      <h1 class="logo" style="font-size:44px">Pank<span>och död</span></h1>
-      <p class="tagline">Ditt sista mynt rullade iväg. Huset vann.</p>
+      <h1 class="logo" style="font-size:44px">Broke<span>and dead</span></h1>
+      <p class="tagline">Your last coin rolled away. The house won.</p>
       ${endStats()}
-      <button class="btn" id="again">Ny runda</button>
+      <button class="btn" id="again">New run</button>
     </div>`;
   $('#again').onclick = () => { run = { screen: 'class' }; try { localStorage.removeItem(SAVE); } catch (e) {} render(); };
 }
@@ -1833,10 +1956,10 @@ function renderWin() {
   screen.innerHTML = `
     <div class="scr room title">
       <div class="trio">${px('dragon')}${px(CLASSES[run.cls].sprite)}${px('gem')}</div>
-      <h1 class="logo" style="font-size:44px">Draken<span>är fälld</span></h1>
-      <p class="tagline">Du lämnar grottan med ${run.gold} guld. Den här gången slog du huset.</p>
+      <h1 class="logo" style="font-size:44px">Dragon<span>slain</span></h1>
+      <p class="tagline">You walk out of the cave with ${run.gold} gold. This time, you beat the house.</p>
       ${endStats()}
-      <button class="btn" id="again">Ny runda</button>
+      <button class="btn" id="again">New run</button>
     </div>`;
   $('#again').onclick = () => { run = { screen: 'class' }; try { localStorage.removeItem(SAVE); } catch (e) {} render(); };
 }
@@ -1848,61 +1971,68 @@ function openMachine() {
   if (!run || !run.cls) return openHelp();
   const strips = run.fight ? run.fight.strips : run.strips;
   const bet = run.bet, m = machine(run, strips, bet);
-  const rows = PAYS.map(P => {
-    const mult = P.base * m.scale;
-    const power = P.power ? `<br>${P.power === 'shield' ? 'block' : 'skada'}: ${P.base * (has(run, 'rage') ? 2 : 1)} × insats = ${P.base * (has(run, 'rage') ? 2 : 1) * bet}` : '';
-    return `<div class="row"><div class="ic">${P.icons.map(t => px(t)).join('')}</div><p><b>${P.name}</b>${power}</p><span class="n">${fmtMult(mult)}<br>${Math.round(mult * bet)} guld</span></div>`;
-  }).join('');
+  const cols = [1, 2, 3, 4, 5];
+  const head = `<div class="pt head"><span></span>${cols.map(n => `<span>${n}</span>`).join('')}</div>`;
+  const rows = PAY_ORDER.map(t => `<div class="pt">${px(t)}${cols.map(n => {
+    const b = PAYTABLE[t][n];
+    const v = b ? b * m.scale * bet : 0;
+    return `<span>${b ? (v < 10 ? v.toFixed(1) : Math.round(v)) : ''}</span>`;
+  }).join('')}</div>`).join('');
+  const powerRows = WEAPONS.map(t => `<div class="row"><div class="ic">${px(t)}</div><p><b>${POWER_NAME[t][3]} / ${POWER_NAME[t][4]} / ${POWER_NAME[t][5]}</b><br>${t === 'shield' ? 'block' : 'damage'}: ${[3, 4, 5].map(n => POWER_X[n] * bet * (has(run, 'rage') ? 2 : 1)).join(' / ')}</p><span></span></div>`).join('');
   const C = CLASSES[run.cls];
   openModal(`
-    <h3>Automaten</h3>
+    <h3>The machine</h3>
     <div class="kpis">
       <div><b>${pct(m.rtp)}</b><span>RTP</span></div>
-      <div><b>${pct(m.hit)}</b><span>träffrekvens</span></div>
-      <div><b>${volLabel(m.sd)}</b><span>volatilitet</span></div>
+      <div><b>${pct(m.hit)}</b><span>hit rate</span></div>
+      <div><b>${volLabel(m.sd)}</b><span>volatility</span></div>
     </div>
-    <p class="txt">RTP betyder att automaten i snitt betalar tillbaka <b>${pct(m.rtp)}</b> av allt du satsar. Resten, ${pct(1 - m.rtp)}, är husets fördel. Siffrorna räknas exakt fram ur dina hjul.</p>
-    <h3>Insats och RTP</h3>
-    <div class="denoms">${BETS.map(b => `<div class="${b === bet ? 'on' : ''} ${betsFor(run).includes(b) ? '' : 'lockd'}"><b>${b}</b>${pct(rtpFor(run, b)).replace(' %', '%')}</div>`).join('')}</div>
-    <p class="txt">Som i riktiga kasinon betalar högre valörer tillbaka mer. Men en hög insats tömmer ditt liv fortare när det går dåligt.</p>
-    <h3>Vinsttabell vid insats ${bet}</h3>
-    ${rows}
-    <p class="txt">Bara mittenraden räknas. Jokern ersätter allt. Kasinot kalibrerar om tabellen varje gång hjulen ändras.</p>
-    <h3>Dina hjul${run.fight ? ' (med förbannelser)' : ''}</h3>
-    ${strips.map((s, c) => `<div><div class="lbl">Hjul ${c + 1} · ${s.length} stopp</div><div class="chips">${reelChips(s)}</div></div>`).join('')}
+    <p class="txt">RTP means the machine pays back <b>${pct(m.rtp)}</b> of everything you bet, on average. The remaining ${pct(1 - m.rtp)} is the house edge. The numbers are calculated exactly from your reels.</p>
+    <h3>Bet and RTP</h3>
+    <div class="denoms">${BETS.map(b => `<div class="${b === bet ? 'on' : ''} ${betsFor(run).includes(b) ? '' : 'lockd'}"><b>${b}</b>${pct(rtpFor(run, b))}</div>`).join('')}</div>
+    <p class="txt">As in real casinos, higher denominations pay back more. But a high bet drains your life faster when luck turns.</p>
+    <h3>Paytable at bet ${bet} (gold)</h3>
+    <p class="txt">In a row on the middle line, starting from reel 1.</p>
+    ${head}${rows}
+    <h3>Weapon combos (3 / 4 / 5 in a row)</h3>
+    ${powerRows}
+    <p class="txt">Combos replace the single effects of the symbols in them, and ignore armor. Nudged spins pay no gold. The casino re-calibrates the paytable whenever your reels change.</p>
+    <h3>Your reels${run.fight ? ' (with curses)' : ''}</h3>
+    ${strips.map((s, c) => `<div><div class="lbl">Reel ${c + 1} · ${s.length} stops</div><div class="chips">${reelChips(s)}</div></div>`).join('')}
     <h3>${C.name}</h3>
     <p class="txt">${C.passive}</p>
-    <h3>Reliker</h3>
-    ${run.relics.length ? run.relics.map(r => `<div class="row">${px(RELICS[r].icon)}<p><b>${RELICS[r].name}</b><br>${RELICS[r].desc}</p><span></span></div>`).join('') : '<p class="txt">Inga ännu. De finns i kistor, hos handlaren och hos elitfiender.</p>'}
-    <button class="btn ghost" id="sound">${muted ? 'Slå på ljud' : 'Stäng av ljud'}</button>
-    <button class="btn ghost" id="quit">Ge upp rundan</button>
+    <h3>Relics</h3>
+    ${run.relics.length ? run.relics.map(r => `<div class="row">${px(RELICS[r].icon)}<p><b>${RELICS[r].name}</b><br>${RELICS[r].desc}</p><span></span></div>`).join('') : '<p class="txt">None yet. Find them in chests, at the merchant, and on elite enemies.</p>'}
+    <button class="btn ghost" id="sound">${muted ? 'Sound on' : 'Sound off'}</button>
+    <button class="btn ghost" id="quit">Give up this run</button>
   `);
-  $('#sound').onclick = () => { muted = !muted; try { localStorage.setItem('eh-muted', muted ? '1' : '0'); } catch (e) {} openMachine(); };
+  $('#sound').onclick = () => { muted = !muted; try { localStorage.setItem('oah-muted', muted ? '1' : '0'); } catch (e) {} openMachine(); };
   $('#quit').onclick = () => {
     const b = $('#quit');
     if (b.dataset.sure) { $('#modal').hidden = true; busy = false; run.screen = 'over'; save(); render(); }
-    else { b.dataset.sure = '1'; b.textContent = 'Tryck igen för att ge upp'; }
+    else { b.dataset.sure = '1'; b.textContent = 'Tap again to give up'; }
   };
 }
 function openHelp() {
   openModal(`
-    <h3>Så spelar du</h3>
-    <p class="txt"><b>1. Guld är ditt liv.</b> Du satsar ditt liv på varje snurr. Når du 0 är rundan slut.</p>
-    <p class="txt"><b>2. Satsa.</b> Insatsen multiplicerar vinster och power-kombos. Den ändrar inte vanliga attacker. Låg insats är säkert och segt, hög insats är en chansning på stora slag.</p>
-    <p class="txt"><b>3. Snurra.</b> Tre riktiga hjul med fasta remsor. <b>Bara mittenraden</b> räknas.</p>
-    <p class="txt"><b>4. Attack.</b> Varje vapen på linjen gör sin effekt direkt, även utan vinst: svärd och eld 3 skada, sköld 4 block.</p>
-    <p class="txt"><b>5. Power strike.</b> Tre likadana vapen (jokern räknas) gör en kombo i stället: <b>12 × insatsen</b> i skada, plus en utbetalning. Eldklot gör samma sak genom rustning, Fästning ger 8 × insatsen i block.</p>
-    <p class="txt"><b>6. Vinst.</b> Kombinationerna i vinsttabellen betalar ut guld. Automaten betalar i snitt tillbaka 94–97 %. Huset vinner alltid på sikt.</p>
-    <p class="txt"><b>7. Fienden</b> visar när den anfaller och hur mycket guld den tar. Block tar emot slaget och försvinner sedan. Dödskallar på linjen får fienden att anfalla tidigare.</p>
-    <p class="txt"><b>8. Lås.</b> Lås upp till två hjul så att de står kvar nästa snurr. Låset kostar minst halva insatsen per hjul, och mer om låset ger chans till en storvinst. Ett hjul kan inte låsas två gånger i rad.</p>
-    <p class="txt"><b>9. Fickan.</b> Tryck på en symbol på linjen för att spara den. Lägg den på valfritt hjul senare, när det passar. Den räknas som ett lås.</p>
-    <h3>Symboler</h3>
+    <h3>How to play</h3>
+    <p class="txt"><b>1. Gold is your life.</b> Every spin is paid with your life. At 0 the run is over.</p>
+    <p class="txt"><b>2. Bet.</b> The bet multiplies payouts and weapon combos. It does not change single attacks. A low bet is safe and slow, a high bet is a gamble on huge blows.</p>
+    <p class="txt"><b>3. Spin.</b> Five real reels with fixed strips. <b>Only the middle row</b> counts, read from the left.</p>
+    <p class="txt"><b>4. Attack.</b> Every weapon on the line acts at once, even without a win: Sword and Fire deal 3 damage, Shield gives 4 block.</p>
+    <p class="txt"><b>5. Power strike.</b> Three or more of the same weapon from the left (wilds count) make a combo: <b>10 / 25 / 60 × your bet</b> in damage for 3 / 4 / 5 in a row, plus a payout.</p>
+    <p class="txt"><b>6. Win.</b> Runs in the paytable pay gold. The machine pays back 94–97% on average. The house wins in the long run.</p>
+    <p class="txt"><b>7. Nudge.</b> After the reels stop, if a nudge could help, you can tap the symbol just above or below the line to pull it in. A nudged spin pays no gold, it only fights. You get a nudge every fight, and losing spins sometimes award one.</p>
+    <p class="txt"><b>8. Hold.</b> Hold up to three reels so they stay for the next spin. A hold costs at least half the bet per reel, more if it sets up a big win. A reel cannot be held twice in a row.</p>
+    <p class="txt"><b>9. Pocket.</b> Tap a symbol on the line to save it. Put it on any reel later, when it suits you. It counts as a hold.</p>
+    <p class="txt"><b>10. The enemy</b> shows when it attacks and how much gold it takes. Block absorbs the hit and then resets. Skulls on the line make the enemy attack sooner.</p>
+    <h3>Symbols</h3>
     ${['sword', 'fire', 'shield', 'cherry', 'bar', 'seven', 'gem', 'skull', 'blank'].map(t => `<div class="row">${t === 'blank' ? '<span style="width:32px"></span>' : px(t)}<p><b>${SYM[t].name}</b><br>${symDesc(t, 0)}</p><span></span></div>`).join('')}
-    <h3>Kartan</h3>
+    <h3>The map</h3>
     ${Object.entries(ROOM).map(([k, R]) => `<div class="row">${px(R.icon)}<p><b>${R.name}</b><br>${{
-      fight: 'Vanlig fiende. Ger hittelön och en ny symbol.', elite: 'Tuff fiende som förbannar dina hjul. Ger mer guld och en relik.',
-      chest: 'Välj en av tre kistor.', forge: 'Uppgradera ett vapen.', shop: 'Köp symboler och reliker för ditt liv.',
-      altar: 'Ta bort ett stopp från ett hjul.', event: 'Något oväntat.', boss: 'Slutbossen.' }[k]}</p><span></span></div>`).join('')}
+      fight: 'A regular enemy. Gives a bounty and a new symbol.', elite: 'A tough enemy that curses your reels. Bigger bounty and a relic.',
+      chest: 'Pick one of three chests.', forge: 'Upgrade a weapon.', shop: 'Buy symbols, relics and nudges with your life.',
+      altar: 'Remove a stop from a reel.', event: 'Something unexpected.', boss: 'The final boss.' }[k]}</p><span></span></div>`).join('')}
   `);
 }
 $('#machBtn').onclick = () => { sfx.click(); openMachine(); };

@@ -1,24 +1,25 @@
-# Enarmad Hjälte (prototyp)
+# One-Armed Hero (prototype)
 
-Ett roguelike på en riktig enarmad bandit. Guld är ditt liv, och huset vinner alltid till slut.
+A roguelike played on a real one-armed bandit. Gold is your life, and the house always wins in the long run.
 
-Öppna `index.html` i en webbläsare. Det är en enda fil utan beroenden förutom Google Fonts. All pixelgrafik är handritad i koden (`SPR`).
+Open `index.html` in a browser. It is a single file with no dependencies besides Google Fonts. All pixel art is hand-drawn in code (`SPR`).
 
-## Automaten
+## The machine
 
-- **Tre riktiga hjul** med fasta remsor (22 stopp vid start). Varje snurr väljer ett stopp per hjul.
-- **En vinstlinje:** bara mittenraden räknas.
-- **Vinsttabell + kalibrering:** `PAYS` har grundvärden. `machine()` räknar exakt fram den förväntade utbetalningen ur hjulen (en par-sheet i miniatyr) och skalar tabellen så att RTP alltid blir exakt målvärdet. När du ändrar hjulen ändras därför volatiliteten och träffrekvensen, aldrig RTP:n.
-- **Valörer:** högre insats ger något högre RTP, som på riktiga kasinon (`RTP_BY_BET`: 94 % vid insats 1 till 96,5 % vid insats 10).
-- **Lås:** priset är `max(insats + 50 % per låst hjul, förväntad vinst / RTP)`. Ett lås kan alltså aldrig slå huset i guld. Det du köper är stridseffekten.
-- **Fickan:** spara en symbol från linjen och lägg den på valfritt hjul senare. Den räknas och prissätts som ett lås.
+- **Five real reels** with fixed strips (19 stops each at the start). Each spin picks one stop per reel.
+- **One payline:** only the middle row counts, read from the left (3, 4 or 5 in a row; 1–2 cherries on the first reels). Wilds stand in for anything.
+- **Calibrated paytable:** `PAYTABLE` holds base pays. `machine()` enumerates the strips exactly (a PAR sheet in miniature) and scales the table so the RTP is always the target. Changing the reels changes hit rate and volatility, never RTP.
+- **Denominations:** higher bets return slightly more, as in real casinos (`RTP_BY_BET`: 94% at bet 1 up to 96.5% at bet 10).
+- **Holds:** price is `max(bet + 50% per held reel, expected win / RTP)`, so a hold can never beat the house in gold. Reels rest after being held.
+- **Nudges:** after the reels stop, pull the symbol above or below onto the line. A nudged spin pays no gold, it only fights, so the house edge stays intact. One nudge per fight, more from the Rogue, relics, the merchant, and a 5% award after losing spins.
+- **Pocket:** save a symbol from the line and drop it on any reel later. It counts and is priced as a hold.
 
-## Strid
+## Combat
 
-- Ett vapen på linjen gör fast skada, oavsett insats (svärd och eld 3, sköld 4 block).
-- Tre lika vapen (jokern räknas) är en power-kombo: `12 × insats` i skada (Fästning `8 × insats` block) plus utbetalning.
-- Fienden anfaller med fast guldskada enligt sin nedräkning. Dödskallar på linjen skyndar på den.
+- A weapon on the line deals a flat effect regardless of the bet (Sword and Fire 3 damage, Shield 4 block).
+- 3/4/5 of a weapon from the left is a combo: `10 / 25 / 60 × bet` damage (or block), ignoring armor, plus the payout.
+- Enemies attack for flat gold on a countdown. Skulls on the line rush them.
 
-## Balans
+## Balance
 
-Logiken ligger mellan `// ===== LOGIC START =====` och `// ===== LOGIC END =====` och kan köras i Node för simulering.
+The logic sits between `// ===== LOGIC START =====` and `// ===== LOGIC END =====` and runs in Node for simulation. A simple bot (greedy nudges, no holds or pocket) beats the dragon in roughly half its runs.
