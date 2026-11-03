@@ -21,6 +21,10 @@ npm start
 
 Bryggan lyssnar bara på 127.0.0.1 och tar bara emot WebSocket-anslutningar från localhost.
 
+## Modulering (LFO)
+
+Två LFO:er rör formerna i takt med tempot. Varje LFO har en form (Cirkel, Diamant, Kvadrat, Sågtand, Slump eller Gyllene, där Gyllene är en sample-and-hold som stegar med φ), en takt från 8 takter till 1/16, djup, mål och röst (I, II, III eller alla med fasförskjutning mellan rösterna). Målen är vridning, rundning/stjärna, sträckning, excentricitet, cirkel 2/3:s radie (FM-index), lågpass och volym/storlek. Eftersom formen är ljudet räknas vågformen om löpande (FFT) och spelande toner byter våg medan de klingar. Dra utåt i en LFO för djup och runt för takt. LFO-inställningarna sparas i patchen.
+
 ## Arpeggiator
 
 Slå på **Arpeggio** i panelen Spela och håll ett ackord (keyboard, Bluetooth, klaviaturen eller datorns tangenter). Tonerna spelas en i taget i takt med tempot, och i fas med sequencern och Link när de är igång. Mönster: Upp, Ner, Upp/ner, **Stjärna** (stjärnpolygonen {n/k} runt ackordet), **Gyllene** (137,5° per steg, upprepas aldrig), **Fibonacci** (talföljden modulo antalet toner), Slump och Spelordning. Takt 1/4–1/32 med trioler, 1–4 oktaver, tonlängd, swing och *Lås ackord*. Mönstret ritas som en figur över ackordet: dra runt i den för att ändra k och utåt för tonlängd. Sustainpedalen håller kvar toner i arpeggiot, och inställningarna sparas i patchen.

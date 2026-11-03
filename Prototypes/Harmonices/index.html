@@ -88,6 +88,9 @@ details > .grid,details > .stack{margin-top:10px}
 .stack{display:grid;gap:10px}
 .trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
 .trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* lfo */
+.lfohead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.lfo.off .padwrap{opacity:.45}
 /* arpeggiator */
 .arpbox{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:18px;align-items:start;border-top:1px solid var(--line);padding-top:14px}
 @media (max-width:640px){.arpbox{grid-template-columns:minmax(0,1fr)}}
@@ -234,6 +237,12 @@ details > .grid,details > .stack{margin-top:10px}
       <details id="modeDetails"><summary>Reglage</summary><div class="stack" id="modeParams"></div></details>
     </section>
   </div>
+
+  <section class="pane" aria-label="Modulering">
+    <div class="pane-head"><h2>Modulering</h2></div>
+    <div class="fxrow" id="lfoRow"></div>
+    <p class="hint">En LFO är en långsam oscillator, en cirkel som snurrar i takt med musiken. Här rör den formerna: vridning, rundning, sträckning, navet, cirklarnas radier, filtret eller storleken. Eftersom formen är ljudet ändras klangen med rörelsen. Dra <b>utåt</b> i en LFO för djup och <b>runt</b> för takt.</p>
+  </section>
 
   <section class="pane" aria-label="Spela">
     <div class="pane-head">
@@ -467,20 +476,28 @@ function computeShape(s) {
   return {px, py, xs, ys, pivot: s.trace === 'angle' && ok ? pivot : null, rin, ext, traced: ok ? s.trace : 'arc',
     iV0: thIdx(v0), iV1: thIdx(v0 + seg), iMid: thIdx(v0 + seg / 2), i0: 0};
 }
+const FRE = new Float64Array(N), FIM = new Float64Array(N), BITREV = new Uint16Array(N);
+for (let i = 0, j = 0; i < N; i++) { BITREV[i] = j; let bit = N >> 1; while (j & bit) { j ^= bit; bit >>= 1; } j |= bit; }
 function spectrum(arr) {
   let mean = 0; for (let i = 0; i < N; i++) mean += arr[i]; mean /= N;
-  const re = new Float32Array(H + 1), im = new Float32Array(H + 1);
-  for (let k = 1; k <= H; k++) {
-    let a = 0, b = 0;
-    for (let n = 0; n < N; n++) { const v = arr[n] - mean, idx = (k * n) % N; a += v * COS[idx]; b += v * SIN[idx]; }
-    re[k] = 2 * a / N; im[k] = 2 * b / N;
+  for (let i = 0; i < N; i++) { FRE[BITREV[i]] = arr[i] - mean; FIM[BITREV[i]] = 0; }
+  for (let size = 2; size <= N; size <<= 1) {
+    const half = size >> 1, step = N / size;
+    for (let st = 0; st < N; st += size) for (let k = 0; k < half; k++) {
+      const c = COS[k * step], sn = -SIN[k * step], a = st + k, b = a + half;
+      const tr = FRE[b] * c - FIM[b] * sn, ti = FRE[b] * sn + FIM[b] * c;
+      FRE[b] = FRE[a] - tr; FIM[b] = FIM[a] - ti; FRE[a] += tr; FIM[a] += ti;
+    }
   }
+  const re = new Float32Array(H + 1), im = new Float32Array(H + 1);
+  for (let k = 1; k <= H; k++) { re[k] = 2 * FRE[k] / N; im[k] = -2 * FIM[k] / N; }
   return {re, im, mean};
 }
+function specOf(sd) { if (!sd.spX) { sd.spX = spectrum(sd.xs); sd.spY = spectrum(sd.ys); } return sd; }
 function orbitArms(o) {
-  const arms = [{ratio:1, rad:1}];
-  if (o.rad2 > 0) arms.push({ratio: RATIOS[o.r2].v * o.d2, rad: o.rad2});
-  if (o.rad3 > 0) arms.push({ratio: RATIOS[o.r3].v * o.d3, rad: o.rad3});
+  const arms = [{ratio:1, rad:1, key:1}];
+  if (o.rad2 > 0) arms.push({ratio: RATIOS[o.r2].v * o.d2, rad: o.rad2, key:2});
+  if (o.rad3 > 0) arms.push({ratio: RATIOS[o.r3].v * o.d3, rad: o.rad3, key:3});
   return arms;
 }
 function closure(arms) {
@@ -562,13 +579,29 @@ function setReverb(rebuild) {
 }
 function setFilter(t, now) {
   if (!t.lpN) return; const T = ac.currentTime, tc = now ? 0.001 : 0.02;
-  t.lpN.frequency.setTargetAtTime(t.lp, T, tc); t.lpN.Q.setTargetAtTime(qdB(t.lpQ), T, tc);
+  t.lpN.frequency.setTargetAtTime(effLp(t), T, tc); t.lpN.Q.setTargetAtTime(qdB(t.lpQ), T, tc);
   t.hpN.frequency.setTargetAtTime(t.hp, T, tc); t.hpN.Q.setTargetAtTime(qdB(t.hpQ), T, tc);
 }
-function setVol(t) { if (t.bus) t.bus.gain.setTargetAtTime(t.mute ? 0 : t.vol, ac.currentTime, 0.03); }
+/* the LFOs add offsets in t.mod; the user's own values stay untouched in t.shape/t.orbit/t.lp/t.vol */
+function effShape(t) {
+  const s = t.shape, m = t.mod; if (!m || !('rot' in m || 'edge' in m || 'stretch' in m || 'ecc' in m)) return s;
+  const e = Object.assign({}, s);
+  if (m.rot) e.rot = s.rot + 180 * m.rot;
+  if (m.edge) { const v = clamp((s.round > 0 ? s.round : -s.star) + m.edge, -0.85, 1); e.round = Math.max(0, v); e.star = Math.max(0, -v); }
+  if (m.stretch) e.stretch = clamp(s.stretch + m.stretch, -1, 1);
+  if (m.ecc) { e.ecc = clamp(s.ecc + m.ecc * 0.95, 0, 0.95); if (e.ecc > 0) e.trace = 'angle'; }
+  return e;
+}
+function effOrbit(t) {
+  const o = t.orbit, m = t.mod; if (!m || !('rad2' in m || 'rad3' in m)) return o;
+  return Object.assign({}, o, {rad2: clamp(o.rad2 + (m.rad2 || 0) * 0.6, 0, 1), rad3: clamp(o.rad3 + (m.rad3 || 0) * 0.6, 0, 1)});
+}
+const effLp = t => t.mod && t.mod.lp ? clamp(t.lp * 2 ** (t.mod.lp * 4), 40, 20000) : t.lp;
+const effVol = t => t.mod && t.mod.vol ? clamp(t.vol * (1 + 0.9 * t.mod.vol), 0, 1) : t.vol;
+function setVol(t) { if (t.bus) t.bus.gain.setTargetAtTime(t.mute ? 0 : effVol(t), ac.currentTime, 0.03); }
 function buildWaves(t) {
   if (!ac || !t.sd) return;
-  const sx = spectrum(t.sd.xs), sy = spectrum(t.sd.ys);
+  specOf(t.sd); const sx = t.sd.spX, sy = t.sd.spY;
   let peak = 1e-6;
   for (let i = 0; i < N; i++) peak = Math.max(peak, Math.abs(t.sd.xs[i] - sx.mean), Math.abs(t.sd.ys[i] - sy.mean));
   const sc = 1 / peak, mk = s => ac.createPeriodicWave(s.re.map(v => v * sc), s.im.map(v => v * sc), {disableNormalization: true});
@@ -576,8 +609,8 @@ function buildWaves(t) {
   for (const v of active) if (v.t === t && v.engine === 'shape') for (const o of v.oscs) if (o._k) o.setPeriodicWave(o._k === 'x' ? t.waveX : t.waveY);
 }
 let waveTimer = 0;
-function updateShape(t) { t.sd = computeShape(t.shape); t.ver++; if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
-function updateOrbit(t) { t.od = computeOrbit(t.orbit); t.ver++; }
+function updateShape(t) { t.sd = computeShape(effShape(t)); t.ver++; if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
+function updateOrbit(t) { t.od = computeOrbit(effOrbit(t)); t.ver++; }
 function startNote(ti, freq, time, vel = 0.9, opt = {}) {
   const t = tracks[ti]; if (!ac || t.mute) return null;
   const g = ac.createGain(), peak = 0.3 * vel, att = t.att, rel = t.rel;
@@ -597,13 +630,14 @@ function startNote(ti, freq, time, vel = 0.9, opt = {}) {
     if (t.shape.xy) { osc(t.waveX, freq, pan(-1), 'x'); osc(t.waveY, freq, pan(1), 'y'); }
     else osc(t.waveY, freq, g, 'y');
   } else {
-    const o = t.orbit, xy = o.xy, L = xy ? pan(-1) : null, R = xy ? pan(1) : g;
+    const o = effOrbit(t), xy = o.xy, L = xy ? pan(-1) : null, R = xy ? pan(1) : g; v.armG = []; v.fmG = [];
     if (o.mode === 'epi') {
       const arms = orbitArms(o), tot = arms.reduce((s, a) => s + a.rad, 0);
       for (const a of arms) {
         const f = freq * Math.abs(a.ratio);
         const gy = ac.createGain(); gy.gain.value = a.rad / tot * Math.sign(a.ratio); gy.connect(R); osc(null, f, gy);
-        if (xy) { const gx = ac.createGain(); gx.gain.value = a.rad / tot; gx.connect(L); osc(cosWave, f, gx); }
+        let gx = null; if (xy) { gx = ac.createGain(); gx.gain.value = a.rad / tot; gx.connect(L); osc(cosWave, f, gx); }
+        v.armG.push({key: a.key, sign: Math.sign(a.ratio), gy, gx});
       }
     } else {
       const car = [osc(null, freq, R)]; if (xy) car.push(osc(cosWave, freq, L));
@@ -611,10 +645,10 @@ function startNote(ti, freq, time, vel = 0.9, opt = {}) {
       if (o.rad2 > 0) {
         const fm = freq * RATIOS[o.r2].v, mg = ac.createGain();
         mg.gain.setValueAtTime(o.rad2 * 6 * fm * 1.25, time); mg.gain.setTargetAtTime(o.rad2 * 6 * fm, time, 0.15);
-        modOsc = osc(null, fm, mg); car.forEach(c => mg.connect(c.frequency));
+        modOsc = osc(null, fm, mg); car.forEach(c => mg.connect(c.frequency)); v.fmG.push({key: 2, g: mg, f: fm});
       }
       if (o.rad3 > 0) {
-        const f3 = freq * RATIOS[o.r3].v, g3 = ac.createGain(); g3.gain.value = o.rad3 * 6 * f3;
+        const f3 = freq * RATIOS[o.r3].v, g3 = ac.createGain(); g3.gain.value = o.rad3 * 6 * f3; v.fmG.push({key: 3, g: g3, f: f3});
         osc(null, f3, g3);
         if (modOsc) g3.connect(modOsc.frequency); else car.forEach(c => g3.connect(c.frequency));
       }
@@ -940,7 +974,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 /* ---------- KLANG: all voices stacked ---------- */
 const klangC = track2d($('#klang'));
 function kGeo() { const {w, h: H2} = klangC; return {cx: w / 2, cy: H2 / 2, Rmax: Math.min(w, H2) * 0.4}; }
-const voiceR = (t, G) => G.Rmax * (0.14 + 0.86 * t.vol);
+const voiceR = (t, G) => G.Rmax * (0.14 + 0.86 * effVol(t));
 function voiceK(t, G) { const R = voiceR(t, G); return t.engine === 'shape' ? R / Math.max(1e-6, t.sd.ext) : R; }
 function pathOf(t) { return t.engine === 'shape' ? [t.sd.px, t.sd.py] : [t.od.px, t.od.py]; }
 function toScr(t, G, x, y) { const k = voiceK(t, G); return [G.cx + x * k, G.cy - y * k]; }
@@ -1032,17 +1066,17 @@ function drawHandle(g, hd, hot) {
 /* the voice filter applied to the geometry: H(f) of LP·HP, 2nd order */
 function Hf(t, f) {
   const bi = (fc, Q, hp) => { const w = f / fc, re = 1 - w * w, im = w / Q, den = re * re + im * im; return hp ? [-w * w * re / den, w * w * im / den] : [re / den, -im / den]; };
-  const [a, b] = bi(t.lp, t.lpQ, false), [c, d] = bi(t.hp, t.hpQ, true);
+  const [a, b] = bi(effLp(t), t.lpQ, false), [c, d] = bi(t.hp, t.hpQ, true);
   return [a * c - b * d, a * d + b * c];
 }
 const NV = 512, CV = new Float32Array(NV), SV = new Float32Array(NV);
 for (let i = 0; i < NV; i++) { CV[i] = Math.cos(TAU * i / NV); SV[i] = Math.sin(TAU * i / NV); }
 function unitPath(xs, ys, step = 1) { const p = new Path2D(); for (let i = 0; i < xs.length; i += step) i ? p.lineTo(xs[i], ys[i]) : p.moveTo(xs[i], ys[i]); p.closePath(); return p; }
 function ensureVis(t) {
-  const f0 = degFreq(0, t.oct), key = [t.ver, t.engine, t.orbit.mode, t.lp, t.lpQ, t.hp, t.hpQ, Math.round(f0)].join('|');
+  const f0 = degFreq(0, t.oct), key = [t.ver, t.engine, t.orbit.mode, effLp(t), t.lpQ, t.hp, t.hpQ, Math.round(f0)].join('|');
   if (t.vkey === key) return; t.vkey = key; t.f0 = f0;
   if (t.engine === 'shape') {
-    if (t.specVer !== t.ver || !t.spX) { t.spX = spectrum(t.sd.xs); t.spY = spectrum(t.sd.ys); t.specVer = t.ver; }
+    if (t.specVer !== t.ver || !t.spX) { specOf(t.sd); t.spX = t.sd.spX; t.spY = t.sd.spY; t.specVer = t.ver; }
     const CXr = new Float32Array(H + 1), CXi = new Float32Array(H + 1), CYr = new Float32Array(H + 1), CYi = new Float32Array(H + 1);
     t.hGain = new Float32Array(H + 1);
     for (let k = 1; k <= H; k++) {
@@ -1110,7 +1144,7 @@ function drawKlang(time) {
       const at = (s, f) => { let v = 0; d.arms.forEach((a, j) => { v += a.rad / d.tot * Gn[j] * f(a.ratio * TAU * s); }); return v * k; };
       yAt = s => at(s, Math.sin); ptX = G.cx + at(p, Math.cos); ptY = G.cy - at(p, Math.sin);
     } else {
-      const o = t.orbit, gc = t.fmG; yAt = s => fmY(o, TAU * s) * k * 0.62 * gc;
+      const o = effOrbit(t), gc = t.fmG; yAt = s => fmY(o, TAU * s) * k * 0.62 * gc;
       const th = TAU * p, r = 0.62 + 0.32 * gc * fmY(o, th); ptX = G.cx + r * k * Math.cos(th); ptY = G.cy - r * k * Math.sin(th);
     }
     // the wave that draws the shape, translucent behind it
@@ -1843,6 +1877,131 @@ function drawPiano() {
   g.globalAlpha = 0.5; text(g, 'A', ks.find(k => k.n === kbOff)?.x + 6 || 6, 14, theme.muted, 9.5, 'left', 'alphabetic', BODY); g.globalAlpha = 1;
 }
 
+/* ---------- LFO: slow circles that move the shapes ---------- */
+const LFO_WAVES = [['sine', 'Cirkel'], ['tri', 'Diamant'], ['square', 'Kvadrat'], ['saw', 'Sågtand'], ['sh', 'Slump'], ['gold', 'Gyllene']];
+const LFO_TARGETS = [['rot', 'Vridning'], ['edge', 'Rundning/stjärna'], ['stretch', 'Sträckning'], ['ecc', 'Excentricitet'], ['rad2', 'Cirkel 2 radie/FM-index'], ['rad3', 'Cirkel 3 radie'], ['lp', 'Lågpass'], ['vol', 'Volym/storlek']];
+const LFO_RATES = [[32, '8 takter'], [16, '4 takter'], [8, '2 takter'], [4, '1 takt'], [2, '1/2'], [1, '1/4'], [0.5, '1/8'], [0.25, '1/16']];
+const lfos = [
+  {on: true, wave: 'sine', rate: 8, depth: 0.25, target: 'rot', voice: '0', spread: 0.33, val: [0, 0, 0]},
+  {on: false, wave: 'tri', rate: 4, depth: 0.45, target: 'edge', voice: 'all', spread: 0.33, val: [0, 0, 0]},
+];
+const SHAPE_KEYS = ['rot', 'edge', 'stretch', 'ecc'], ORBIT_KEYS = ['rad2', 'rad3'];
+function lfoWave(w, ph) {
+  switch (w) {
+    case 'tri': return 1 - 4 * Math.abs(frac(ph + 0.25) - 0.5);
+    case 'square': return frac(ph) < 0.5 ? 1 : -1;
+    case 'saw': return 2 * frac(ph) - 1;
+    case 'sh': return frac(Math.sin(Math.floor(ph) * 12.9898 + 1.7) * 43758.5453) * 2 - 1;
+    case 'gold': return frac(Math.floor(ph) * PHI) * 2 - 1;
+    default: return Math.sin(TAU * ph);
+  }
+}
+const lfoBeat = () => ac ? nowBeat() : performance.now() / 1000 * state.bpm / 60;
+const lfoVoices = L => L.voice === 'all' ? [0, 1, 2] : [+L.voice];
+const lfoPhase = (L, i, B) => B / L.rate + (L.voice === 'all' ? i * L.spread : 0);
+const rateName = r => (LFO_RATES.find(x => x[0] === r) || [0, r + ' slag'])[1];
+const targetName = k => (LFO_TARGETS.find(x => x[0] === k) || ['', k])[1];
+function lfoTick() {
+  const B = lfoBeat(), mods = tracks.map(() => ({}));
+  lfos.forEach(L => {
+    L.val = [0, 0, 0];
+    if (!L.on || L.depth <= 0) return;
+    for (const i of lfoVoices(L)) { const v = lfoWave(L.wave, lfoPhase(L, i, B)) * L.depth; L.val[i] = v; mods[i][L.target] = (mods[i][L.target] || 0) + v; }
+  });
+  tracks.forEach((t, i) => {
+    const m = mods[i], prev = t.mod || {}, changed = k => Math.abs((m[k] || 0) - (prev[k] || 0)) > 1e-4 || ((k in m) !== (k in prev));
+    const sh = SHAPE_KEYS.some(changed), ob = ORBIT_KEYS.some(changed), lp = changed('lp'), vo = changed('vol');
+    if (!sh && !ob && !lp && !vo) return;
+    t.mod = m;
+    if (sh) updateShape(t);
+    if (ob) { updateOrbit(t); if (ac) liveOrbit(t); }
+    if (lp) setFilter(t);
+    if (vo) setVol(t);
+  });
+}
+function liveOrbit(t) {
+  const o = effOrbit(t), now = ac.currentTime, rad = {1: 1, 2: o.rad2, 3: o.rad3};
+  for (const v of active) {
+    if (v.t !== t || v.engine !== 'orbit' || v.released) continue;
+    if (v.armG && v.armG.length) {
+      const tot = v.armG.reduce((s, a) => s + rad[a.key], 0) || 1;
+      v.armG.forEach(a => { a.gy.gain.setTargetAtTime(rad[a.key] / tot * a.sign, now, 0.03); if (a.gx) a.gx.gain.setTargetAtTime(rad[a.key] / tot, now, 0.03); });
+    }
+    if (v.fmG) v.fmG.forEach(f => f.g.gain.setTargetAtTime(rad[f.key] * 6 * f.f, now, 0.03));
+  }
+}
+setInterval(lfoTick, 33);
+
+/* each LFO drawn like a voice: its shape, a point whose height is the value, the wave it leaves behind */
+const lfoC = [];
+function lfoIcon(g, wave, cx, cy, R) {
+  g.beginPath();
+  if (wave === 'sine') g.arc(cx, cy, R, 0, TAU);
+  else if (wave === 'tri') { g.moveTo(cx, cy - R); g.lineTo(cx + R, cy); g.lineTo(cx, cy + R); g.lineTo(cx - R, cy); g.closePath(); }
+  else if (wave === 'square') g.rect(cx - R * 0.8, cy - R * 0.8, R * 1.6, R * 1.6);
+  else if (wave === 'saw') { g.moveTo(cx - R, cy + R * 0.8); g.lineTo(cx + R, cy - R * 0.8); g.lineTo(cx + R, cy + R * 0.8); g.closePath(); }
+  else { const n = wave === 'gold' ? 21 : 13; for (let k = 0; k < n; k++) { const a = wave === 'gold' ? TAU * frac(k * GOLD) : TAU * frac(Math.sin(k * 7.13) * 91.7), r = R * Math.sqrt((k + 0.5) / n); g.moveTo(cx + r * Math.cos(a) + 1.6, cy + r * Math.sin(a)); g.arc(cx + r * Math.cos(a), cy + r * Math.sin(a), 1.6, 0, TAU); } }
+}
+function drawLfo(li) {
+  const L = lfos[li], c = lfoC[li]; if (!c) return;
+  const {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const S = Math.min(H2, w * 0.4), cx = S / 2 + 4, cy = H2 / 2, R = S / 2 - 14, x0 = S + 14, x1 = w - 10, B = lfoBeat();
+  g.strokeStyle = theme.line; g.lineWidth = 1; g.beginPath(); g.moveTo(x0, cy); g.lineTo(x1, cy); g.stroke();
+  g.globalCompositeOperation = 'lighter';
+  const k = L.on ? 1 : 0.35;
+  lfoIcon(g, L.wave, cx, cy, R);
+  if (L.wave === 'sh' || L.wave === 'gold') { g.globalAlpha = 0.5 * k; g.fillStyle = theme.muted; g.fill(); g.globalAlpha = 1; }
+  else { g.strokeStyle = theme.muted; g.globalAlpha = 0.7 * k; g.lineWidth = 1.2; g.stroke(); g.globalAlpha = 1; }
+  const vs = lfoVoices(L), cycles = 2, W = x1 - x0, amp = R * (0.25 + 0.75 * L.depth);
+  for (const i of vs) {
+    const col = theme.voice[i], ph = lfoPhase(L, i, B), path = new Path2D();
+    for (let x = 0; x <= W; x += 2) { const y = cy - lfoWave(L.wave, ph - (x / W) * cycles) * amp; x ? path.lineTo(x0 + x, y) : path.moveTo(x0, y); }
+    glowPath(g, path, col, 0.8 * k, 1.4);
+    const val = lfoWave(L.wave, ph), px = cx + R * Math.cos(TAU * ph), py = cy - val * amp;
+    g.globalAlpha = 0.4 * k; g.strokeStyle = col; g.lineWidth = 1; g.setLineDash([3, 4]); g.beginPath(); g.moveTo(px, py); g.lineTo(x0, py); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
+    glowDot(g, px, py, 3.6, col, k); glowDot(g, x0, py, 2.6, col, k);
+  }
+  g.globalCompositeOperation = 'source-over';
+  text(g, `${targetName(L.target)} · röst ${L.voice === 'all' ? 'I–III' : tracks[+L.voice].name}`, x1, 14, theme.muted, 10, 'right');
+  text(g, `${rateName(L.rate)} · djup ${Math.round(L.depth * 100)} %`, x1, H2 - 7, theme.muted, 10, 'right');
+  drawHud(c);
+}
+function lfoTarget(li) {
+  const L = lfos[li], c = lfoC[li], S = Math.min(c.h, c.w * 0.4);
+  return {id: 'lfo' + li, cx: S / 2 + 4, cy: c.h / 2, color: theme.v1, modes: ['r', 't'],
+    start() { this.d0 = L.depth; this.r0 = LFO_RATES.findIndex(r => r[0] === L.rate); if (this.r0 < 0) this.r0 = 2; },
+    drag({lock, dr, dth}) {
+      if (lock === 'r') L.depth = clamp(Math.round((this.d0 + dr / (S * 0.6)) * 100) / 100, 0, 1);
+      else L.rate = LFO_RATES[clamp(this.r0 + Math.round(dth / (TAU / 14)), 0, LFO_RATES.length - 1)][0];
+      if (!L.on && (L.depth > 0)) { L.on = true; }
+    },
+    label: lock => lock === 'r' ? [`LFO ${li + 1} · djup`, Math.round(L.depth * 100) + ' %', targetName(L.target)] : [`LFO ${li + 1} · takt`, rateName(L.rate), 'ett varv av cirkeln']};
+}
+function buildLfos() {
+  const row = $('#lfoRow'); row.textContent = '';
+  lfos.forEach((L, li) => {
+    const cv = h('canvas', {'aria-label': `LFO ${li + 1}: dra utåt för djup och runt för takt`});
+    const card = h('div', {class: 'stack lfo'});
+    const syncOff = () => card.classList.toggle('off', !L.on); syncOff.el = card; syncers.add(syncOff);
+    const spread = slider({label: 'Fas mellan röster', min: 0, max: 0.5, step: 0.01, get: () => L.spread, set: v => L.spread = v, show: v => Math.round(v * 360) + '°'});
+    const syncSpread = () => { spread.hidden = L.voice !== 'all'; }; syncSpread.el = spread; syncers.add(syncSpread);
+    card.append(
+      h('div', {class: 'lfohead'}, h('h3', {}, 'LFO ' + (li + 1)), seg([['false', 'Av'], ['true', 'På']], () => String(L.on), v => { L.on = v === 'true'; syncAll(); }, `LFO ${li + 1} av eller på`)),
+      h('div', {class: 'padwrap'}, cv),
+      labeled('Form', (() => { const sg = seg(LFO_WAVES, () => L.wave, v => { L.wave = v; }, 'LFO-form'); sg.classList.add('modes'); return sg; })()),
+      h('div', {class: 'row'},
+        selectCtl('Mål', LFO_TARGETS, () => L.target, v => { L.target = v; }),
+        labeled('Röst', seg([['0', 'I'], ['1', 'II'], ['2', 'III'], ['all', 'Alla']], () => L.voice, v => { L.voice = v; syncAll(); }, 'Röst'))),
+      h('div', {class: 'grid'},
+        slider({label: 'Djup', min: 0, max: 1, step: 0.01, get: () => L.depth, set: v => L.depth = v, show: v => Math.round(v * 100) + ' %'}),
+        slider({label: 'Takt', min: 0, max: LFO_RATES.length - 1, step: 1, get: () => Math.max(0, LFO_RATES.findIndex(r => r[0] === L.rate)), set: v => L.rate = LFO_RATES[v][0], show: v => LFO_RATES[v][1]}),
+        spread));
+    syncOff(); syncSpread();
+    row.append(card);
+    lfoC[li] = track2d(cv); gestures(lfoC[li], () => lfoTarget(li));
+  });
+}
+
 /* ---------- ARPEGGIATOR: geometric note orders over the held chord ---------- */
 const ARP_MODES = [['up', 'Upp'], ['down', 'Ner'], ['updown', 'Upp/ner'], ['star', 'Stjärna'], ['golden', 'Gyllene'], ['fib', 'Fibonacci'], ['random', 'Slump'], ['played', 'Spelordning']];
 const ARP_RATES = [[1, '1/4'], [0.5, '1/8'], [1 / 3, '1/8T'], [0.25, '1/16'], [1 / 6, '1/16T'], [0.125, '1/32']];
@@ -1997,7 +2156,7 @@ function buildArp() {
 /* ---------- boot & loop ---------- */
 readTheme();
 tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
-buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow(); buildArp();
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow(); buildArp(); buildLfos(); lfoTick();
 
 /* ---------- PATCHES: serialize, validate, apply, library, storage, export/import ---------- */
 function serialize() {
@@ -2006,6 +2165,7 @@ function serialize() {
     poly: {bars: state.poly.bars, t: state.poly.t.map(p => ({n: p.n, rot: p.rot, degs: [...p.degs]}))},
     eucl: {t: state.eucl.t.map(e => ({n: e.n, k: e.k, rot: e.rot, pat: [...e.pat], degs: [...e.degs]}))},
     fib: c(state.fib), gold: c(state.gold), fx: c(state.fx),
+    lfos: lfos.map(L => ({on: L.on, wave: L.wave, rate: L.rate, depth: L.depth, target: L.target, voice: L.voice, spread: L.spread})),
     arp: {on: arp.on, mode: arp.mode, rate: arp.rate, oct: arp.oct, gate: arp.gate, swing: arp.swing, k: arp.k, latch: arp.latch},
     voices: tracks.map(t => ({engine: t.engine, vol: t.vol, mute: t.mute, oct: t.oct, att: t.att, rel: t.rel, lp: t.lp, lpQ: t.lpQ, hp: t.hp, hpQ: t.hpQ, shape: c(t.shape), orbit: c(t.orbit)}))};
 }
@@ -2034,6 +2194,11 @@ function sanitizePatch(P) {
   o.fib = {m, a: int(P.fib?.a, 0, m - 1, Math.min(B.fib.a, m - 1)), b: int(P.fib?.b, 0, m - 1, Math.min(B.fib.b, m - 1))};
   o.gold = {density: num(P.gold?.density, 0.05, 1, B.gold.density), span: int(P.gold?.span, 1, 3, B.gold.span), angle: num(P.gold?.angle, 0.02, 0.98, B.gold.angle)};
   o.fx = {div: pick(P.fx?.div, [0.25, 0.5, 0.75, 1, 1.5], B.fx.div), fb: num(P.fx?.fb, 0, 0.92, B.fx.fb), dmix: num(P.fx?.dmix, 0, 1, B.fx.dmix), size: num(P.fx?.size, 0.3, 8, B.fx.size), rmix: num(P.fx?.rmix, 0, 1, B.fx.rmix)};
+  o.lfos = [0, 1].map(i => {
+    const s = (Array.isArray(P.lfos) && P.lfos[i]) || {}, d = B.lfos[i];
+    return {on: bool(s.on, d.on), wave: pick(s.wave, LFO_WAVES.map(x => x[0]), d.wave), rate: pick(s.rate, LFO_RATES.map(x => x[0]), d.rate), depth: num(s.depth, 0, 1, d.depth),
+      target: pick(s.target, LFO_TARGETS.map(x => x[0]), d.target), voice: pick(s.voice, ['0', '1', '2', 'all'], d.voice), spread: num(s.spread, 0, 0.5, d.spread)};
+  });
   const A = P.arp || {}, BA = B.arp;
   o.arp = {on: bool(A.on, BA.on), mode: pick(A.mode, ARP_MODES.map(m => m[0]), BA.mode), rate: ARP_RATES.map(r => r[0]).find(r => isNum(A.rate) && Math.abs(r - A.rate) < 1e-6) ?? BA.rate,
     oct: int(A.oct, 1, 4, BA.oct), gate: num(A.gate, 0.05, 1, BA.gate), swing: num(A.swing, 0, 0.6, BA.swing), k: int(A.k, 1, 15, BA.k), latch: bool(A.latch, BA.latch)};
@@ -2053,6 +2218,7 @@ function applyPatch(c) {
   c.eucl.t.forEach((t, i) => Object.assign(state.eucl.t[i], {n: t.n, k: t.k, rot: t.rot, pat: [...t.pat], degs: [...t.degs]}));
   Object.assign(state.fib, c.fib); Object.assign(state.gold, c.gold);
   if (c.arp) { arpClear(); Object.assign(arp, c.arp); }
+  if (c.lfos) c.lfos.forEach((L, i) => Object.assign(lfos[i], L));
   const resize = state.fx.size !== c.fx.size; Object.assign(state.fx, c.fx);
   c.voices.forEach((v, i) => {
     const t = tracks[i];
@@ -2064,6 +2230,7 @@ function applyPatch(c) {
   colorCache.clear(); buildLightStrip();
   if (!linkLive()) setBpm(c.bpm, false);
   setDelay(); setReverb(resize);
+  tracks.forEach(t => { t.mod = {}; }); lfoTick();
   allNotesOff(); setMode(c.mode); buildInspector(); syncChips(); syncAll();
 }
 function variant(over) {
@@ -2080,22 +2247,22 @@ function variant(over) {
 }
 const FACTORY = [
   {id: 'f-start', name: 'Pentagon och gyllene klocka', patch: sanitizePatch(BASE)},
-  {id: 'f-sunflower', name: 'Gyllene solros', patch: variant({bpm: 92, root: 4, scale: 5, mode: 'gold', gold: {density: 0.45, span: 2, angle: GOLD},
+  {id: 'f-sunflower', name: 'Gyllene solros', patch: variant({lfos: [{on: true, wave: 'gold', rate: 4, depth: 0.45, target: 'edge', voice: 'all', spread: 0.33}, {on: true, wave: 'sine', rate: 16, depth: 0.5, target: 'lp', voice: '2'}], bpm: 92, root: 4, scale: 5, mode: 'gold', gold: {density: 0.45, span: 2, angle: GOLD},
     fx: {div: 0.75, fb: 0.5, dmix: 0.34, size: 5, rmix: 0.45},
     voices: [{engine: 'orbit', vol: 0.5, oct: 1, att: 0.003, rel: 1.6, lp: 8000, orbit: {mode: 'fm', r2: 11, d2: 1, rad2: 0.3, rad3: 0}},
       {engine: 'shape', vol: 0.62, oct: 0, att: 0.08, rel: 1.8, lp: 3000, shape: {n: 6, round: 1, star: 0, ecc: 0, trace: 'arc', xy: false}},
       {engine: 'shape', vol: 0.85, oct: -1, att: 0.01, rel: 0.7, lp: 700, lpQ: 3, shape: {n: 3, round: 0.2, ecc: 0.7, trace: 'angle'}}]})},
-  {id: 'f-fibstar', name: 'Fibonaccistjärna', patch: variant({bpm: 100, root: 9, scale: 4, mode: 'fib', fib: {m: 7, a: 0, b: 1},
+  {id: 'f-fibstar', name: 'Fibonaccistjärna', patch: variant({lfos: [{on: true, wave: 'sine', rate: 16, depth: 0.5, target: 'rot', voice: '0'}, {on: true, wave: 'tri', rate: 8, depth: 0.4, target: 'rad2', voice: '1'}], bpm: 100, root: 9, scale: 4, mode: 'fib', fib: {m: 7, a: 0, b: 1},
     fx: {div: 0.5, fb: 0.35, dmix: 0.3, size: 2.2, rmix: 0.3},
     voices: [{engine: 'shape', vol: 0.6, oct: 1, rel: 0.5, lp: 5000, lpQ: 1.2, shape: {n: 5, round: 0, star: 0.45, rot: 0, xy: true, trace: 'arc'}},
       {engine: 'orbit', vol: 0.55, oct: 0, rel: 1.2, lp: 6000, hp: 150, orbit: {mode: 'epi', r2: 4, d2: -1, rad2: 0.3, rad3: 0}},
       {engine: 'shape', vol: 0.8, oct: -1, rel: 0.45, lp: 1200, lpQ: 1.5, shape: {n: 4, round: 0, star: 0, rot: 45, ecc: 0, trace: 'arc'}}]})},
-  {id: 'f-tresillo', name: 'Tresillo i oskilloskopet', patch: variant({bpm: 108, root: 0, scale: 3, mode: 'eucl',
+  {id: 'f-tresillo', name: 'Tresillo i oskilloskopet', patch: variant({lfos: [{on: true, wave: 'tri', rate: 8, depth: 0.55, target: 'stretch', voice: 'all', spread: 0.25}, {on: false}], bpm: 108, root: 0, scale: 3, mode: 'eucl',
     fx: {div: 0.25, fb: 0.3, dmix: 0.25, size: 1.2, rmix: 0.2},
     voices: [{engine: 'shape', vol: 0.55, oct: 0, att: 0.004, rel: 0.25, lp: 9000, shape: {n: 4, round: 0.05, star: 0, rot: 0, ecc: 0, trace: 'arc', xy: true}},
       {engine: 'shape', vol: 0.5, oct: 1, att: 0.004, rel: 0.3, lp: 7000, shape: {n: 3, round: 0, star: 0, rot: 0, ecc: 0, trace: 'arc', xy: true}},
       {engine: 'orbit', vol: 0.85, oct: -1, rel: 0.4, lp: 1100, lpQ: 2.5, orbit: {mode: 'epi', r2: 3, d2: -1, rad2: 0.35, rad3: 0}}]})},
-  {id: 'f-chord', name: 'Rytmen 3:4:5 är ett ackord', patch: variant({bpm: 72, root: 9, scale: 1, tuning: 'just', mode: 'poly',
+  {id: 'f-chord', name: 'Rytmen 3:4:5 är ett ackord', patch: variant({lfos: [{on: false}, {on: false}], bpm: 72, root: 9, scale: 1, tuning: 'just', mode: 'poly',
     poly: {bars: 1, t: [{n: 3, rot: 0, degs: Array(12).fill(3)}, {n: 4, rot: 0, degs: Array(12).fill(5)}, {n: 5, rot: 0, degs: Array(12).fill(7)}]},
     fx: {div: 1, fb: 0.3, dmix: 0.2, size: 4, rmix: 0.42},
     voices: [{engine: 'shape', vol: 0.55, oct: 0, att: 0.02, rel: 1.2, lp: 20000, shape: {n: 3, round: 1, star: 0, ecc: 0, xy: false}},
@@ -2254,7 +2421,7 @@ function frame(ms) {
   requestAnimationFrame(frame);
   const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
   updateV(); if (play.needSync) { play.needSync = false; syncAll(); }
-  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano); safe(drawArp);
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano); safe(drawArp); safe(() => drawLfo(0)); safe(() => drawLfo(1));
 }
 requestAnimationFrame(frame);
 })();
