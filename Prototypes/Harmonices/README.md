@@ -21,6 +21,10 @@ npm start
 
 Bryggan lyssnar bara på 127.0.0.1 och tar bara emot WebSocket-anslutningar från localhost.
 
+## Patcher
+
+Knappen **Patcher** öppnar biblioteket med fabrikspatcher och dina egna, med en miniatyr av rösternas former. **Spara** skriver över den aktuella egna patchen (eller sparar en ny om du utgår från en fabrikspatch), **Spara som ny** skapar en kopia och Ctrl/Cmd+S sparar. **Exportera** och **Importera** flyttar patcher som `.harmonices.json`-filer. På claude.ai sparas patcherna privat på ditt konto, i den fristående versionen i webbläsaren. En patch innehåller tonart, stämning, tempo, sequencerläge och mönster, alla tre röster med filter samt eko och rymd.
+
 ## Gränssnitt
 
 Allt styrs helst genom att dra direkt i formerna. Värdet du ändrar tonas fram vid pekaren.
