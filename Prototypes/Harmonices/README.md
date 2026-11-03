@@ -21,6 +21,10 @@ npm start
 
 Bryggan lyssnar bara på 127.0.0.1 och tar bara emot WebSocket-anslutningar från localhost.
 
+## Arpeggiator
+
+Slå på **Arpeggio** i panelen Spela och håll ett ackord (keyboard, Bluetooth, klaviaturen eller datorns tangenter). Tonerna spelas en i taget i takt med tempot, och i fas med sequencern och Link när de är igång. Mönster: Upp, Ner, Upp/ner, **Stjärna** (stjärnpolygonen {n/k} runt ackordet), **Gyllene** (137,5° per steg, upprepas aldrig), **Fibonacci** (talföljden modulo antalet toner), Slump och Spelordning. Takt 1/4–1/32 med trioler, 1–4 oktaver, tonlängd, swing och *Lås ackord*. Mönstret ritas som en figur över ackordet: dra runt i den för att ändra k och utåt för tonlängd. Sustainpedalen håller kvar toner i arpeggiot, och inställningarna sparas i patchen.
+
 ## Patcher
 
 Knappen **Patcher** öppnar biblioteket med fabrikspatcher och dina egna, med en miniatyr av rösternas former. **Spara** skriver över den aktuella egna patchen (eller sparar en ny om du utgår från en fabrikspatch), **Spara som ny** skapar en kopia och Ctrl/Cmd+S sparar. **Exportera** och **Importera** flyttar patcher som `.harmonices.json`-filer. På claude.ai sparas patcherna privat på ditt konto, i den fristående versionen i webbläsaren. En patch innehåller tonart, stämning, tempo, sequencerläge och mönster, alla tre röster med filter samt eko och rymd.

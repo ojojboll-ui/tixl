@@ -88,6 +88,13 @@ details > .grid,details > .stack{margin-top:10px}
 .stack{display:grid;gap:10px}
 .trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
 .trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* arpeggiator */
+.arpbox{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:18px;align-items:start;border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:640px){.arpbox{grid-template-columns:minmax(0,1fr)}}
+.arpwrap{position:relative;width:100%;max-width:230px;aspect-ratio:1;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.arpwrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;border-radius:14px}
+.arphead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.arphead h3{margin-right:4px}
 /* patches */
 .patchbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
 .pname{font:500 1rem var(--font-body);color:var(--ink);background:transparent;border:1px solid transparent;border-radius:10px;padding:6px 10px;min-width:0;width:min(320px,100%)}
@@ -239,6 +246,10 @@ details > .grid,details > .stack{margin-top:10px}
     </div>
     <div class="row" id="playRow"></div>
     <div class="pianowrap"><canvas id="piano" aria-label="Klaviatur: tryck eller dra för att spela"></canvas></div>
+    <div class="arpbox">
+      <div class="arpwrap"><canvas id="arpCanvas" aria-label="Arpeggiatorns mönster: dra runt för stjärnsteg, utåt för tonlängd"></canvas></div>
+      <div class="stack" id="arpCtl"></div>
+    </div>
     <p class="status" id="connStatus">Spela på klaviaturen eller med datorns tangenter (A W S E D F T G Y H U J K, Z och X byter oktav). De spelar vald röst. Anslut ett MIDI-keyboard för att spela alla tre.</p>
   </section>
 
@@ -725,7 +736,7 @@ function start(opt = {}) {
   if (opt.startTime !== undefined) { state.startTime = opt.startTime; state.schedBeat = opt.beat || 0; }
   else if (linkLive()) { state.schedBeat = Math.ceil((nowBeat() + 0.05) / 4) * 4; }
   else { state.startTime = ac.currentTime + 0.08; state.schedBeat = 0; }
-  state.playing = true; clearInterval(timer); timer = setInterval(tick, 25); tick(); syncPlayBtn();
+  state.playing = true; clearInterval(timer); timer = setInterval(tick, 25); tick(); syncPlayBtn(); arpResync();
 }
 function stop() {
   state.lastBeat = nowBeat(); state.playing = false; clearInterval(timer);
@@ -1629,6 +1640,7 @@ const midiFreq = n => rootFreq() * ratioOf(n - (48 + state.root));
 const evToAc = ts => ac ? ac.currentTime - clamp((performance.now() - ts) / 1000, 0, 0.1) : 0;
 function targetsFor(ch) { if (play.route === 'all') return [0, 1, 2]; if (play.route === 'channel' && ch < 3) return [ch]; return [state.sel]; }
 function noteOn(note, vel, ch = KB_CH) {
+  if (arp.on) { ensureAudio(); arpAdd(note, vel, ch); play.pressed.set(note, {t: ac.currentTime, vel}); return; }
   ensureAudio(); const f = midiFreq(note), t = ac.currentTime, key = ch + ':' + note;
   if (play.held.has(key)) releaseKey(key);
   const vs = [];
@@ -1636,15 +1648,15 @@ function noteOn(note, vel, ch = KB_CH) {
   play.held.set(key, vs); play.pressed.set(note, {t, vel});
 }
 function releaseKey(key) { const vs = play.held.get(key); if (!vs) return; play.held.delete(key); vs.forEach(v => play.sustain ? play.sustained.add(v) : v.release(ac.currentTime)); }
-function noteOff(note, ch = KB_CH) { releaseKey(ch + ':' + note); if (![...play.held.keys()].some(k => k.endsWith(':' + note))) play.pressed.delete(note); }
-function allNotesOff() { [...play.held.keys()].forEach(releaseKey); if (ac) play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); play.pressed.clear(); }
+function noteOff(note, ch = KB_CH) { if (arp.on && arp.down.has(note)) { arpRemove(note); play.pressed.delete(note); return; } releaseKey(ch + ':' + note); if (![...play.held.keys()].some(k => k.endsWith(':' + note))) play.pressed.delete(note); }
+function allNotesOff() { [...play.held.keys()].forEach(releaseKey); if (ac) play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); play.pressed.clear(); arpClear(); }
 function pitchBend(ch, v) {
   const cents = v / 8192 * 200;
   for (const ti of targetsFor(ch)) { play.bend[ti] = cents; for (const a of active) if (a.kb && a.t === tracks[ti]) a.oscs.forEach(o => o.detune.setTargetAtTime(cents, ac.currentTime, 0.008)); }
 }
 function controlChange(ch, num, val) {
   const ts = targetsFor(ch).map(i => tracks[i]);
-  if (num === 64) { play.sustain = val >= 64; if (!play.sustain) { play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); } }
+  if (num === 64) { play.sustain = val >= 64; if (!play.sustain) { play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); arpPedalUp(); } }
   else if (num === 1 || num === 74) { ts.forEach(t => { t.lp = clamp(uToF(0.3 + 0.7 * val / 127), 40, 20000); setFilter(t); }); play.needSync = true; }
   else if (num === 71) { ts.forEach(t => { t.lpQ = 0.5 + 11.5 * (val / 127) ** 2; setFilter(t); }); play.needSync = true; }
   else if (num === 7) { ts.forEach(t => { t.vol = val / 127; setVol(t); }); play.needSync = true; }
@@ -1816,7 +1828,7 @@ function drawPiano() {
   const {g, w, h: H2} = pianoC; g.clearRect(0, 0, w, H2); if (w < 60) return;
   const ks = pianoKeys(), n0 = audioNow();
   const drawKey = k => {
-    const f = midiFreq(k.n), col = noteColor(f), p = play.pressed.get(k.n), on = !!p, x = k.x + 1, kw = k.w - 2;
+    const f = midiFreq(k.n), col = noteColor(f), p = play.pressed.get(k.n), on = !!p || arpLit(k.n), x = k.x + 1, kw = k.w - 2;
     const lit = on ? 1 : 0;
     g.fillStyle = k.black ? theme.bg : theme.raise; roundBottom(g, x, k.y, kw, k.h, 6); g.fill();
     if (on) { g.save(); const gr = g.createLinearGradient(0, k.y, 0, k.y + k.h); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.55, col); gr.addColorStop(1, col); g.globalAlpha = 0.8; g.fillStyle = gr; g.shadowColor = col; g.shadowBlur = 22 * Math.sqrt(V.bloom); roundBottom(g, x, k.y, kw, k.h, 6); g.fill(); g.restore(); }
@@ -1831,10 +1843,161 @@ function drawPiano() {
   g.globalAlpha = 0.5; text(g, 'A', ks.find(k => k.n === kbOff)?.x + 6 || 6, 14, theme.muted, 9.5, 'left', 'alphabetic', BODY); g.globalAlpha = 1;
 }
 
+/* ---------- ARPEGGIATOR: geometric note orders over the held chord ---------- */
+const ARP_MODES = [['up', 'Upp'], ['down', 'Ner'], ['updown', 'Upp/ner'], ['star', 'Stjärna'], ['golden', 'Gyllene'], ['fib', 'Fibonacci'], ['random', 'Slump'], ['played', 'Spelordning']];
+const ARP_RATES = [[1, '1/4'], [0.5, '1/8'], [1 / 3, '1/8T'], [0.25, '1/16'], [1 / 6, '1/16T'], [0.125, '1/32']];
+const arp = {on: false, mode: 'up', rate: 0.25, oct: 2, gate: 0.6, swing: 0, k: 2, latch: false,
+  notes: [], down: new Set(), pend: new Set(), i: 0, nextBeat: 0, st: null, timer: null, hist: [], bpm: 0, lastR: -1};
+const arpLabel = () => (ARP_MODES.find(m => m[0] === arp.mode) || ARP_MODES[0])[1];
+const rateLabel = r => (ARP_RATES.find(x => Math.abs(x[0] - r) < 1e-9) || [0, '?'])[1];
+function arpAdd(note, vel, ch) {
+  if (arp.latch && arp.down.size === 0) arp.notes = [];
+  arp.down.add(note); arp.pend.delete(note);
+  arp.notes = arp.notes.filter(n => n.note !== note); arp.notes.push({note, vel, ch});
+  if (!arp.timer) arpStart();
+}
+function arpRemove(note) {
+  arp.down.delete(note);
+  if (arp.latch) return;
+  if (play.sustain) { arp.pend.add(note); return; }
+  arp.notes = arp.notes.filter(n => n.note !== note); if (!arp.notes.length) arpStop();
+}
+function arpPedalUp() { if (!arp.pend.size) return; arp.notes = arp.notes.filter(n => !arp.pend.has(n.note) || arp.down.has(n.note)); arp.pend.clear(); if (!arp.notes.length) arpStop(); }
+function arpClear() { arp.notes = []; arp.down.clear(); arp.pend.clear(); arpStop(); }
+function arpStop() { clearInterval(arp.timer); arp.timer = null; }
+const arpSynced = () => state.playing || linkLive();
+function arpAnchor() {
+  const now = ac.currentTime;
+  if (arpSynced()) { arp.st = null; const b = (now - state.startTime) * state.bpm / 60; arp.nextBeat = Math.ceil((b + 0.01) / arp.rate) * arp.rate; }
+  else { arp.st = now + 0.01; arp.nextBeat = 0; }
+  arp.bpm = state.bpm;
+}
+function arpStart() { ensureAudio(); arpAnchor(); arp.i = 0; clearInterval(arp.timer); arp.timer = setInterval(arpTick, 20); arpTick(); }
+function arpResync() { if (arp.timer) arpAnchor(); }
+function arpSeq() {
+  const base = arp.mode === 'played' ? arp.notes.slice() : arp.notes.slice().sort((a, b) => a.note - b.note), out = [];
+  for (let o = 0; o < arp.oct; o++) base.forEach(n => { if (n.note + 12 * o <= 127) out.push({note: n.note + 12 * o, vel: n.vel, ch: n.ch}); });
+  return out;
+}
+const starK = N => clamp(arp.k, 1, Math.max(1, N - 1));
+function arpIndex(i, N, peek) {
+  if (N <= 1) return 0;
+  switch (arp.mode) {
+    case 'down': return N - 1 - i % N;
+    case 'updown': { const p = 2 * N - 2, j = i % p; return j < N ? j : p - j; }
+    case 'star': { const k = starK(N), len = N / gcd(k, N); return (i * k + Math.floor(i / len)) % N; }
+    case 'golden': return Math.floor(frac(i * GOLD) * N);
+    case 'fib': { const c = fibCycle(0, 1, N); return c[i % c.length]; }
+    case 'random': { if (peek) return i % N; let r; do r = Math.floor(Math.random() * N); while (r === arp.lastR); arp.lastR = r; return r; }
+    default: return i % N;
+  }
+}
+function arpCycle(N) {
+  if (N <= 1) return 1;
+  switch (arp.mode) { case 'updown': return 2 * N - 2; case 'fib': return fibCycle(0, 1, N).length; case 'golden': return Math.min(34, 3 * N); default: return N; }
+}
+function arpTick() {
+  if (!ac) return;
+  if (!arp.notes.length) { arpStop(); return; }
+  const now = ac.currentTime;
+  if (arp.st !== null && arp.bpm !== state.bpm) { const b = (now - arp.st) * arp.bpm / 60; arp.st = now - b * 60 / state.bpm; }
+  arp.bpm = state.bpm;
+  const spb = 60 / state.bpm;
+  for (let guard = 0; guard < 16; guard++) {
+    const st = arp.st === null ? state.startTime : arp.st;
+    let t = st + arp.nextBeat * spb;
+    if (Math.round(arp.nextBeat / arp.rate) % 2 === 1) t += arp.swing * arp.rate * spb * 0.5;
+    if (t > now + 0.1) { if (t > now + arp.rate * spb * 2 + 0.25) arpAnchor(); break; }
+    if (t < now - 0.05) { arp.nextBeat += arp.rate; continue; }
+    arpStep(Math.max(t, now)); arp.i++; arp.nextBeat += arp.rate;
+  }
+}
+function arpStep(t) {
+  const seq = arpSeq(), N = seq.length; if (!N) return;
+  const idx = arpIndex(arp.i, N), n = seq[idx], dur = Math.max(0.02, arp.rate * 60 / state.bpm * arp.gate);
+  const vel = (0.25 + 0.75 * n.vel / 127) * (arp.i % arpCycle(N) === 0 ? 1 : 0.84);
+  for (const ti of targetsFor(n.ch)) {
+    const f = midiFreq(n.note), v = startNote(ti, f, t, vel, {decay: Math.max(0.03, dur * 0.6), kb: true, bend: play.bend[ti]});
+    if (v) { v.release(t + dur); mark(ti, 'a' + n.note, f, t); }
+  }
+  arp.hist.push({idx, note: n.note, t, dur}); if (arp.hist.length > 32) arp.hist.shift();
+}
+function arpLit(note) { const n = audioNow(); for (let i = arp.hist.length - 1; i >= 0; i--) { const h = arp.hist[i]; if (h.note === note && n >= h.t && n < h.t + Math.max(h.dur, 0.06)) return true; } return false; }
+function arpNow() { const n = audioNow(); for (let i = arp.hist.length - 1; i >= 0; i--) { const h = arp.hist[i]; if (n >= h.t) return n < h.t + Math.max(h.dur, 0.08) + 0.15 ? h : null; } return null; }
+
+/* the pattern drawn as a figure over the chord, glowing on each step */
+const arpC = track2d($('#arpCanvas'));
+function arpGeo() { const {w, h: H2} = arpC; return {cx: w / 2, cy: H2 / 2, R: Math.min(w, H2) * 0.36}; }
+gestures(arpC, () => {
+  const G = arpGeo();
+  return {id: 'arp', cx: G.cx, cy: G.cy, color: theme.v2, modes: ['t', 'r'],
+    start() { this.k0 = arp.k; this.g0 = arp.gate; this.m0 = arp.mode; },
+    drag({lock, dth, dr}) {
+      if (lock === 't') { const N = arpSeq().length || 12; arp.mode = 'star'; arp.k = clamp(this.k0 + Math.round(dth / (TAU / 14)), 1, Math.max(1, N - 1)); }
+      else arp.gate = clamp(Math.round((this.g0 + dr / (G.R * 1.2)) * 100) / 100, 0.05, 1);
+    },
+    label: lock => {
+      if (lock === 'r') return ['Tonlängd', Math.round(arp.gate * 100) + ' %', arp.gate > 0.95 ? 'legato' : arp.gate < 0.25 ? 'staccato' : 'av varje steg'];
+      const N = arpSeq().length;
+      return ['Stjärna', N > 1 ? `{${N}/${starK(N)}}` : 'k = ' + arp.k, N > 1 ? (gcd(starK(N), N) > 1 ? `${gcd(starK(N), N)} sammanflätade figurer` : 'hoppar ' + starK(N) + ' toner per steg') : 'håll ett ackord'];
+    }};
+});
+function drawArp() {
+  const c = arpC, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const {cx, cy, R} = arpGeo(), seq = arpSeq(), N = seq.length;
+  g.setLineDash([2, 6]); g.lineWidth = 1; dot(g, cx, cy, R, null, theme.line); g.setLineDash([]);
+  const P = j => { const a = -Math.PI / 2 + TAU * j / Math.max(1, N); return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; };
+  if (!N) {
+    for (let j = 0; j < 7; j++) { const a = -Math.PI / 2 + TAU * j / 7; dot(g, cx + R * Math.cos(a), cy + R * Math.sin(a), 2.5, theme.faint); }
+    text(g, arp.on ? 'Håll ett ackord' : 'Arpeggio av', cx, cy - 2, theme.muted, 12, 'center', 'middle', BODY);
+    text(g, arp.on ? arpLabel() + ' · ' + rateLabel(arp.rate) : 'slå på till höger', cx, cy + 16, theme.faint, 10, 'center', 'middle');
+    drawHud(c); return;
+  }
+  g.globalCompositeOperation = 'lighter';
+  const order = [];
+  if (arp.mode === 'random') arp.hist.slice(-Math.max(2, N * 2)).forEach(h => order.push(h.idx));
+  else { const L = arpCycle(N); for (let i = 0; i <= L; i++) order.push(arpIndex(i, N, true)); }
+  if (order.length > 1) { const path = new Path2D(); order.forEach((j, q) => { const [x, y] = P(Math.min(j, N - 1)); q ? path.lineTo(x, y) : path.moveTo(x, y); }); glowPath(g, path, theme.v2, 0.55, 1.2); }
+  const cur = arpNow();
+  if (cur && cur.idx < N) {
+    const prev = arp.hist[arp.hist.indexOf(cur) - 1];
+    if (prev && prev.idx < N) { const [x1, y1] = P(prev.idx), [x2, y2] = P(cur.idx), p = new Path2D(); p.moveTo(x1, y1); p.lineTo(x2, y2); glowPath(g, p, theme.ink, 0.9, 2); }
+  }
+  for (let j = 0; j < N; j++) {
+    const [x, y] = P(j), on = cur && cur.idx === j, col = noteColor(midiFreq(seq[j].note));
+    glowDot(g, x, y, on ? 7.5 : 4.5, col, on ? 1.6 : 0.75);
+  }
+  g.globalCompositeOperation = 'source-over';
+  for (let j = 0; j < N && N <= 16; j++) { const a = -Math.PI / 2 + TAU * j / N; const m = seq[j].note; text(g, NOTE[mod(m, 12)] + (Math.floor(m / 12) - 1), cx + (R + 16) * Math.cos(a), cy + (R + 16) * Math.sin(a), theme.muted, 9, 'center', 'middle'); }
+  text(g, arp.mode === 'star' && N > 1 ? `{${N}/${starK(N)}}` : arpLabel(), cx, cy - 4, theme.ink, 13, 'center', 'middle', BODY);
+  text(g, rateLabel(arp.rate) + (arp.latch ? ' · låst' : ''), cx, cy + 13, theme.muted, 10, 'center', 'middle');
+  drawHud(c);
+}
+function buildArp() {
+  const el = $('#arpCtl'); el.textContent = '';
+  const latchBtn = h('button', {class: 'btn', type: 'button', 'aria-pressed': String(arp.latch), onclick: () => {
+    arp.latch = !arp.latch; latchBtn.setAttribute('aria-pressed', String(arp.latch));
+    if (!arp.latch && !arp.down.size) arpClear();
+  }}, 'Lås ackord');
+  const sync = () => latchBtn.setAttribute('aria-pressed', String(arp.latch)); sync.el = latchBtn; syncers.add(sync);
+  el.append(
+    h('div', {class: 'arphead'}, h('h3', {}, 'Arpeggio'),
+      seg([['false', 'Av'], ['true', 'På']], () => String(arp.on), v => { allNotesOff(); arp.on = v === 'true'; }, 'Arpeggio av eller på'), latchBtn),
+    labeled('Mönster', (() => { const sg = seg(ARP_MODES, () => arp.mode, v => { arp.mode = v; }, 'Arpeggiomönster'); sg.classList.add('modes'); return sg; })()),
+    h('div', {class: 'row'},
+      labeled('Takt', seg(ARP_RATES.map(([v, l]) => [String(v), l]), () => String(arp.rate), v => { arp.rate = +v; arpResync(); }, 'Takt')),
+      labeled('Oktaver', seg([['1', '1'], ['2', '2'], ['3', '3'], ['4', '4']], () => String(arp.oct), v => { arp.oct = +v; }, 'Oktaver'))),
+    h('div', {class: 'grid'},
+      slider({label: 'Tonlängd', min: 0.05, max: 1, step: 0.01, get: () => arp.gate, set: v => arp.gate = v, show: v => Math.round(v * 100) + ' %'}),
+      slider({label: 'Swing', min: 0, max: 0.6, step: 0.01, get: () => arp.swing, set: v => arp.swing = v, show: v => Math.round(v * 100) + ' %'})),
+    h('p', {class: 'hint', html: 'Håll ett ackord så spelas tonerna en i taget, i takt med tempot, sequencern och Link. <b>Stjärna</b> går runt ackordet som stjärnpolygonen {n/k}: dra runt i figuren för att ändra k och utåt för tonlängd. <b>Gyllene</b> hoppar 137,5° per steg och upprepar sig aldrig, <b>Fibonacci</b> följer talföljden modulo antalet toner.'}),
+  );
+}
+
 /* ---------- boot & loop ---------- */
 readTheme();
 tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
-buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow();
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow(); buildArp();
 
 /* ---------- PATCHES: serialize, validate, apply, library, storage, export/import ---------- */
 function serialize() {
@@ -1843,6 +2006,7 @@ function serialize() {
     poly: {bars: state.poly.bars, t: state.poly.t.map(p => ({n: p.n, rot: p.rot, degs: [...p.degs]}))},
     eucl: {t: state.eucl.t.map(e => ({n: e.n, k: e.k, rot: e.rot, pat: [...e.pat], degs: [...e.degs]}))},
     fib: c(state.fib), gold: c(state.gold), fx: c(state.fx),
+    arp: {on: arp.on, mode: arp.mode, rate: arp.rate, oct: arp.oct, gate: arp.gate, swing: arp.swing, k: arp.k, latch: arp.latch},
     voices: tracks.map(t => ({engine: t.engine, vol: t.vol, mute: t.mute, oct: t.oct, att: t.att, rel: t.rel, lp: t.lp, lpQ: t.lpQ, hp: t.hp, hpQ: t.hpQ, shape: c(t.shape), orbit: c(t.orbit)}))};
 }
 const BASE = serialize();
@@ -1870,6 +2034,9 @@ function sanitizePatch(P) {
   o.fib = {m, a: int(P.fib?.a, 0, m - 1, Math.min(B.fib.a, m - 1)), b: int(P.fib?.b, 0, m - 1, Math.min(B.fib.b, m - 1))};
   o.gold = {density: num(P.gold?.density, 0.05, 1, B.gold.density), span: int(P.gold?.span, 1, 3, B.gold.span), angle: num(P.gold?.angle, 0.02, 0.98, B.gold.angle)};
   o.fx = {div: pick(P.fx?.div, [0.25, 0.5, 0.75, 1, 1.5], B.fx.div), fb: num(P.fx?.fb, 0, 0.92, B.fx.fb), dmix: num(P.fx?.dmix, 0, 1, B.fx.dmix), size: num(P.fx?.size, 0.3, 8, B.fx.size), rmix: num(P.fx?.rmix, 0, 1, B.fx.rmix)};
+  const A = P.arp || {}, BA = B.arp;
+  o.arp = {on: bool(A.on, BA.on), mode: pick(A.mode, ARP_MODES.map(m => m[0]), BA.mode), rate: ARP_RATES.map(r => r[0]).find(r => isNum(A.rate) && Math.abs(r - A.rate) < 1e-6) ?? BA.rate,
+    oct: int(A.oct, 1, 4, BA.oct), gate: num(A.gate, 0.05, 1, BA.gate), swing: num(A.swing, 0, 0.6, BA.swing), k: int(A.k, 1, 15, BA.k), latch: bool(A.latch, BA.latch)};
   o.voices = [0, 1, 2].map(i => {
     const s = P.voices?.[i] || {}, d = B.voices[i], ss = s.shape || {}, ds = d.shape, so = s.orbit || {}, dd = d.orbit, R = RATIOS.length - 1;
     return {engine: pick(s.engine, ['shape', 'orbit'], d.engine), vol: num(s.vol, 0, 1, d.vol), mute: bool(s.mute, d.mute), oct: int(s.oct, -2, 2, d.oct),
@@ -1885,6 +2052,7 @@ function applyPatch(c) {
   c.poly.t.forEach((t, i) => Object.assign(state.poly.t[i], {n: t.n, rot: t.rot, degs: [...t.degs]}));
   c.eucl.t.forEach((t, i) => Object.assign(state.eucl.t[i], {n: t.n, k: t.k, rot: t.rot, pat: [...t.pat], degs: [...t.degs]}));
   Object.assign(state.fib, c.fib); Object.assign(state.gold, c.gold);
+  if (c.arp) { arpClear(); Object.assign(arp, c.arp); }
   const resize = state.fx.size !== c.fx.size; Object.assign(state.fx, c.fx);
   c.voices.forEach((v, i) => {
     const t = tracks[i];
@@ -2086,7 +2254,7 @@ function frame(ms) {
   requestAnimationFrame(frame);
   const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
   updateV(); if (play.needSync) { play.needSync = false; syncAll(); }
-  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano);
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano); safe(drawArp);
 }
 requestAnimationFrame(frame);
 })();
