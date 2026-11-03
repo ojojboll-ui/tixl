@@ -8,6 +8,8 @@ Allt styrs helst genom att dra direkt i formerna. Värdet du ändrar tonas fram 
 
 - **Klang**: alla tre röster ligger ovanpå varandra. Formens storlek är volymen och vågen som ritar formen syns halvgenomskinlig bakom. Dra utåt/inåt för volym, runt för vridning. Vald röst har handtag: ◆ antal hörn, ● rundning/stjärna, ✚ nav (excentricitet), ■ sträckning. För Cirklar är handtagen 2 och 3 cirklarna (utåt = radie/FM-index, runt = varvtal).
 - **Sequencer**: dra hörn utåt/inåt för tonhöjd och runt för vridning, tryck på euklidiska steg för att slå av/på, dra Fibonaccis startvärden runt cirkeln och dra solrosens vinkel (snäpper vid 137,5°). Siffermärkena i hörnet scrubbas upp/ner.
+- **Filter per röst**: en ruta visar röstens övertoner och filterkurvan. Dra handtagen HP och LP i sidled för frekvens och uppåt för resonans. Filtret räknas också på formen, så ett stängt lågpass rundar av hörnen tills bara cirkeln (grundtonen) finns kvar.
+- **Eko och rymd** (globala): XY-ytor. Ekot (tid 1/16 till 1/4·, återkoppling, mix) skickar en kopia av formen utåt för varje eko, i takt. Rymden (genererat impulssvar, storlek 0,3–8 s, mix) gör glöden starkare och längre när tonerna slår an.
 - Reglage finns kvar för oktav, attack och släpp, och för exakta värden under "Alla värden" och "Reglage".
 
 ## Ljudmotorer (per röst, tre röster samtidigt)

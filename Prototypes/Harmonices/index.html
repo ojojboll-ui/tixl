@@ -87,6 +87,15 @@ details > .grid,details > .stack{margin-top:10px}
 .stack{display:grid;gap:10px}
 .trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
 .trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* fx & filter pads */
+.fxrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:620px){.fxrow{grid-template-columns:minmax(0,1fr)}}
+.padwrap{position:relative;width:100%;aspect-ratio:2.4;border-radius:12px;background:var(--bg);border:1px solid var(--line)}
+.padwrap.filterwrap{aspect-ratio:3}
+.padwrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;border-radius:12px}
+.padhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.padhead h3{font-size:.95rem}
+.padhead .lab{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 /* lower */
 .lower{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 @media (max-width:620px){.lower{grid-template-columns:minmax(0,1fr)}}
@@ -161,6 +170,23 @@ details > .grid,details > .stack{margin-top:10px}
     </section>
   </div>
 
+  <section class="pane" aria-label="Eko och rymd">
+    <div class="pane-head"><h2>Eko och rymd</h2></div>
+    <div class="fxrow">
+      <div class="stack">
+        <div class="padhead"><h3>Eko</h3><div id="divSeg"></div></div>
+        <div class="padwrap"><canvas id="echoPad" aria-label="Eko: höger ger fler upprepningar, upp ger mer eko"></canvas></div>
+        <p class="hint">Dra åt <b>höger</b> för fler upprepningar och <b>uppåt</b> för mer eko. Varje eko skickar en våg genom formerna, i takt.</p>
+      </div>
+      <div class="stack">
+        <div class="padhead"><h3>Rymd</h3><span class="lab" id="roomLab"></span></div>
+        <div class="padwrap"><canvas id="roomPad" aria-label="Rymd: höger ger större rum, upp ger mer rymd"></canvas></div>
+        <p class="hint">Dra åt <b>höger</b> för ett större rum och <b>uppåt</b> för mer rymd. Rymden får formerna att glöda starkare och längre när de slår an.</p>
+      </div>
+    </div>
+    <details><summary>Exakta värden</summary><div class="grid" id="fxParams"></div></details>
+  </section>
+
   <div class="lower">
     <section class="pane" aria-label="Tonhjulet">
       <div class="pane-head"><h2>Tonhjulet</h2>
@@ -189,6 +215,8 @@ details > .grid,details > .stack{margin-top:10px}
       <article><h3>Rytm och tonhöjd är samma sak</h3><p>Polyrytmen 3:4:5 är tre pulser i samma cykel. Spela den ungefär hundra gånger snabbare så blir den tre toner med frekvenserna 3:4:5, ett durackord i andra omvändningen. Prova knappen i läget Polygoner.</p></article>
       <article><h3>Fibonacci och intervallen</h3><p>Kvoterna mellan grannar i Fibonacci, 2/1, 3/2, 5/3, 8/5, 13/8, är oktav, kvint, stor sext och liten sext. De närmar sig φ ≈ 1,618, ungefär 833 cent, mitt mellan sexterna. Fibonacci modulo m upprepar sig alltid efter Pisanoperioden, så följden blir en loop.</p></article>
       <article><h3>Gyllene vinkeln</h3><p>137,5° är den vridning som är svårast att approximera med bråk. Fröna hamnar aldrig på samma ställe men fördelas ändå jämnt. Dra vinkeln bort från den och se solrosen falla isär i armar: 120° ger tre, 90° ger fyra.</p></article>
+      <article><h3>Eko och rymd</h3><p>Ett eko är samma våg som kommer tillbaka efter en bestämd tid, svagare för varje varv. Därför skickar varje eko en kopia av formen utåt, i takt. Rymden är tusentals små eko som smälter ihop till en svans, och den syns här som glöd som lyser starkare och dröjer kvar längre.</p></article>
+      <article><h3>Filtret formar formen</h3><p>Ett lågpassfilter tar bort de höga övertonerna, och det är övertonerna som gör hörnen vassa. Stäng lågpasset så rundas kvadraten av tills bara cirkeln, grundtonen, finns kvar. Den streckade konturen visar originalformen och den glödande linjen visar vad filtret låter igenom.</p></article>
       <article><h3>Ljusets oktav</h3><p>Synligt ljus spänner ungefär en oktav, 400 till 790 THz. Höj A 440 Hz fyrtio oktaver så hamnar du på 484 THz, cirka 620 nm, som är orange. Färgerna här bygger på den räkningen. Det är en lek med tal: öga och öra fungerar olika och ingen ton har en verklig färg. Newton kopplade sju färger till sju toner och Skrjabin färgade kvintcirkeln.</p>
         <div class="lightstrip" id="lightstrip"></div></article>
       <article><h3>Skalor som polygoner</h3><p>I tonhjulet blir heltonsskalan en hexagon, ett överstigande ackord en triangel och ett förminskat septimackord en kvadrat. Tolv rena kvinter blir nästan sju oktaver. Det som fattas, det pytagoreiska kommat på 23,5 cent, är skälet till att stämningarna låter olika.</p></article>
@@ -248,6 +276,7 @@ const state = {
   eucl: {t: [{n:8, k:3, rot:0}, {n:12, k:7, rot:0}, {n:16, k:5, rot:0}]},
   fib:  {m: 5, a: 0, b: 1},
   gold: {density: 0.5, span: 2, angle: GOLD},
+  fx: {div: 0.75, fb: 0.38, dmix: 0.35, size: 2.6, rmix: 0.3},
 };
 state.eucl.t.forEach((e, i) => { e.pat = [...Array(16)].map((_, j) => bjork(j, e.k, e.n)); e.degs = [...Array(16)].map((_, j) => mod(j * [2, 1, 3][i], 8)); });
 const tracks = [
@@ -262,6 +291,8 @@ const tracks = [
     orbit:{mode:'epi', r2:4, d2:1, rad2:0.3, r3:1, d3:1, rad3:0, xy:false}},
 ];
 
+tracks.forEach(t => Object.assign(t, {lp: 20000, lpQ: 0.707, hp: 20, hpQ: 0.707, ver: 0}));
+tracks[2].lp = 2400; tracks[2].lpQ = 2.2;
 const scalePcs = () => SCALES[state.scale].pcs;
 const rootFreq = () => 130.8128 * 2 ** (state.root / 12);
 function ratioOf(semi) { const t = TUNINGS[state.tuning].t; return t[mod(semi, 12)] * 2 ** Math.floor(semi / 12); }
@@ -393,29 +424,63 @@ function computeOrbit(o) {
 }
 
 /* ---------- audio ---------- */
-let ac = null, master, comp, delay, anL, anR, cosWave;
+let ac = null, master, comp, delay, dFb, dWet, rvWet, conv, anL, anR, cosWave, irTimer = 0;
 const active = [];
+const qdB = q => 20 * Math.log10(q);
 function initAudio() {
   ac = new (window.AudioContext || window.webkitAudioContext)();
   master = ac.createGain(); master.gain.value = state.master;
   comp = ac.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
   master.connect(comp); comp.connect(ac.destination);
-  delay = ac.createDelay(3); const fb = ac.createGain(), lp = ac.createBiquadFilter(), wet = ac.createGain();
-  fb.gain.value = 0.32; lp.type = 'lowpass'; lp.frequency.value = 2800; wet.gain.value = 0.26;
-  delay.connect(lp); lp.connect(fb); fb.connect(delay); lp.connect(wet); wet.connect(master);
+  // global echo: in -> delay -> tone -> feedback, tone -> wet
+  const dIn = ac.createGain(), dTone = ac.createBiquadFilter();
+  delay = ac.createDelay(4); dFb = ac.createGain(); dWet = ac.createGain();
+  dTone.type = 'lowpass'; dTone.frequency.value = 3400;
+  dIn.connect(delay); delay.connect(dTone); dTone.connect(dFb); dFb.connect(delay); dTone.connect(dWet); dWet.connect(master);
+  // global room: generated impulse response
+  const rvIn = ac.createGain(), rvTone = ac.createBiquadFilter();
+  conv = ac.createConvolver(); rvWet = ac.createGain();
+  rvTone.type = 'lowpass'; rvTone.frequency.value = 7000;
+  rvIn.connect(rvTone); rvTone.connect(conv); conv.connect(rvWet); rvWet.connect(master);
+  const d2r = ac.createGain(); d2r.gain.value = 0.5; dWet.connect(d2r); d2r.connect(rvIn);
   const sp = ac.createChannelSplitter(2); comp.connect(sp);
   anL = ac.createAnalyser(); anR = ac.createAnalyser(); anL.fftSize = anR.fftSize = 2048;
   sp.connect(anL, 0); sp.connect(anR, 1);
   cosWave = ac.createPeriodicWave(new Float32Array([0, 1]), new Float32Array([0, 0]), {disableNormalization: true});
   tracks.forEach(t => {
-    t.bus = ac.createGain(); t.bus.gain.value = t.mute ? 0 : t.vol; t.bus.connect(master);
-    const send = ac.createGain(); send.gain.value = 0.5; t.bus.connect(send); send.connect(delay);
-    buildWaves(t);
+    t.hpN = ac.createBiquadFilter(); t.hpN.type = 'highpass';
+    t.lpN = ac.createBiquadFilter(); t.lpN.type = 'lowpass';
+    t.bus = ac.createGain(); t.bus.gain.value = t.mute ? 0 : t.vol;
+    t.hpN.connect(t.lpN); t.lpN.connect(t.bus); t.bus.connect(master);
+    const ds = ac.createGain(); ds.gain.value = 0.6; t.bus.connect(ds); ds.connect(dIn);
+    const rs = ac.createGain(); rs.gain.value = 0.7; t.bus.connect(rs); rs.connect(rvIn);
+    setFilter(t, true); buildWaves(t);
   });
-  setDelay();
+  conv.buffer = makeIR(state.fx.size);
+  setDelay(); setReverb();
+}
+function makeIR(size) {
+  const sr = ac.sampleRate, len = Math.max(1, Math.floor(sr * size)), pre = Math.floor(sr * 0.012), b = ac.createBuffer(2, len + pre, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = b.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i + pre] = (Math.random() * 2 - 1) * Math.exp(-6.9 * i / len) * Math.min(1, i / (sr * 0.004));
+  }
+  return b;
 }
 function ensureAudio() { if (!ac) initAudio(); if (ac.state !== 'running') ac.resume(); }
-function setDelay() { if (delay) delay.delayTime.setTargetAtTime(0.75 * 60 / state.bpm, ac.currentTime, 0.05); }
+function setDelay() {
+  if (!ac) return; const T = ac.currentTime, f = state.fx;
+  delay.delayTime.setTargetAtTime(f.div * 60 / state.bpm, T, 0.05); dFb.gain.setTargetAtTime(f.fb, T, 0.03); dWet.gain.setTargetAtTime(f.dmix * 0.9, T, 0.03);
+}
+function setReverb(rebuild) {
+  if (!ac) return; rvWet.gain.setTargetAtTime(state.fx.rmix * 1.1, ac.currentTime, 0.03);
+  if (rebuild) { clearTimeout(irTimer); irTimer = setTimeout(() => { conv.buffer = makeIR(state.fx.size); }, 150); }
+}
+function setFilter(t, now) {
+  if (!t.lpN) return; const T = ac.currentTime, tc = now ? 0.001 : 0.02;
+  t.lpN.frequency.setTargetAtTime(t.lp, T, tc); t.lpN.Q.setTargetAtTime(qdB(t.lpQ), T, tc);
+  t.hpN.frequency.setTargetAtTime(t.hp, T, tc); t.hpN.Q.setTargetAtTime(qdB(t.hpQ), T, tc);
+}
 function setVol(t) { if (t.bus) t.bus.gain.setTargetAtTime(t.mute ? 0 : t.vol, ac.currentTime, 0.03); }
 function buildWaves(t) {
   if (!ac || !t.sd) return;
@@ -427,8 +492,8 @@ function buildWaves(t) {
   for (const v of active) if (v.t === t && v.engine === 'shape') for (const o of v.oscs) if (o._k) o.setPeriodicWave(o._k === 'x' ? t.waveX : t.waveY);
 }
 let waveTimer = 0;
-function updateShape(t) { t.sd = computeShape(t.shape); if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
-function updateOrbit(t) { t.od = computeOrbit(t.orbit); }
+function updateShape(t) { t.sd = computeShape(t.shape); t.ver++; if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
+function updateOrbit(t) { t.od = computeOrbit(t.orbit); t.ver++; }
 function playNote(ti, freq, time, dur, vel = 0.9) {
   const t = tracks[ti]; if (!ac || t.mute) return;
   const g = ac.createGain(), peak = 0.3 * vel, att = t.att, rel = t.rel;
@@ -438,7 +503,7 @@ function playNote(ti, freq, time, dur, vel = 0.9) {
   const off = time + Math.max(dur, att + 0.01);
   g.gain.setTargetAtTime(0, off, rel / 4);
   const end = off + rel * 1.7 + 0.05;
-  g.connect(t.bus);
+  g.connect(t.hpN);
   const v = {t, g, oscs: [], end, engine: t.engine};
   const osc = (wave, f, dest, k) => {
     const o = ac.createOscillator();
@@ -548,12 +613,19 @@ const MODES = {
 };
 
 /* ---------- transport ---------- */
-const hits = new Map(), pcHits = new Array(12).fill(-9), voiceHits = [-9, -9, -9];
+const hits = new Map(), pcHits = new Array(12).fill(-9), voiceHits = [null, null, null];
+const ripples = []; let lastE = null;
 let timer = null;
 const beatTime = b => state.startTime + b * 60 / state.bpm;
 const nowBeat = () => ac ? (ac.currentTime - state.startTime) * state.bpm / 60 : 0;
 const audioNow = () => ac ? ac.currentTime : 0;
-function mark(ti, key, f, t) { hits.set(ti + ':' + key, t); pcHits[pcOfFreq(f)] = t; voiceHits[ti] = t; }
+function mark(ti, key, f, t) {
+  const fx = state.fx, e = {t, d: fx.div * 60 / state.bpm, fb: fx.fb, mix: fx.dmix};
+  hits.set(ti + ':' + key, e); pcHits[pcOfFreq(f)] = t; voiceHits[ti] = e; lastE = e;
+  let K = 0; while (K < 14 && e.mix * 1.3 * e.fb ** K >= 0.05) K++;
+  ripples.push({ti, e, end: t + (K + 1) * e.d + 1.3});
+  if (ripples.length > 140) ripples.splice(0, ripples.length - 140);
+}
 function tick() {
   while (beatTime(state.schedBeat) < ac.currentTime + 0.12) {
     const from = state.schedBeat, to = from + 0.25;
@@ -577,7 +649,7 @@ function preview(ti, deg, key) {
 }
 function playChord() {
   ensureAudio(); const base = rootFreq() / 2, t = ac.currentTime + 0.05;
-  state.poly.t.forEach((p, i) => { playNote(i, base * p.n, t + i * 0.04, 2.4, 0.8); pcHits[pcOfFreq(base * p.n)] = t + i * 0.04; voiceHits[i] = t; });
+  state.poly.t.forEach((p, i) => { playNote(i, base * p.n, t + i * 0.04, 2.4, 0.8); mark(i, 'chord', base * p.n, t + i * 0.04); });
 }
 
 /* ---------- UI helpers ---------- */
@@ -672,6 +744,7 @@ function gestures(c, hitFn) {
     const d0 = Math.hypot(x - t.cx, y - t.cy);
     drag = {t, x0: x, y0: y, d0, aPrev: Math.atan2(y - t.cy, x - t.cx), dth: 0, moved: false, lock: null};
     t.start && t.start();
+    if (t.absolute) { t.drag({lock: 'xy', x, y, dx: 0, dy: 0, dr: 0, dth: 0}); syncAll(); }
     c.canvas.style.cursor = 'grabbing';
     showHud(t, x, y, t.modes[0], true);
   });
@@ -734,18 +807,32 @@ function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcT
 const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace', BODY = 'Jost, system-ui, sans-serif';
 function dot(g, x, y, r, fill, stroke) { if (!(r > 0)) return; g.beginPath(); g.arc(x, y, r, 0, TAU); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.stroke(); } }
 function text(g, s, x, y, color, size = 11, align = 'left', base = 'alphabetic', font = MONO) { g.font = `${size}px ${font}`; g.fillStyle = color; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
-function glowPath(g, path, col, k = 1, width = 1.6) {
-  g.strokeStyle = col; g.lineJoin = 'round'; g.lineCap = 'round';
-  g.globalAlpha = 0.07 * k; g.lineWidth = width + 9; g.stroke(path);
-  g.globalAlpha = 0.16 * k; g.lineWidth = width + 4; g.stroke(path);
-  g.globalAlpha = Math.min(1, 0.95 * k); g.lineWidth = width; g.stroke(path);
+const V = {bloom: 1, tail: 1};
+function updateV() { const f = state.fx; V.bloom = 1 + f.rmix * 1.3 * Math.min(1, 0.35 + f.size / 4); V.tail = 1 + f.rmix * f.size * 0.5; }
+function glowPath(g, path, col, k = 1, width = 1.6, px = 1) {
+  const b = V.bloom; g.strokeStyle = col; g.lineJoin = 'round'; g.lineCap = 'round';
+  const sb = Math.sqrt(b);
+  g.globalAlpha = Math.min(1, 0.06 * k * b); g.lineWidth = (width + 8 * sb) * px; g.stroke(path);
+  g.globalAlpha = Math.min(1, 0.15 * k * sb); g.lineWidth = (width + 3.5 * sb) * px; g.stroke(path);
+  g.globalAlpha = Math.min(1, 0.95 * k); g.lineWidth = width * px; g.stroke(path);
   g.globalAlpha = 1;
 }
 function glowDot(g, x, y, r, col, k = 1) {
-  g.globalAlpha = 0.18 * k; dot(g, x, y, r * 3.2, col); g.globalAlpha = 0.35 * k; dot(g, x, y, r * 1.8, col); g.globalAlpha = 1; dot(g, x, y, r, col);
+  const b = V.bloom ** 0.3;
+  g.globalAlpha = Math.min(1, 0.18 * k); dot(g, x, y, r * 3.2 * b, col); g.globalAlpha = Math.min(1, 0.35 * k); dot(g, x, y, r * 1.8 * b, col); g.globalAlpha = 1; dot(g, x, y, r, col);
 }
-const hitAge = (t, win = 0.45) => { const a = audioNow() - t; return a >= 0 && a < win ? 1 - a / win : 0; };
-const glow = key => { const t = hits.get(key); return t === undefined ? 0 : hitAge(t); };
+function echoGlow(e, win = 0.45) {
+  if (!e) return 0; win *= V.tail; const n = audioNow(); let best = 0;
+  const a0 = n - e.t; if (a0 >= 0 && a0 < win) best = 1 - a0 / win;
+  for (let k = 1; k < 14; k++) {
+    const amp = e.mix * 1.3 * e.fb ** (k - 1); if (amp < 0.05) break;
+    const a = n - (e.t + k * e.d); if (a < 0) break; const w = win * 0.7;
+    if (a < w) best = Math.max(best, amp * (1 - a / w));
+  }
+  return Math.min(1, best);
+}
+const hitAge = (e, win = 0.45) => echoGlow(e, win);
+const glow = key => echoGlow(hits.get(key));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 /* ---------- KLANG: all voices stacked ---------- */
@@ -840,43 +927,108 @@ function drawHandle(g, hd, hot) {
   if (hd.glyph === 'arm') text(g, String(hd.arm), x, y + 0.5, hd.color, 9, 'center', 'middle');
   g.restore();
 }
+/* the voice filter applied to the geometry: H(f) of LP·HP, 2nd order */
+function Hf(t, f) {
+  const bi = (fc, Q, hp) => { const w = f / fc, re = 1 - w * w, im = w / Q, den = re * re + im * im; return hp ? [-w * w * re / den, w * w * im / den] : [re / den, -im / den]; };
+  const [a, b] = bi(t.lp, t.lpQ, false), [c, d] = bi(t.hp, t.hpQ, true);
+  return [a * c - b * d, a * d + b * c];
+}
+const NV = 512, CV = new Float32Array(NV), SV = new Float32Array(NV);
+for (let i = 0; i < NV; i++) { CV[i] = Math.cos(TAU * i / NV); SV[i] = Math.sin(TAU * i / NV); }
+function unitPath(xs, ys, step = 1) { const p = new Path2D(); for (let i = 0; i < xs.length; i += step) i ? p.lineTo(xs[i], ys[i]) : p.moveTo(xs[i], ys[i]); p.closePath(); return p; }
+function ensureVis(t) {
+  const f0 = degFreq(0, t.oct), key = [t.ver, t.engine, t.orbit.mode, t.lp, t.lpQ, t.hp, t.hpQ, Math.round(f0)].join('|');
+  if (t.vkey === key) return; t.vkey = key; t.f0 = f0;
+  if (t.engine === 'shape') {
+    if (t.specVer !== t.ver || !t.spX) { t.spX = spectrum(t.sd.xs); t.spY = spectrum(t.sd.ys); t.specVer = t.ver; }
+    const CXr = new Float32Array(H + 1), CXi = new Float32Array(H + 1), CYr = new Float32Array(H + 1), CYi = new Float32Array(H + 1);
+    t.hGain = new Float32Array(H + 1);
+    for (let k = 1; k <= H; k++) {
+      const [hr, hi] = Hf(t, k * f0), xr = t.spX.re[k], xi = -t.spX.im[k], yr = t.spY.re[k], yi = -t.spY.im[k];
+      CXr[k] = xr * hr - xi * hi; CXi[k] = xr * hi + xi * hr; CYr[k] = yr * hr - yi * hi; CYi[k] = yr * hi + yi * hr;
+      t.hGain[k] = Math.hypot(hr, hi);
+    }
+    const fx = new Float32Array(NV), fy = new Float32Array(NV);
+    for (let i = 0; i < NV; i++) {
+      let x = t.spX.mean, y = t.spY.mean;
+      for (let k = 1; k <= H; k++) { const j = (k * i) % NV, c = CV[j], s = SV[j]; x += CXr[k] * c - CXi[k] * s; y += CYr[k] * c - CYi[k] * s; }
+      fx[i] = x; fy[i] = y;
+    }
+    t.fx = fx; t.fy = fy;
+    t.opath = unitPath(t.sd.px, t.sd.py);
+  } else {
+    const d = t.od, n = d.px.length, fx = new Float32Array(n), fy = new Float32Array(n);
+    if (t.orbit.mode === 'epi') {
+      const Gn = d.arms.map(a => Math.hypot(...Hf(t, Math.abs(a.ratio) * f0))), loops = d.K || 12; t.armG = Gn;
+      for (let i = 0; i < n; i++) { const th = TAU * loops * i / (n - 1); let x = 0, y = 0; d.arms.forEach((a, j) => { const r = a.rad / d.tot * Gn[j]; x += r * Math.cos(a.ratio * th); y += r * Math.sin(a.ratio * th); }); fx[i] = x; fy[i] = y; }
+    } else {
+      const gc = Math.min(1.6, Math.hypot(...Hf(t, f0))); t.fmG = gc;
+      for (let i = 0; i < n; i++) { const r = Math.hypot(d.px[i], d.py[i]) || 1, nr = 0.62 + (r - 0.62) * gc; fx[i] = d.px[i] * nr / r; fy[i] = d.py[i] * nr / r; }
+    }
+    t.fx = fx; t.fy = fy; t.opath = null;
+  }
+  t.upath = unitPath(t.fx, t.fy);
+  t.rpath = unitPath(t.fx, t.fy, Math.max(1, Math.floor(t.fx.length / 160)));
+}
 function drawKlang(time) {
   const c = klangC, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2);
   if (w < 40) return;
-  const G = kGeo();
+  const G = kGeo(), n = audioNow();
   g.setLineDash([2, 6]); g.strokeStyle = theme.line; g.lineWidth = 1; dot(g, G.cx, G.cy, G.Rmax, null, theme.line); g.setLineDash([]);
   g.strokeStyle = theme.line; g.beginPath(); g.moveTo(0, G.cy); g.lineTo(w, G.cy); g.stroke();
   const order = [0, 1, 2].filter(i => i !== state.sel).concat(state.sel);
+  tracks.forEach(ensureVis);
   g.globalCompositeOperation = 'lighter';
+  // echo ripples: every echo sends the voice's shape outwards, in time with the delay
+  let budget = 54;
+  for (let q = ripples.length - 1; q >= 0 && budget > 0; q--) {
+    const rp = ripples[q]; if (rp.end < n) { ripples.splice(q, 1); continue; }
+    const t = tracks[rp.ti]; if (t.mute) continue;
+    const k = voiceK(t, G), e = rp.e;
+    for (let j = 0; j < 14 && budget > 0; j++) {
+      const amp = j === 0 ? 0.55 : e.mix * 1.3 * e.fb ** (j - 1); if (amp < 0.05) break;
+      const age = n - (e.t + j * e.d); if (age < 0) break; if (age > 1.2) continue;
+      const sc = 1 + age * (0.3 + 0.2 * V.tail), al = amp * (1 - age / 1.2) ** 1.6;
+      g.save(); g.translate(G.cx, G.cy); g.scale(k * sc, -k * sc);
+      glowPath(g, t.rpath, theme.voice[rp.ti], al * 0.75, 1.1, 1 / (k * sc)); g.restore(); budget--;
+    }
+  }
   for (const i of order) {
     const t = tracks[i], col = theme.voice[i], sel = i === state.sel;
-    const pulse = state.playing ? hitAge(voiceHits[i], 0.5) : 0;
-    const dim = (t.mute ? 0.25 : sel ? 1 : 0.6) * (1 + pulse * 0.6);
-    const k = voiceK(t, G) * (1 + pulse * 0.025);
+    const pulse = state.playing || ac ? echoGlow(voiceHits[i], 0.5) : 0;
+    const dim = (t.mute ? 0.25 : sel ? 1 : 0.6) * (1 + pulse * 0.45 * V.bloom);
+    const k = voiceK(t, G) * (1 + pulse * 0.03);
     const speed = 0.12 * 2 ** t.oct, p = reduced.matches ? 0.12 : frac(time * speed + i * 0.17);
-    // the wave that draws the shape, behind it
     let yAt, ptX, ptY;
-    if (t.engine === 'shape') { const d = t.sd; yAt = s => d.ys[mod(Math.floor(s * N), N)] * k; const ix = Math.floor(p * N) % N; ptX = G.cx + d.xs[ix] * k; ptY = G.cy - d.ys[ix] * k; }
-    else if (t.orbit.mode === 'epi') { const d = t.od; yAt = s => { let y = 0; for (const a of d.arms) y += a.rad / d.tot * Math.sin(a.ratio * TAU * s); return y * k; }; ptX = G.cx; ptY = G.cy - yAt(p); let x = 0; for (const a of d.arms) x += a.rad / d.tot * Math.cos(a.ratio * TAU * p); ptX = G.cx + x * k; }
-    else { const o = t.orbit; yAt = s => fmY(o, TAU * s) * k * 0.62; const th = TAU * p, r = 0.62 + 0.32 * fmY(o, th); ptX = G.cx + r * k * Math.cos(th); ptY = G.cy - r * k * Math.sin(th); }
+    if (t.engine === 'shape') {
+      const fx = t.fx, fy = t.fy, ix = s => mod(Math.floor(s * NV), NV);
+      yAt = s => fy[ix(s)] * k; ptX = G.cx + fx[ix(p)] * k; ptY = G.cy - fy[ix(p)] * k;
+    } else if (t.orbit.mode === 'epi') {
+      const d = t.od, Gn = t.armG;
+      const at = (s, f) => { let v = 0; d.arms.forEach((a, j) => { v += a.rad / d.tot * Gn[j] * f(a.ratio * TAU * s); }); return v * k; };
+      yAt = s => at(s, Math.sin); ptX = G.cx + at(p, Math.cos); ptY = G.cy - at(p, Math.sin);
+    } else {
+      const o = t.orbit, gc = t.fmG; yAt = s => fmY(o, TAU * s) * k * 0.62 * gc;
+      const th = TAU * p, r = 0.62 + 0.32 * gc * fmY(o, th); ptX = G.cx + r * k * Math.cos(th); ptY = G.cy - r * k * Math.sin(th);
+    }
+    // the wave that draws the shape, translucent behind it
     const cyc = G.Rmax * 1.5, wave = new Path2D();
     for (let x = 0; x <= w; x += 2) { const s = p - (x - ptX) / cyc, Y = G.cy - yAt(s); x ? wave.lineTo(x, Y) : wave.moveTo(x, Y); }
-    g.strokeStyle = col; g.lineWidth = 1.4; g.globalAlpha = 0.16 * dim; g.stroke(wave);
-    g.lineWidth = 5; g.globalAlpha = 0.04 * dim; g.stroke(wave); g.globalAlpha = 1;
-    // the shape itself, glowing
-    const [px, py] = pathOf(t), path = new Path2D();
-    for (let j = 0; j < px.length; j++) { const X = G.cx + px[j] * k, Y = G.cy - py[j] * k; j ? path.lineTo(X, Y) : path.moveTo(X, Y); }
-    if (t.mute) g.setLineDash([3, 5]);
-    glowPath(g, path, col, dim, sel ? 1.8 : 1.3);
-    g.setLineDash([]);
+    g.strokeStyle = col; g.lineWidth = 1.4; g.globalAlpha = Math.min(1, 0.16 * dim); g.stroke(wave);
+    g.lineWidth = 5; g.globalAlpha = Math.min(1, 0.04 * dim); g.stroke(wave); g.globalAlpha = 1;
+    g.save(); g.translate(G.cx, G.cy); g.scale(k, -k);
+    if (t.opath) { g.globalAlpha = 0.2 * Math.min(1, dim); g.strokeStyle = col; g.lineWidth = 1 / k; g.setLineDash([2 / k, 4 / k]); g.stroke(t.opath); g.setLineDash([]); g.globalAlpha = 1; }
+    if (t.mute) g.setLineDash([3 / k, 5 / k]);
+    glowPath(g, t.upath, col, dim, sel ? 1.8 : 1.3, 1 / k);
+    if (pulse > 0) { g.globalAlpha = Math.min(1, pulse * 0.2 * V.bloom); g.strokeStyle = col; g.lineWidth = 11 * Math.sqrt(V.bloom) / k; g.stroke(t.upath); g.globalAlpha = 1; }
+    g.setLineDash([]); g.restore();
     if (t.engine === 'orbit' && t.orbit.mode === 'epi') {
-      let ax = G.cx, ay = G.cy; g.globalAlpha = 0.5 * dim; g.lineWidth = 1;
-      for (const a of t.od.arms) { const r = a.rad / t.od.tot * k; dot(g, ax, ay, r, null, theme.faint); const nx = ax + r * Math.cos(a.ratio * TAU * p), ny = ay - r * Math.sin(a.ratio * TAU * p); g.strokeStyle = col; g.beginPath(); g.moveTo(ax, ay); g.lineTo(nx, ny); g.stroke(); ax = nx; ay = ny; }
+      let ax = G.cx, ay = G.cy; g.globalAlpha = 0.5 * Math.min(1, dim); g.lineWidth = 1;
+      t.od.arms.forEach((a, j) => { const r = a.rad / t.od.tot * t.armG[j] * k; dot(g, ax, ay, r, null, theme.faint); const nx = ax + r * Math.cos(a.ratio * TAU * p), ny = ay - r * Math.sin(a.ratio * TAU * p); g.strokeStyle = col; g.beginPath(); g.moveTo(ax, ay); g.lineTo(nx, ny); g.stroke(); ax = nx; ay = ny; });
       g.globalAlpha = 1;
     }
-    // tracing point and its link to the wave
-    g.globalAlpha = 0.35 * dim; g.strokeStyle = col; g.lineWidth = 1; g.beginPath(); g.moveTo(ptX, ptY); g.lineTo(w, ptY); g.stroke(); g.globalAlpha = 1;
-    glowDot(g, ptX, ptY, sel ? 3.6 : 2.8, col, dim);
+    g.globalAlpha = Math.min(1, 0.35 * dim); g.strokeStyle = col; g.lineWidth = 1; g.beginPath(); g.moveTo(ptX, ptY); g.lineTo(w, ptY); g.stroke(); g.globalAlpha = 1;
+    glowDot(g, ptX, ptY, (sel ? 3.6 : 2.8) * (1 + pulse * 0.6), col, dim);
   }
   g.globalCompositeOperation = 'source-over';
   const sel = tracks[state.sel];
@@ -886,6 +1038,127 @@ function drawKlang(time) {
     drawHandle(g, hd, c.hud.live && c.hud.color === hd.color);
   }
   drawHud(c);
+}
+
+/* ---------- per-voice filter pad: harmonics, response curve, HP/LP handles ---------- */
+let filterPad = null;
+const fToU = f => Math.log(f / 20) / Math.log(1000), uToF = u => 20 * 1000 ** u;
+const fmtHz = f => f < 1000 ? Math.round(f) + ' Hz' : fmt(f / 1000, f < 10000 ? 2 : 1) + ' kHz';
+function fGeo(c) { const L = 10, R = c.w - 10, T = 10, B = c.h - 18; return {L, R, T, B, xOf: f => L + fToU(f) * (R - L), fOf: x => uToF(clamp((x - L) / (R - L), 0, 1)), yOf: db => T + (24 - clamp(db, -36, 24)) / 60 * (B - T), dbOf: y => 24 - (y - T) / (B - T) * 60}; }
+function filterTargets(c) {
+  const t = tracks[state.sel], F = fGeo(c), color = theme.voice[state.sel];
+  const mk = (which) => ({id: which, cx: 0, cy: 0, color, modes: ['xy'], absolute: true,
+    at: [F.xOf(which === 'lp' ? t.lp : t.hp), F.yOf(qdB(which === 'lp' ? t.lpQ : t.hpQ))],
+    drag({x, y}) {
+      const f = F.fOf(x), q = clamp(10 ** (F.dbOf(y) / 20), 0.5, 12);
+      if (which === 'lp') { t.lp = clamp(f, 40, 20000); t.lpQ = q; } else { t.hp = clamp(f, 20, 12000); t.hpQ = q; }
+      setFilter(t);
+    },
+    label: () => which === 'lp' ? ['Lågpass', fmtHz(t.lp), `resonans ${fmt(t.lpQ, 1)} · ${t.lp > 19000 ? 'öppet' : 'rundar av hörnen'}`] : ['Högpass', fmtHz(t.hp), `resonans ${fmt(t.hpQ, 1)} · ${t.hp < 25 ? 'öppet' : 'tunnar ut grundtonen'}`]});
+  return [mk('hp'), mk('lp')];
+}
+function filterHit(x) {
+  const T = filterTargets(filterPad); const [hp, lp] = T;
+  return Math.abs(x - hp.at[0]) < Math.abs(x - lp.at[0]) ? hp : lp;
+}
+function drawFilterPad() {
+  const c = filterPad; if (!c || !c.canvas.isConnected) return;
+  const {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const t = tracks[state.sel], col = theme.voice[state.sel], F = fGeo(c); ensureVis(t);
+  g.lineWidth = 1; g.strokeStyle = theme.line;
+  for (const f of [100, 1000, 10000]) { const x = F.xOf(f); g.beginPath(); g.moveTo(x, F.T); g.lineTo(x, F.B); g.stroke(); text(g, f >= 1000 ? f / 1000 + 'k' : String(f), x + 3, H2 - 5, theme.faint, 9.5); }
+  g.setLineDash([2, 4]); g.beginPath(); g.moveTo(F.L, F.yOf(0)); g.lineTo(F.R, F.yOf(0)); g.stroke(); g.setLineDash([]);
+  // the voice's own harmonics, before (faint) and after (bright) the filter
+  const bars = [];
+  if (t.engine === 'shape') {
+    let mx = 1e-9; const amp = [];
+    for (let k = 1; k <= H; k++) { const a = Math.hypot(t.spX.re[k], t.spX.im[k], t.spY.re[k], t.spY.im[k]); amp[k] = a; mx = Math.max(mx, a); }
+    for (let k = 1; k <= H; k++) if (amp[k] / mx > 0.004) bars.push([k * t.f0, amp[k] / mx, t.hGain[k]]);
+  } else if (t.orbit.mode === 'epi') t.od.arms.forEach((a, j) => bars.push([Math.abs(a.ratio) * t.f0, a.rad / Math.max(...t.od.arms.map(x => x.rad)), t.armG[j]]));
+  else { const o = t.orbit, fm = RATIOS[o.r2].v * t.f0; for (let s = -6; s <= 6; s++) { const f = t.f0 + s * fm; if (f > 20) bars.push([f, s === 0 ? 1 : Math.max(0.05, o.rad2 * 1.2 / (1 + Math.abs(s))), Math.hypot(...Hf(t, f))]); } }
+  g.globalCompositeOperation = 'lighter';
+  for (const [f, a, gn] of bars) {
+    if (f > 20000) continue; const x = F.xOf(f);
+    g.strokeStyle = col; g.lineWidth = 2; g.globalAlpha = 0.18; g.beginPath(); g.moveTo(x, F.B); g.lineTo(x, F.yOf(20 * Math.log10(a))); g.stroke();
+    g.globalAlpha = 0.85; g.strokeStyle = noteColor(f); g.beginPath(); g.moveTo(x, F.B); g.lineTo(x, F.yOf(20 * Math.log10(a * gn))); g.stroke(); g.globalAlpha = 1;
+  }
+  const curve = new Path2D();
+  for (let x = F.L; x <= F.R; x += 2) { const y = F.yOf(20 * Math.log10(Math.hypot(...Hf(t, F.fOf(x))) + 1e-9)); x === F.L ? curve.moveTo(x, y) : curve.lineTo(x, y); }
+  glowPath(g, curve, col, 0.9, 1.6);
+  g.globalCompositeOperation = 'source-over';
+  for (const hd of filterTargets(c)) {
+    const [x, y] = hd.at; g.save(); g.shadowColor = col; g.shadowBlur = 12; dot(g, x, y, 9, theme.bg, col); g.restore();
+    text(g, hd.id.toUpperCase(), x, y + 0.5, theme.ink, 8.5, 'center', 'middle', BODY);
+  }
+  drawHud(c);
+}
+
+/* ---------- echo & room pads ---------- */
+const echoPad = track2d($('#echoPad')), roomPad = track2d($('#roomPad'));
+const SIZE_MIN = 0.3, SIZE_MAX = 8;
+function padTarget(c, which) {
+  const f = state.fx;
+  return {id: which, cx: 0, cy: 0, modes: ['xy'], absolute: true, color: which === 'echo' ? theme.v2 : theme.v1,
+    drag({x, y}) {
+      const u = clamp((x - 12) / (c.w - 24), 0, 1), v = clamp(1 - (y - 12) / (c.h - 24), 0, 1);
+      if (which === 'echo') { f.fb = Math.round(u * 0.92 * 100) / 100; f.dmix = Math.round(v * 100) / 100; setDelay(); }
+      else { f.size = Math.round(SIZE_MIN * (SIZE_MAX / SIZE_MIN) ** u * 10) / 10; f.rmix = Math.round(v * 100) / 100; setReverb(true); }
+    },
+    label: () => which === 'echo' ? ['Eko', Math.round(f.dmix * 100) + ' %', `återkoppling ${Math.round(f.fb * 100)} % · ${echoCount()} hörbara eko`] : ['Rymd', Math.round(f.rmix * 100) + ' %', `rum ${fmt(f.size, 1)} s · glöd ×${fmt(V.bloom, 1)}`]};
+}
+function echoCount() { const f = state.fx; let K = 0; while (K < 14 && f.dmix * 1.3 * f.fb ** K >= 0.05) K++; return K; }
+gestures(echoPad, () => padTarget(echoPad, 'echo'));
+gestures(roomPad, () => padTarget(roomPad, 'room'));
+function padHandle(c, u, v, col) {
+  const x = 12 + u * (c.w - 24), y = 12 + (1 - v) * (c.h - 24), g = c.g;
+  g.strokeStyle = theme.line; g.setLineDash([2, 4]); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, c.h); g.moveTo(0, y); g.lineTo(c.w, y); g.stroke(); g.setLineDash([]);
+  g.save(); g.shadowColor = col; g.shadowBlur = 14; dot(g, x, y, 8, theme.bg, col); g.restore(); dot(g, x, y, 3, col);
+}
+function drawEchoPad() {
+  const c = echoPad, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const f = state.fx, col = theme.v2, base = H2 - 14, top = 14, beats = 8, n = audioNow();
+  for (let b = 0; b <= beats; b++) { const x = 12 + b / beats * (w - 24); g.strokeStyle = b % 4 ? theme.line : theme.faint; g.lineWidth = 1; g.beginPath(); g.moveTo(x, base); g.lineTo(x, base + 5); g.stroke(); }
+  g.globalCompositeOperation = 'lighter';
+  for (let k = 0; k < 16; k++) {
+    const amp = k === 0 ? 1 : f.dmix * 1.3 * f.fb ** (k - 1); if (amp < 0.03 || k * f.div > beats) break;
+    const x = 12 + k * f.div / beats * (w - 24), y = base - Math.min(1, amp) * (base - top);
+    let hot = 0; if (lastE) { const a = n - (lastE.t + k * lastE.d); if (a >= 0 && a < 0.35) hot = 1 - a / 0.35; }
+    const p = new Path2D(); p.moveTo(x, base); p.lineTo(x, y);
+    glowPath(g, p, k === 0 ? theme.ink : col, 0.6 + hot, 1.6 + hot * 2);
+    glowDot(g, x, y, 3 + hot * 2, k === 0 ? theme.ink : col, 0.7 + hot);
+  }
+  g.globalCompositeOperation = 'source-over';
+  padHandle(c, f.fb / 0.92, f.dmix, col);
+  drawHud(c);
+}
+function drawRoomPad() {
+  const c = roomPad, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const f = state.fx, col = theme.v1, base = H2 - 14, top = 14, maxS = SIZE_MAX, len = f.size / maxS * (w - 24);
+  const pulse = lastE ? echoGlow(lastE, 0.6) : 0, hgt = (base - top) * (0.15 + 0.85 * f.rmix) * (0.75 + 0.25 * pulse);
+  g.globalCompositeOperation = 'lighter';
+  const env = new Path2D(); env.moveTo(12, base);
+  for (let x = 0; x <= len; x += 2) env.lineTo(12 + x, base - hgt * Math.exp(-6.9 * x / Math.max(1, len)));
+  env.lineTo(12 + len, base);
+  g.globalAlpha = 0.18 + 0.25 * pulse; g.fillStyle = col; g.fill(env); g.globalAlpha = 1;
+  g.strokeStyle = col;
+  for (let x = 0; x <= len; x += 3) { const e = Math.exp(-6.9 * x / Math.max(1, len)), r = frac(Math.sin(x * 12.9898) * 43758.5453); g.globalAlpha = 0.25 + 0.4 * pulse; g.lineWidth = 1; g.beginPath(); g.moveTo(12 + x, base); g.lineTo(12 + x, base - hgt * e * r); g.stroke(); }
+  g.globalAlpha = 1;
+  glowPath(g, env, col, 0.7 + pulse * 0.6, 1.4);
+  g.globalCompositeOperation = 'source-over';
+  for (const s of [1, 2, 4, 8]) { const x = 12 + s / maxS * (w - 24); text(g, s + ' s', x, H2 - 3, theme.faint, 9, 'center'); }
+  padHandle(c, Math.log(f.size / SIZE_MIN) / Math.log(SIZE_MAX / SIZE_MIN), f.rmix, col);
+  drawHud(c);
+  $('#roomLab').textContent = `${fmt(f.size, 1)} s · glöd ×${fmt(V.bloom, 1)}`;
+}
+function buildFx() {
+  const f = state.fx;
+  $('#divSeg').append(seg([['0.25', '1/16'], ['0.5', '1/8'], ['0.75', '1/8·'], ['1', '1/4'], ['1.5', '1/4·']], () => String(f.div), v => { f.div = +v; setDelay(); }, 'Ekots tid'));
+  $('#fxParams').append(
+    slider({label: 'Eko', min: 0, max: 1, step: 0.01, get: () => f.dmix, set: v => { f.dmix = v; setDelay(); }, show: v => Math.round(v * 100) + ' %'}),
+    slider({label: 'Återkoppling', min: 0, max: 0.92, step: 0.01, get: () => f.fb, set: v => { f.fb = v; setDelay(); }, show: v => Math.round(v * 100) + ' %'}),
+    slider({label: 'Rymd', min: 0, max: 1, step: 0.01, get: () => f.rmix, set: v => { f.rmix = v; setReverb(); }, show: v => Math.round(v * 100) + ' %'}),
+    slider({label: 'Rummets storlek', min: SIZE_MIN, max: SIZE_MAX, step: 0.1, get: () => f.size, set: v => { f.size = v; setReverb(true); }, show: v => fmt(v, 1) + ' s'}),
+  );
 }
 
 /* ---------- voice chips and inspector ---------- */
@@ -947,10 +1220,21 @@ function buildInspector() {
       labeled('Cirkel 3 riktning', seg([['1', 'Med'], ['-1', 'Mot']], () => String(o.d3), v => { o.d3 = +v; up(); }, 'Riktning cirkel 3')),
     );
   }
+  all.append(
+    slider({label: 'Lågpass', min: 0, max: 1, step: 0.001, get: () => fToU(t.lp), set: v => { t.lp = clamp(uToF(v), 40, 20000); setFilter(t); }, show: v => fmtHz(uToF(v))}),
+    slider({label: 'LP resonans', min: 0.5, max: 12, step: 0.1, get: () => t.lpQ, set: v => { t.lpQ = v; setFilter(t); }, show: v => fmt(v, 1)}),
+    slider({label: 'Högpass', min: 0, max: 1, step: 0.001, get: () => fToU(t.hp), set: v => { t.hp = clamp(uToF(v), 20, 12000); setFilter(t); }, show: v => fmtHz(uToF(v))}),
+    slider({label: 'HP resonans', min: 0.5, max: 12, step: 0.1, get: () => t.hpQ, set: v => { t.hpQ = v; setFilter(t); }, show: v => fmt(v, 1)}),
+  );
+  const fcan = h('canvas', {'aria-label': `Filter för röst ${t.name}: dra HP och LP i sidled för frekvens och uppåt för resonans`});
+  const fBlock = h('div', {class: 'stack'},
+    h('div', {class: 'padhead'}, h('h3', {}, 'Filter'), h('span', {class: 'lab'}, 'staplarna är röstens övertoner')),
+    h('div', {class: 'padwrap filterwrap'}, fcan));
   const det = h('details', {}, h('summary', {}, 'Alla värden för röst ' + t.name), all);
-  el.append(engineRow, basics, det);
+  el.append(engineRow, basics, fBlock, det);
+  filterPad = track2d(fcan); gestures(filterPad, filterHit);
   $('#klangHint').innerHTML = t.engine === 'shape'
-    ? 'Dra i en form: <b>utåt/inåt</b> ändrar volym, <b>runt</b> vrider den. Handtagen på vald röst: <kbd>◆</kbd> antal hörn, <kbd>●</kbd> rundning/stjärna, <kbd>✚</kbd> nav, <kbd>■</kbd> sträckning.'
+    ? 'Dra i en form: <b>utåt/inåt</b> ändrar volym, <b>runt</b> vrider den. Handtagen på vald röst: <kbd>◆</kbd> antal hörn, <kbd>●</kbd> rundning/stjärna, <kbd>✚</kbd> nav, <kbd>■</kbd> sträckning. Filtret nedan rundar av formen.'
     : 'Dra i formen: <b>utåt/inåt</b> ändrar volym. Handtagen <kbd>2</kbd> och <kbd>3</kbd> är cirklarna: dra <b>utåt</b> för radie (FM-index), <b>runt</b> för varvtal.';
 }
 
@@ -1247,11 +1531,12 @@ function drawScope() {
 /* ---------- boot & loop ---------- */
 readTheme();
 tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
-buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode);
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx();
 function frame(ms) {
   requestAnimationFrame(frame);
   const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
-  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope);
+  updateV();
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad);
 }
 requestAnimationFrame(frame);
 })();
