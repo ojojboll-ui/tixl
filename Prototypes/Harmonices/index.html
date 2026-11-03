@@ -9,106 +9,100 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: an instrument bench. Sequencer table + tone wheel + scope on the left, three voice modules on the right, the theory notes underneath. Note colours are computed from frequency (light octave), the only loud colour on the page. */
+/* Layout: two glowing instruments side by side, Klang (all voices stacked like the logo) and Sequencer (drawn geometry). Inspector and drawers under each; tone wheel, scope and theory below. A deliberately single dark look so the shapes can glow. */
 :root{
-  --bg:#e8ecf1;
-  --surface:#f5f7fa;
-  --ink:#192031;
-  --muted:#586275;
-  --line:#c7ced8;
-  --soft:#dbe1e9;
-  --v1:#3a3ea6;
-  --v2:#0d736b;
-  --v3:#9a5212;
-  --note-dim:0.8;
+  --bg:#0a0c12;
+  --surface:#10131b;
+  --raise:#161a25;
+  --ink:#e8eaf2;
+  --muted:#8a91a7;
+  --faint:#4a5167;
+  --line:#222837;
+  --v1:#959bff;
+  --v2:#4fd8c6;
+  --v3:#f4a75c;
   --font-display:"Jost","Futura","Century Gothic",system-ui,sans-serif;
   --font-body:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0e1118; --surface:#151a24; --ink:#e2e6ee; --muted:#8c95a8; --line:#283041; --soft:#1d2330;
-    --v1:#a2a7ff; --v2:#5ccfc2; --v3:#e3a55c; --note-dim:1; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0e1118; --surface:#151a24; --ink:#e2e6ee; --muted:#8c95a8; --line:#283041; --soft:#1d2330;
-  --v1:#a2a7ff; --v2:#5ccfc2; --v3:#e3a55c; --note-dim:1; color-scheme:dark;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
-.app{max-width:1360px;margin:0 auto;padding-block:22px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
-h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0}
-.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 28px}
-.brand{display:flex;align-items:center;gap:16px;min-width:0}
-.brand svg{flex:none;width:58px;height:58px}
-.brand svg *{fill:none;stroke:var(--ink);stroke-width:1.4}
-.brand h1{font-weight:300;font-size:2.4rem;letter-spacing:.14em;text-transform:uppercase;line-height:1}
-.brand p{margin:6px 0 0;color:var(--muted);max-width:52ch;font-size:.95rem}
-.transport{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 18px}
-.play{font:500 1rem var(--font-body);letter-spacing:.04em;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:12px 22px;cursor:pointer;min-width:150px}
+.app{max-width:1400px;margin:0 auto;padding-block:18px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;font-weight:400}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.brand svg{flex:none;width:44px;height:44px;overflow:visible}
+.brand svg *{fill:none;stroke-width:1.5}
+.brand h1{font-weight:300;font-size:1.7rem;letter-spacing:.2em;text-transform:uppercase;line-height:1}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:.86rem}
+.transport{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.play{font:500 .95rem var(--font-body);letter-spacing:.06em;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:11px 22px;cursor:pointer;min-width:132px;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.play::before{content:"";width:0;height:0;border-left:9px solid currentColor;border-top:6px solid transparent;border-bottom:6px solid transparent}
 .play[aria-pressed="true"]{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
-.globals{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;padding-block:14px;border-block:1px solid var(--line)}
-.main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
-@media (max-width:1020px){.main{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:14px;min-width:0}
-.left{display:grid;gap:22px;min-width:0}
-.seq-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
-h2{font-weight:500;font-size:1.25rem;letter-spacing:.02em}
-h3{font-weight:500;font-size:1.02rem}
-.desc{margin:0;color:var(--muted);font-size:.93rem;max-width:68ch}
-.stage{position:relative;width:100%;max-width:640px;aspect-ratio:1;justify-self:center}
-.stage canvas{width:100%;height:100%;display:block}
-.readout{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:1.4em;margin:0;text-align:center}
-.instruments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
-@media (max-width:560px){.instruments{grid-template-columns:minmax(0,1fr)}}
-.instruments canvas{width:100%;aspect-ratio:1;max-width:100%;display:block;cursor:default}
-.hint{margin:0;color:var(--muted);font-size:.82rem}
+.play[aria-pressed="true"]::before{width:9px;height:9px;border:0;background:currentColor;border-radius:1px}
+.keybar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.keybar select{min-width:0}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+@media (max-width:920px){.duo{grid-template-columns:minmax(0,1fr)}}
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:12px;min-width:0}
+.pane-head{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;justify-content:space-between}
+h2{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500}
+h3{font-weight:500;font-size:1rem}
+.canvas-wrap{position:relative;width:100%;aspect-ratio:1;max-width:100%;border-radius:12px;background:radial-gradient(circle at 50% 50%,var(--raise),var(--surface) 70%)}
+.canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;border-radius:12px}
+.hint{margin:0;color:var(--muted);font-size:.84rem;max-width:70ch}
+.hint kbd{font-family:var(--font-mono);font-size:.74rem;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.readout{font-family:var(--font-mono);font-size:.76rem;color:var(--muted);font-variant-numeric:tabular-nums;margin:0;min-height:1.3em}
 /* controls */
+.row{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .ctl{display:grid;gap:2px;min-width:0}
-.ctl label,.ctl .lab{display:flex;justify-content:space-between;gap:8px;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.ctl output{font-family:var(--font-mono);font-size:.74rem;letter-spacing:0;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ctl label,.ctl .lab{display:flex;justify-content:space-between;gap:8px;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ctl output{font-family:var(--font-mono);font-size:.72rem;letter-spacing:0;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 input[type=range]{width:100%;accent-color:var(--vc,var(--ink));margin:4px 0}
-select{font:inherit;font-size:.9rem;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
-.globals .ctl{min-width:150px}
-.transport .ctl{width:170px}
-.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px;background:var(--bg)}
-.seg button{font:inherit;font-size:.82rem;white-space:nowrap;color:var(--muted);background:transparent;border:0;border-radius:999px;padding:5px 12px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--vc,var(--v1));outline-offset:2px}
-.btn{font:inherit;font-size:.85rem;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
-.btn:hover{border-color:var(--ink)}
-.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.params{display:grid;gap:12px}
-.prow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:center}
-.prow .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px 14px}
-.badge{font-family:var(--font-display);font-weight:500;font-size:.85rem;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--vc);color:var(--vc);flex:none}
-/* voices */
-.voices{display:grid;gap:16px;min-width:0}
-.voice{--vc:var(--v1)}
-.voice header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
-.voice header h3{margin-right:auto}
-.voice canvas{width:100%;height:150px;display:block}
-.ctls{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:6px 14px;align-items:end}
-.ctls .seg{flex-wrap:nowrap;justify-self:start}
-.ctls .seg button{padding:5px 10px}
-.ctls.common{border-top:1px dashed var(--line);padding-top:10px}
-.voice.muted canvas{opacity:.35}
-/* theory */
-.theory{display:grid;gap:14px}
-.theory .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px 30px}
+select{font:inherit;font-size:.86rem;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:999px;padding:6px 12px;max-width:100%}
+.transport .ctl{width:150px}
+.seg{display:inline-flex;flex-wrap:nowrap;border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px;background:var(--bg)}
+.seg button{font:inherit;font-size:.8rem;color:var(--muted);background:transparent;border:0;border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--raise);color:var(--ink);box-shadow:inset 0 0 0 1px var(--vc,var(--faint))}
+.modes{flex-wrap:wrap}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--vc,var(--v1));outline-offset:2px}
+.btn{font:inherit;font-size:.82rem;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn[aria-pressed="true"]{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{--vc:var(--v1);font:inherit;font-size:.85rem;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 5px;display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.chip .dotb{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;font-weight:500;color:var(--vc);border:1.5px solid var(--vc)}
+.chip[aria-pressed="true"]{color:var(--ink);border-color:var(--vc);box-shadow:0 0 18px -6px var(--vc)}
+.chip.muted{opacity:.5}
+.chip small{font-family:var(--font-mono);font-size:.7rem;color:var(--muted)}
+.inspector{display:grid;gap:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px 16px;align-items:end}
+details{border-top:1px solid var(--line);padding-top:10px}
+summary{cursor:pointer;color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:8px}
+summary::before{content:"+";font-family:var(--font-mono);color:var(--ink)}
+details[open] summary::before{content:"−"}
+details > .grid,details > .stack{margin-top:10px}
+.stack{display:grid;gap:10px}
+.trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
+.trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* lower */
+.lower{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:620px){.lower{grid-template-columns:minmax(0,1fr)}}
+.lower .canvas-wrap{max-width:420px;justify-self:center}
+.theory{display:grid;gap:14px;padding-top:8px}
+.theory .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px 30px}
 .theory article{min-width:0}
-.theory h3{font-size:1rem;margin-bottom:4px}
-.theory p{margin:0;color:var(--muted);font-size:.92rem;max-width:62ch}
+.theory h3{margin-bottom:4px}
+.theory p{margin:0;color:var(--muted);font-size:.9rem;max-width:62ch}
 .theory b{color:var(--ink);font-weight:500}
 .lightstrip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin-top:10px}
 .lightstrip div{display:grid;gap:2px;justify-items:center;font-family:var(--font-mono);font-size:.62rem;color:var(--muted)}
 .lightstrip b,.lightstrip i{font-weight:400;font-style:normal;white-space:nowrap}
 .lightstrip i{font-size:.55rem}
 .lightstrip span{display:block;width:100%;height:18px;border-radius:3px}
-.foot{color:var(--muted);font-size:.82rem;margin:0}
-@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+.foot{color:var(--muted);font-size:.8rem;margin:0}
 </style>
 </head>
 <body>
@@ -117,78 +111,84 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
   <header class="top">
     <div class="brand">
       <svg viewBox="0 0 60 60" aria-hidden="true">
-        <circle cx="30" cy="30" r="27"/>
-        <rect x="10.9" y="10.9" width="38.2" height="38.2" transform="rotate(0 30 30)"/>
-        <polygon points="30,10.9 47.9,41 12.1,41"/>
-        <circle cx="30" cy="31" r="10"/>
+        <circle cx="30" cy="30" r="27" style="stroke:var(--v2)"/>
+        <rect x="11" y="11" width="38" height="38" style="stroke:var(--v1)"/>
+        <polygon points="30,9 50,43 10,43" style="stroke:var(--v3)"/>
       </svg>
       <div>
         <h1>Harmonices</h1>
-        <p>Geometri som låter. Former blir vågformer, cirklar i cirklar blir FM och spirografer, polygoner, Fibonacci och gyllene snittet blir sekvenser.</p>
+        <p>Dra i formerna. Formen är ljudet.</p>
       </div>
     </div>
     <div class="transport">
-      <button id="play" class="play" aria-pressed="false">Starta ljud</button>
+      <button id="play" class="play" aria-pressed="false">Spela</button>
       <div class="ctl"><label for="bpm">Tempo <output id="bpmOut">96 bpm</output></label><input id="bpm" type="range" min="40" max="180" step="1" value="96"></div>
       <div class="ctl"><label for="vol">Volym <output id="volOut">80 %</output></label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"></div>
     </div>
   </header>
 
-  <section class="globals" aria-label="Tonart och stämning">
-    <div class="ctl"><label for="root">Grundton</label><select id="root"></select></div>
-    <div class="ctl"><label for="scale">Skala</label><select id="scale"></select></div>
-    <div class="ctl"><label for="tuning">Stämning</label><select id="tuning"></select></div>
-    <div class="ctl"><label for="colors">Färg för toner</label><select id="colors">
-      <option value="light">Ljusets oktav (frekvens × 2⁴⁰)</option>
-      <option value="fifths">Kvintcirkeln (Skrjabins idé)</option>
-    </select></div>
+  <section class="keybar" aria-label="Tonart och stämning">
+    <select id="root" aria-label="Grundton"></select>
+    <select id="scale" aria-label="Skala"></select>
+    <select id="tuning" aria-label="Stämning"></select>
+    <select id="colors" aria-label="Färg för toner">
+      <option value="light">Färg: ljusets oktav</option>
+      <option value="fifths">Färg: kvintcirkeln</option>
+    </select>
   </section>
 
-  <div class="main">
-    <div class="left">
-      <section class="panel" aria-label="Sequencer">
-        <div class="seq-head">
-          <h2>Sequencer</h2>
-          <div class="seg" id="modeTabs" role="group" aria-label="Sequencerläge"></div>
-        </div>
-        <p class="desc" id="modeDesc"></p>
-        <div class="stage"><canvas id="stage" aria-label="Sequencerns geometri"></canvas></div>
-        <p class="readout" id="readout"></p>
-        <div class="params" id="modeParams"></div>
-      </section>
-      <section class="panel instruments" aria-label="Tonhjul och oskilloskop">
-        <div style="display:grid;gap:8px;min-width:0">
-          <h3>Tonhjulet</h3>
-          <canvas id="wheel" aria-label="Skalan som polygon i tonhjulet"></canvas>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <div class="seg" id="wheelOrder" role="group" aria-label="Ordning i tonhjulet">
-              <button data-v="chroma" aria-pressed="false">Kromatiskt</button>
-              <button data-v="fifths" aria-pressed="true">Kvinter</button>
-            </div>
-          </div>
-          <p class="hint">Skalan ritad som polygon. Heltonsskalan blir en hexagon, durskalan en båge av sju grannar i kvintcirkeln.</p>
-        </div>
-        <div style="display:grid;gap:8px;min-width:0">
-          <h3>XY-oskilloskop</h3>
-          <canvas id="scope" aria-label="Vänster kanal som x, höger som y"></canvas>
-          <p class="hint">Vänster kanal ritas som x, höger som y. Slå på <b>XY</b> på en Form-röst så ritar ljudet sin egen form, som i oskilloskopmusik.</p>
-        </div>
-      </section>
-    </div>
-    <section class="voices" id="voices" aria-label="Röster"></section>
+  <div class="duo">
+    <section class="pane" aria-label="Klang">
+      <div class="pane-head">
+        <h2>Klang</h2>
+        <div class="chips" id="chips" role="group" aria-label="Välj röst"></div>
+      </div>
+      <div class="canvas-wrap"><canvas id="klang" aria-label="Alla röster som former ovanpå varandra. Dra för att ändra."></canvas></div>
+      <p class="hint" id="klangHint"></p>
+      <div class="inspector" id="inspector"></div>
+    </section>
+
+    <section class="pane" aria-label="Sequencer" style="--vc:var(--faint)">
+      <div class="pane-head">
+        <h2>Sequencer</h2>
+        <div class="seg modes" id="modeTabs" role="group" aria-label="Sequencerläge"></div>
+      </div>
+      <div class="canvas-wrap"><canvas id="stage" aria-label="Sequencerns geometri. Dra för att rita."></canvas></div>
+      <p class="readout" id="readout"></p>
+      <p class="hint" id="modeHint"></p>
+      <div class="row" id="modeExtra"></div>
+      <details id="modeDetails"><summary>Reglage</summary><div class="stack" id="modeParams"></div></details>
+    </section>
+  </div>
+
+  <div class="lower">
+    <section class="pane" aria-label="Tonhjulet">
+      <div class="pane-head"><h2>Tonhjulet</h2>
+        <div class="seg" id="wheelOrder" role="group" aria-label="Ordning">
+          <button type="button" data-v="chroma" aria-pressed="false">Kromatiskt</button>
+          <button type="button" data-v="fifths" aria-pressed="true">Kvinter</button>
+        </div></div>
+      <div class="canvas-wrap"><canvas id="wheel" aria-label="Skalan som polygon"></canvas></div>
+      <p class="hint">Skalan som polygon. Heltonsskalan blir en hexagon, durskalan en båge av sju grannar i kvintcirkeln.</p>
+    </section>
+    <section class="pane" aria-label="XY-oskilloskop">
+      <div class="pane-head"><h2>XY-oskilloskop</h2></div>
+      <div class="canvas-wrap"><canvas id="scope" aria-label="Vänster kanal som x, höger som y"></canvas></div>
+      <p class="hint">Vänster kanal ritas som x, höger som y. Slå på <b>XY</b> på en röst så ritar ljudet sin egen form, som i oskilloskopmusik.</p>
+    </section>
   </div>
 
   <section class="theory" aria-label="Sambanden">
     <h2>Sambanden</h2>
     <div class="items">
-      <article><h3>Cirkeln är sinusvågen</h3><p>Låt en punkt snurra runt en cirkel och följ bara dess höjd över tid. Då får du en sinusvåg, och det är själva definitionen av sinus. Rösterna ritar just det: formen till vänster, höjden som våg till höger.</p></article>
-      <article><h3>Formen ger klangfärgen</h3><p>En diamant som ritas med jämn fart ger exakt en triangelvåg. En kvadrat ger en <b>trapetsvåg</b>, nära fyrkantsvågen men mjukare, eftersom punkten aldrig hoppar. Vrid kvadraten 45° så blir den en diamant och vågen en triangel. Att vrida en form ändrar övertonerna, utom för cirkeln som ser likadan ut åt alla håll.</p></article>
-      <article><h3>Excentricitet ger sågtand</h3><p>Flytta navet som punkten ses från bort från mitten och låt vinkeln gå jämnt. Punkten rusar förbi på den nära sidan och kryper på den bortre. Vågen lutar och närmar sig en sågtand. Samma idé heter fasdistorsion och satt i Casios CZ-syntar.</p></article>
-      <article><h3>Cirklar i cirklar är additiv syntes</h3><p>En cirkel som åker på en annan cirkel ritar spirografmönster. Yttersta punktens höjd är summan av sinusvågor vars frekvenser har samma förhållanden som cirklarnas varvtal. Fourier visade att varje periodisk våg kan byggas så. Heltal ger figurer som sluter sig och toner som låter harmoniskt.</p></article>
-      <article><h3>FM är en cirkel som knuffas</h3><p>I FM ändrar modulatorn farten på bärvågens cirkel, inte dess radie. Därför visas FM här som en blomma: ljudet lindat runt grundtonens varv. Kvoterna 1:2 och 1:3 ger stilla blommor och harmoniska klanger. Kvoten 1:φ sluter sig aldrig och låter som klockor och metall.</p></article>
+      <article><h3>Cirkeln är sinusvågen</h3><p>Låt en punkt snurra runt en cirkel och följ bara dess höjd över tid. Då får du en sinusvåg, och det är själva definitionen av sinus. Vågen bakom varje form i Klang är just den höjden.</p></article>
+      <article><h3>Formen ger klangfärgen</h3><p>En diamant som ritas med jämn fart ger exakt en triangelvåg. En kvadrat ger en <b>trapetsvåg</b>, nära fyrkantsvågen men mjukare, eftersom punkten aldrig hoppar. Vrid kvadraten 45° så blir den en diamant och vågen en triangel. Att vrida en form ändrar övertonerna, utom för cirkeln.</p></article>
+      <article><h3>Excentricitet ger sågtand</h3><p>Dra navet ur mitten och låt vinkeln gå jämnt. Punkten rusar förbi på den nära sidan och kryper på den bortre. Vågen lutar och närmar sig en sågtand. Samma idé heter fasdistorsion och satt i Casios CZ-syntar.</p></article>
+      <article><h3>Cirklar i cirklar är additiv syntes</h3><p>En cirkel som åker på en annan cirkel ritar spirografmönster. Yttersta punktens höjd är summan av sinusvågor med samma förhållanden som cirklarnas varvtal. Fourier visade att varje periodisk våg kan byggas så. Heltal ger figurer som sluter sig och toner som låter harmoniskt.</p></article>
+      <article><h3>FM är en cirkel som knuffas</h3><p>I FM ändrar modulatorn farten på bärvågens cirkel, inte dess radie. Därför visas FM som en blomma: ljudet lindat runt grundtonens varv. Kvoterna 1:2 och 1:3 ger stilla blommor och harmoniska klanger. Kvoten 1:φ sluter sig aldrig och låter som klockor och metall.</p></article>
       <article><h3>Rytm och tonhöjd är samma sak</h3><p>Polyrytmen 3:4:5 är tre pulser i samma cykel. Spela den ungefär hundra gånger snabbare så blir den tre toner med frekvenserna 3:4:5, ett durackord i andra omvändningen. Prova knappen i läget Polygoner.</p></article>
       <article><h3>Fibonacci och intervallen</h3><p>Kvoterna mellan grannar i Fibonacci, 2/1, 3/2, 5/3, 8/5, 13/8, är oktav, kvint, stor sext och liten sext. De närmar sig φ ≈ 1,618, ungefär 833 cent, mitt mellan sexterna. Fibonacci modulo m upprepar sig alltid efter Pisanoperioden, så följden blir en loop.</p></article>
-      <article><h3>Gyllene vinkeln</h3><p>137,5° är den vridning som är svårast att approximera med bråk. Punkterna hamnar aldrig på samma ställe men fördelas ändå jämnt, som fröna i en solros. Som melodi upprepas den aldrig men täcker hela skalan.</p></article>
+      <article><h3>Gyllene vinkeln</h3><p>137,5° är den vridning som är svårast att approximera med bråk. Fröna hamnar aldrig på samma ställe men fördelas ändå jämnt. Dra vinkeln bort från den och se solrosen falla isär i armar: 120° ger tre, 90° ger fyra.</p></article>
       <article><h3>Ljusets oktav</h3><p>Synligt ljus spänner ungefär en oktav, 400 till 790 THz. Höj A 440 Hz fyrtio oktaver så hamnar du på 484 THz, cirka 620 nm, som är orange. Färgerna här bygger på den räkningen. Det är en lek med tal: öga och öra fungerar olika och ingen ton har en verklig färg. Newton kopplade sju färger till sju toner och Skrjabin färgade kvintcirkeln.</p>
         <div class="lightstrip" id="lightstrip"></div></article>
       <article><h3>Skalor som polygoner</h3><p>I tonhjulet blir heltonsskalan en hexagon, ett överstigande ackord en triangel och ett förminskat septimackord en kvadrat. Tolv rena kvinter blir nästan sju oktaver. Det som fattas, det pytagoreiska kommat på 23,5 cent, är skälet till att stämningarna låter olika.</p></article>
@@ -201,15 +201,12 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 (() => {
 'use strict';
 /* ---------- math & music ---------- */
-const PHI = (1 + Math.sqrt(5)) / 2;
-const GOLD = 2 - PHI;            // golden angle as fraction of a turn (137.507°)
-const TAU = Math.PI * 2;
+const PHI = (1 + Math.sqrt(5)) / 2, GOLD = 2 - PHI, TAU = Math.PI * 2;
 const frac = x => x - Math.floor(x);
 const mod = (a, n) => ((a % n) + n) % n;
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const fmt = (v, d = 2) => v.toFixed(d).replace('.', ',').replace('-', '−');
 const NOTE = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','B','H'];
-
 const SCALES = [
   {name:'Pentatonisk moll', pcs:[0,3,5,7,10]},
   {name:'Pentatonisk dur', pcs:[0,2,4,7,9]},
@@ -228,93 +225,82 @@ const harmTable = [...Array(12)].map((_, pc) => {
   return best / 8;
 });
 const TUNINGS = {
-  just: {name:'Ren stämning (heltalskvoter)', t:[1,16/15,9/8,6/5,5/4,4/3,45/32,3/2,8/5,5/3,9/5,15/8]},
+  just: {name:'Ren stämning', t:[1,16/15,9/8,6/5,5/4,4/3,45/32,3/2,8/5,5/3,9/5,15/8]},
   tet:  {name:'Liksvävande (12-TET)', t:[...Array(12)].map((_, i) => 2 ** (i / 12))},
-  pyth: {name:'Pytagoreisk (staplade kvinter)', t:[1,256/243,9/8,32/27,81/64,4/3,729/512,3/2,128/81,27/16,16/9,243/128]},
-  harm: {name:'Övertonsserien (8:9:10…15)', t:harmTable},
+  pyth: {name:'Pytagoreisk', t:[1,256/243,9/8,32/27,81/64,4/3,729/512,3/2,128/81,27/16,16/9,243/128]},
+  harm: {name:'Övertonsserien', t:harmTable},
 };
 const RATIOS = [
-  {v:1/2, l:'1/2'}, {v:1, l:'1'}, {v:3/2, l:'3/2 kvint'}, {v:2, l:'2 oktav'}, {v:3, l:'3'}, {v:4, l:'4'},
-  {v:5, l:'5'}, {v:7, l:'7'}, {v:5/3, l:'5/3 Fibonacci'}, {v:8/5, l:'8/5 Fibonacci'}, {v:13/8, l:'13/8 Fibonacci'},
-  {v:PHI, l:'φ = 1,618…'}, {v:PHI*PHI, l:'φ² = 2,618…'}, {v:1/PHI, l:'1/φ = 0,618…'},
+  {v:1/2, l:'1/2'}, {v:1, l:'1'}, {v:3/2, l:'3/2', n:'kvint'}, {v:2, l:'2', n:'oktav'}, {v:3, l:'3'}, {v:4, l:'4'},
+  {v:5, l:'5'}, {v:7, l:'7'}, {v:5/3, l:'5/3', n:'Fibonacci'}, {v:8/5, l:'8/5', n:'Fibonacci'}, {v:13/8, l:'13/8', n:'Fibonacci'},
+  {v:PHI, l:'φ', n:'1,618…'}, {v:PHI*PHI, l:'φ²', n:'2,618…'}, {v:1/PHI, l:'1/φ', n:'0,618…'},
   {v:Math.SQRT2, l:'√2'}, {v:Math.PI, l:'π'}, {v:Math.E, l:'e'},
 ];
+const ratioName = i => RATIOS[i].l + (RATIOS[i].n ? ' ' + RATIOS[i].n : '');
 
 const state = {
   bpm: 96, master: 0.8, root: 9, scale: 0, tuning: 'just', colors: 'light', mode: 'poly',
-  wheel: 'fifths', playing: false, startTime: 0, schedBeat: 0, lastBeat: 0,
-  poly: {bars: 2, t: [{n:3, step:2, base:0, rot:0}, {n:4, step:1, base:2, rot:0}, {n:5, step:-1, base:4, rot:0}]},
-  eucl: {t: [{n:8, k:3, rot:0, step:2}, {n:12, k:7, rot:0, step:1}, {n:16, k:5, rot:0, step:3}]},
+  wheel: 'fifths', playing: false, startTime: 0, schedBeat: 0, lastBeat: 0, sel: 0,
+  poly: {bars: 2, t: [
+    {n:3, rot:0, degs:[0,2,4,6,8,10,12,14,16,18,20,22].map(v => v % 9)},
+    {n:4, rot:0, degs:[2,3,4,5,6,7,8,9,10,11,12,13].map(v => v % 9)},
+    {n:5, rot:0, degs:[4,3,2,1,0,4,3,2,1,0,4,3]}]},
+  eucl: {t: [{n:8, k:3, rot:0}, {n:12, k:7, rot:0}, {n:16, k:5, rot:0}]},
   fib:  {m: 5, a: 0, b: 1},
-  gold: {density: 0.5, span: 2},
+  gold: {density: 0.5, span: 2, angle: GOLD},
 };
+state.eucl.t.forEach((e, i) => { e.pat = [...Array(16)].map((_, j) => bjork(j, e.k, e.n)); e.degs = [...Array(16)].map((_, j) => mod(j * [2, 1, 3][i], 8)); });
 const tracks = [
-  {name:'I', engine:'shape', vol:0.6, mute:false, oct:1, att:0.004, rel:0.35,
-    shape:{n:4, round:0.08, star:0, rot:0, stretch:0, ecc:0, trace:'arc', xy:true},
-    orbit:{mode:'epi', r2:5, d2:-1, rad2:0.42, r3:1, d3:1, rad3:0}},
-  {name:'II', engine:'orbit', vol:0.55, mute:false, oct:0, att:0.012, rel:0.9,
-    shape:{n:3, round:0, star:0, rot:0, stretch:0, ecc:0, trace:'arc', xy:false},
-    orbit:{mode:'fm', r2:3, d2:1, rad2:0.32, r3:11, d3:1, rad3:0}},
-  {name:'III', engine:'shape', vol:0.75, mute:false, oct:-1, att:0.006, rel:0.5,
-    shape:{n:3, round:0.15, star:0, rot:0, stretch:0, ecc:0.55, trace:'angle', xy:false},
-    orbit:{mode:'epi', r2:4, d2:1, rad2:0.3, r3:1, d3:1, rad3:0}},
+  {name:'I', engine:'shape', vol:0.62, mute:false, oct:1, att:0.004, rel:0.35,
+    shape:{n:4, round:0.06, star:0, rot:0, stretch:0, ecc:0, trace:'arc', xy:true},
+    orbit:{mode:'epi', r2:5, d2:-1, rad2:0.42, r3:1, d3:1, rad3:0, xy:false}},
+  {name:'II', engine:'orbit', vol:0.78, mute:false, oct:0, att:0.012, rel:0.9,
+    shape:{n:6, round:0, star:0.3, rot:0, stretch:0, ecc:0, trace:'arc', xy:false},
+    orbit:{mode:'fm', r2:3, d2:1, rad2:0.32, r3:11, d3:1, rad3:0, xy:false}},
+  {name:'III', engine:'shape', vol:0.92, mute:false, oct:-1, att:0.006, rel:0.5,
+    shape:{n:3, round:0.12, star:0, rot:0, stretch:0, ecc:0.5, trace:'angle', xy:false},
+    orbit:{mode:'epi', r2:4, d2:1, rad2:0.3, r3:1, d3:1, rad3:0, xy:false}},
 ];
 
 const scalePcs = () => SCALES[state.scale].pcs;
 const rootFreq = () => 130.8128 * 2 ** (state.root / 12);
 function ratioOf(semi) { const t = TUNINGS[state.tuning].t; return t[mod(semi, 12)] * 2 ** Math.floor(semi / 12); }
-function degFreq(deg, oct) {
-  const p = scalePcs(), L = p.length;
-  const semi = p[mod(deg, L)] + 12 * Math.floor(deg / L);
-  return rootFreq() * ratioOf(semi) * 2 ** oct;
-}
+function degFreq(deg, oct) { const p = scalePcs(), L = p.length; return rootFreq() * ratioOf(p[mod(deg, L)] + 12 * Math.floor(deg / L)) * 2 ** oct; }
 function pcOfFreq(f) { return mod(Math.round(12 * Math.log2(f / 16.3516)), 12); }
+function noteName(f) { const m = Math.round(12 * Math.log2(f / 440) + 69); return NOTE[mod(m, 12)] + (Math.floor(m / 12) - 1); }
 
 /* ---------- colour: tone → light ---------- */
 function lightOf(f) { let L = f; while (L < 400e12) L *= 2; while (L >= 800e12) L /= 2; return L; }
 function wavelengthRGB(nm) {
   let r = 0, g = 0, b = 0; const l = clamp(nm, 380, 780);
-  if (l < 440) { r = -(l - 440) / 60; b = 1; }
-  else if (l < 490) { g = (l - 440) / 50; b = 1; }
-  else if (l < 510) { g = 1; b = -(l - 510) / 20; }
-  else if (l < 580) { r = (l - 510) / 70; g = 1; }
-  else if (l < 645) { r = 1; g = -(l - 645) / 65; }
-  else r = 1;
-  let k = 1; if (l < 420) k = 0.55 + 0.45 * (l - 380) / 40; else if (l > 700) k = 0.55 + 0.45 * (780 - l) / 80;
+  if (l < 440) { r = -(l - 440) / 60; b = 1; } else if (l < 490) { g = (l - 440) / 50; b = 1; }
+  else if (l < 510) { g = 1; b = -(l - 510) / 20; } else if (l < 580) { r = (l - 510) / 70; g = 1; }
+  else if (l < 645) { r = 1; g = -(l - 645) / 65; } else r = 1;
+  let k = 1; if (l < 420) k = 0.6 + 0.4 * (l - 380) / 40; else if (l > 700) k = 0.6 + 0.4 * (780 - l) / 80;
   return [r, g, b].map(c => Math.round(255 * Math.pow(c * k, 0.8)));
-}
-const colorCache = new Map();
-function noteColor(f) {
-  const key = state.colors + Math.round(f * 100);
-  let c = colorCache.get(key); if (c) return c;
-  let rgb;
-  if (state.colors === 'light') rgb = wavelengthRGB(299792.458 / (lightOf(f) / 1e12));
-  else rgb = hslRGB(((pcOfFreq(f) * 7) % 12) * 30, 0.72, 0.55);
-  const d = theme.noteDim; c = `rgb(${rgb.map(v => Math.round(v * d)).join(',')})`;
-  colorCache.set(key, c); return c;
 }
 function hslRGB(h, s, l) {
   const a = s * Math.min(l, 1 - l), f = n => { const k = (n + h / 30) % 12; return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); };
   return [f(0), f(8), f(4)].map(v => Math.round(v * 255));
 }
-
-/* ---------- theme tokens for canvas ---------- */
+const colorCache = new Map();
+function noteColor(f) {
+  const key = state.colors + Math.round(f * 100); let c = colorCache.get(key); if (c) return c;
+  const rgb = state.colors === 'light' ? wavelengthRGB(299792.458 / (lightOf(f) / 1e12)) : hslRGB(((pcOfFreq(f) * 7) % 12) * 30, 0.75, 0.6);
+  c = `rgb(${rgb.join(',')})`; colorCache.set(key, c); return c;
+}
 const theme = {};
 function readTheme() {
   const cs = getComputedStyle(document.documentElement);
-  for (const k of ['bg','surface','ink','muted','line','soft','v1','v2','v3']) theme[k] = cs.getPropertyValue('--' + k).trim();
-  theme.noteDim = parseFloat(cs.getPropertyValue('--note-dim')) || 1;
+  for (const k of ['bg','surface','raise','ink','muted','faint','line','v1','v2','v3']) theme[k] = cs.getPropertyValue('--' + k).trim();
   theme.voice = [theme.v1, theme.v2, theme.v3];
-  colorCache.clear(); buildLightStrip();
 }
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readTheme);
-new MutationObserver(readTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
 
 /* ---------- shapes → waveforms ---------- */
 const N = 1024, M = 720, H = 110;
 const COS = new Float32Array(N), SIN = new Float32Array(N);
 for (let i = 0; i < N; i++) { COS[i] = Math.cos(TAU * i / N); SIN[i] = Math.sin(TAU * i / N); }
-
+const thIdx = th => mod(Math.round(mod(th, TAU) / TAU * M), M);
 function computeShape(s) {
   const n = s.n, seg = TAU / n, v0 = n % 2 ? Math.PI / 2 : Math.PI / 2 + Math.PI / n;
   const sx = 2 ** s.stretch, sy = 2 ** -s.stretch, cr = Math.cos(s.rot * Math.PI / 180), sr = Math.sin(s.rot * Math.PI / 180);
@@ -335,7 +321,7 @@ function computeShape(s) {
   if (s.trace === 'angle') {
     const A = new Float64Array(M + 1); let prev = Math.atan2(py[0] - pivot[1], px[0] - pivot[0]); A[0] = prev;
     for (let i = 1; i <= M; i++) {
-      let a = Math.atan2(py[i] - pivot[1], px[i] - pivot[0]), d = a - prev;
+      const a = Math.atan2(py[i] - pivot[1], px[i] - pivot[0]); let d = a - prev;
       while (d > Math.PI) d -= TAU; while (d < -Math.PI) d += TAU;
       A[i] = Math.max(A[i - 1], A[i - 1] + d); prev = a;
     }
@@ -363,7 +349,8 @@ function computeShape(s) {
     }
   }
   let ext = 0; for (let i = 0; i <= M; i++) ext = Math.max(ext, Math.abs(px[i]), Math.abs(py[i]));
-  return {px, py, xs, ys, pivot: s.trace === 'angle' && ok ? pivot : null, ext, traced: ok ? s.trace : 'arc'};
+  return {px, py, xs, ys, pivot: s.trace === 'angle' && ok ? pivot : null, rin, ext, traced: ok ? s.trace : 'arc',
+    iV0: thIdx(v0), iV1: thIdx(v0 + seg), iMid: thIdx(v0 + seg / 2), i0: 0};
 }
 function spectrum(arr) {
   let mean = 0; for (let i = 0; i < N; i++) mean += arr[i]; mean /= N;
@@ -385,14 +372,14 @@ function closure(arms) {
   for (let K = 1; K <= 16; K++) if (arms.every(a => Math.abs(K * a.ratio - Math.round(K * a.ratio)) < 1e-6)) return K;
   return 0;
 }
-function fmY(o, t) { // t in radians of the fundamental
+function fmY(o, t) {
   const I2 = o.rad2 * 6, I3 = o.rad3 * 6, r2 = RATIOS[o.r2].v, r3 = RATIOS[o.r3].v;
   const inner = o.rad3 > 0 ? I3 * Math.sin(r3 * t) : 0;
   return Math.sin(t + (o.rad2 > 0 ? I2 * Math.sin(r2 * t + inner) : 0));
 }
 function computeOrbit(o) {
   const arms = orbitArms(o), K = closure(o.mode === 'fm' ? arms.map(a => ({ratio: Math.abs(a.ratio)})) : arms);
-  const loops = K || 12, steps = Math.min(9000, 480 * loops);
+  const loops = K || 12, steps = Math.min(6000, 420 * loops);
   const tot = arms.reduce((s, a) => s + a.rad, 0);
   const px = new Float32Array(steps + 1), py = new Float32Array(steps + 1);
   for (let i = 0; i <= steps; i++) {
@@ -400,9 +387,7 @@ function computeOrbit(o) {
     if (o.mode === 'epi') {
       let x = 0, y = 0; for (const a of arms) { x += a.rad / tot * Math.cos(a.ratio * t); y += a.rad / tot * Math.sin(a.ratio * t); }
       px[i] = x; py[i] = y;
-    } else {
-      const r = 0.6 + 0.32 * fmY(o, t); px[i] = r * Math.cos(t); py[i] = r * Math.sin(t);
-    }
+    } else { const r = 0.62 + 0.32 * fmY(o, t); px[i] = r * Math.cos(t); py[i] = r * Math.sin(t); }
   }
   return {arms, tot, K, px, py};
 }
@@ -429,7 +414,9 @@ function initAudio() {
   });
   setDelay();
 }
+function ensureAudio() { if (!ac) initAudio(); if (ac.state !== 'running') ac.resume(); }
 function setDelay() { if (delay) delay.delayTime.setTargetAtTime(0.75 * 60 / state.bpm, ac.currentTime, 0.05); }
+function setVol(t) { if (t.bus) t.bus.gain.setTargetAtTime(t.mute ? 0 : t.vol, ac.currentTime, 0.03); }
 function buildWaves(t) {
   if (!ac || !t.sd) return;
   const sx = spectrum(t.sd.xs), sy = spectrum(t.sd.ys);
@@ -439,6 +426,9 @@ function buildWaves(t) {
   t.waveX = mk(sx); t.waveY = mk(sy);
   for (const v of active) if (v.t === t && v.engine === 'shape') for (const o of v.oscs) if (o._k) o.setPeriodicWave(o._k === 'x' ? t.waveX : t.waveY);
 }
+let waveTimer = 0;
+function updateShape(t) { t.sd = computeShape(t.shape); if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
+function updateOrbit(t) { t.od = computeOrbit(t.orbit); }
 function playNote(ti, freq, time, dur, vel = 0.9) {
   const t = tracks[ti]; if (!ac || t.mute) return;
   const g = ac.createGain(), peak = 0.3 * vel, att = t.att, rel = t.rel;
@@ -457,8 +447,7 @@ function playNote(ti, freq, time, dur, vel = 0.9) {
   };
   const pan = p => { const n = ac.createStereoPanner(); n.pan.value = p; n.connect(g); return n; };
   if (t.engine === 'shape') {
-    const xy = t.shape.xy;
-    if (xy) { osc(t.waveX, freq, pan(-1), 'x'); osc(t.waveY, freq, pan(1), 'y'); }
+    if (t.shape.xy) { osc(t.waveX, freq, pan(-1), 'x'); osc(t.waveY, freq, pan(1), 'y'); }
     else osc(t.waveY, freq, g, 'y');
   } else {
     const o = t.orbit, xy = o.xy, L = xy ? pan(-1) : null, R = xy ? pan(1) : g;
@@ -496,63 +485,61 @@ function fibCycle(a, b, m) {
   return out;
 }
 const fibWord = n => Math.floor((n + 2) / PHI) - Math.floor((n + 1) / PHI);
-const EUCL_NAMES = {'3,8':'tresillo', '5,8':'cinquillo', '7,12':'västafrikansk klockrytm', '5,16':'bossa nova', '2,3':'shuffle', '4,16':'rak fyra', '3,4':'cumbia-puls'};
-
+const EUCL_NAMES = {'3,8':'tresillo', '5,8':'cinquillo', '7,12':'västafrikansk klocka', '5,16':'bossa nova', '2,3':'shuffle', '4,16':'rak fyra'};
 const MODES = {
   poly: {
     label: 'Polygoner',
-    desc: 'Varje röst är en regelbunden polygon i samma cirkel. Visaren går ett varv per cykel och varje hörn den passerar spelar en ton. Antalet hörn blir polyrytmen, vridningen förskjuter den.',
+    hint: 'Varje röst är en polygon. Visaren spelar hörnen den passerar. Dra ett hörn <b>utåt eller inåt</b> för tonhöjd, <b>runt</b> för att vrida polygonen. Dra siffrorna uppe till vänster för antal hörn.',
     events(from, to) {
       const C = state.poly.bars * 4, out = [];
       state.poly.t.forEach((p, ti) => {
-        for (let c = Math.floor(from / C); c <= Math.floor(to / C); c++)
-          for (let j = 0; j < p.n; j++) {
-            const b = (c + (j + p.rot) / p.n) * C;
-            if (b >= from && b < to) out.push({tr: ti, b, deg: p.base + j * p.step, dur: Math.min(C / p.n * 0.6, 1.6), key: j, vel: j === 0 ? 1 : 0.78});
+        for (let j = 0; j < p.n; j++) {
+          const ph = frac((j + p.rot) / p.n);
+          for (let c = Math.floor(from / C) - 1; c <= Math.floor(to / C); c++) {
+            const b = (c + ph) * C;
+            if (b >= from && b < to) out.push({tr: ti, b, deg: p.degs[j], dur: Math.min(C / p.n * 0.6, 1.6), key: j, vel: j === 0 ? 1 : 0.78});
           }
+        }
       });
       return out;
     },
   },
   eucl: {
     label: 'Euklidisk',
-    desc: 'k slag fördelade så jämnt som möjligt över n steg, samma algoritm som Euklides använde för största gemensamma delare. Slagen bildar nästan regelbundna polygoner. Ringarna har olika längd och glider isär.',
+    hint: 'k slag så jämnt fördelade som möjligt över n steg. <b>Tryck</b> på en punkt för att slå på eller av ett slag, dra ett slag <b>utåt eller inåt</b> för tonhöjd och <b>runt</b> för att vrida ringen.',
     events(from, to) {
-      const out = [], L = scalePcs().length;
+      const out = [];
       for (let s = Math.round(from * 4); s < Math.round(to * 4); s++)
         state.eucl.t.forEach((e, ti) => {
           const pos = mod(s, e.n), idx = mod(pos - e.rot, e.n);
-          if (!bjork(idx, e.k, e.n)) return;
-          let before = 0; for (let i = 0; i < idx; i++) if (bjork(i, e.k, e.n)) before++;
-          const hit = Math.floor(s / e.n) * e.k + before;
-          out.push({tr: ti, b: s / 4, deg: mod(hit * e.step, L * 2), dur: 0.22, key: pos, vel: idx === 0 ? 1 : 0.72});
+          if (e.pat[idx]) out.push({tr: ti, b: s / 4, deg: e.degs[idx], dur: 0.22, key: idx, vel: idx === 0 ? 1 : 0.72});
         });
       return out;
     },
   },
   fib: {
     label: 'Fibonacci',
-    desc: 'Fibonaccitalen modulo m väljer skalsteg. Följden upprepar sig alltid efter Pisanoperioden och ritar en stjärna i cirkeln. Röst II följer Lucastalen (2, 1, 3, 4, 7 …), röst III spelar på Fibonacciordets rytm.',
+    hint: 'Fibonaccitalen modulo m väljer skalsteg och loopar efter Pisanoperioden. Dra markörerna <b>a</b> och <b>b</b> runt cirkeln för att byta startvärden och se stjärnan ändras. Röst II följer Lucastalen, röst III Fibonacciordets rytm.',
     events(from, to) {
       const f = state.fib, F = fibCycle(f.a, f.b, f.m), Lu = fibCycle(2, 1, f.m), out = [];
       for (let s = Math.round(from * 2); s < Math.round(to * 2); s++) {
-        const b = s / 2;
-        out.push({tr: 0, b, deg: F[mod(s, F.length)], dur: 0.4, key: F[mod(s, F.length)], vel: s % 2 ? 0.75 : 0.95, n: s});
-        if (s % 2 === 0) { const k = s / 2; out.push({tr: 1, b, deg: Lu[mod(k, Lu.length)], dur: 0.9, key: Lu[mod(k, Lu.length)], vel: 0.8}); }
-        if (fibWord(s)) out.push({tr: 2, b, deg: [0, 2, 4][F[mod(s, F.length)] % 3], dur: 0.4, key: s, vel: 0.85});
+        const b = s / 2, v = F[mod(s, F.length)];
+        out.push({tr: 0, b, deg: v, dur: 0.4, key: v, vel: s % 2 ? 0.75 : 0.95});
+        if (s % 2 === 0) { const lv = Lu[mod(s / 2, Lu.length)]; out.push({tr: 1, b, deg: lv, dur: 0.9, key: lv, vel: 0.8}); }
+        if (fibWord(s)) out.push({tr: 2, b, deg: [0, 2, 4][v % 3], dur: 0.4, key: 's' + s, vel: 0.85});
       }
       return out;
     },
   },
   gold: {
     label: 'Gyllene vinkeln',
-    desc: 'Varje sextondel vrider en solros 137,5°. Var fröet hamnar väljer tonen, och rytmen följer också φ. Mönstret upprepas aldrig men fyller skalan jämnt, precis som fröna fyller blomman.',
+    hint: 'Varje sextondel vrider solrosen och fröets vinkel väljer tonen. Dra <b>runt</b> för att ändra vridningen (den snäpper fast vid 137,5°), <b>utåt eller inåt</b> för tätheten.',
     events(from, to) {
       const g = state.gold, L = scalePcs().length, out = [];
       for (let s = Math.round(from * 4); s < Math.round(to * 4); s++) {
         const b = s / 4;
-        if (frac(s * PHI) < g.density) out.push({tr: 0, b, deg: Math.floor(frac(s * GOLD) * L * g.span), dur: 0.22, key: s, vel: 0.85});
-        if (s % 4 === 0) out.push({tr: 1, b, deg: Math.floor(frac((s / 4) * GOLD) * L), dur: 0.9, key: s, vel: 0.75});
+        if (frac(s * PHI) < g.density) out.push({tr: 0, b, deg: Math.floor(frac(s * g.angle) * L * g.span), dur: 0.22, key: s, vel: 0.85});
+        if (s % 4 === 0) out.push({tr: 1, b, deg: Math.floor(frac((s / 4) * g.angle) * L), dur: 0.9, key: s, vel: 0.75});
         if (s % 8 === 0) out.push({tr: 2, b, deg: [0, 2, 4][Math.floor(frac((s / 8) * PHI) * 3)], dur: 1.6, key: s, vel: 0.9});
       }
       return out;
@@ -561,87 +548,86 @@ const MODES = {
 };
 
 /* ---------- transport ---------- */
-const hits = new Map();       // `${tr}:${key}` → audio time
-const pcHits = new Array(12).fill(-9);
+const hits = new Map(), pcHits = new Array(12).fill(-9), voiceHits = [-9, -9, -9];
 let timer = null;
 const beatTime = b => state.startTime + b * 60 / state.bpm;
 const nowBeat = () => ac ? (ac.currentTime - state.startTime) * state.bpm / 60 : 0;
+const audioNow = () => ac ? ac.currentTime : 0;
+function mark(ti, key, f, t) { hits.set(ti + ':' + key, t); pcHits[pcOfFreq(f)] = t; voiceHits[ti] = t; }
 function tick() {
   while (beatTime(state.schedBeat) < ac.currentTime + 0.12) {
     const from = state.schedBeat, to = from + 0.25;
     for (const ev of MODES[state.mode].events(from, to)) {
-      const t = Math.max(beatTime(ev.b), ac.currentTime), tr = tracks[ev.tr];
-      const f = degFreq(ev.deg, tr.oct);
+      const t = Math.max(beatTime(ev.b), ac.currentTime), tr = tracks[ev.tr], f = degFreq(ev.deg, tr.oct);
       playNote(ev.tr, f, t, ev.dur * 60 / state.bpm, ev.vel);
-      if (!tr.mute) { hits.set(ev.tr + ':' + ev.key, t); pcHits[pcOfFreq(f)] = t; }
-      if (ev.n !== undefined) state.fibN = ev.n;
+      if (!tr.mute) mark(ev.tr, ev.key, f, t);
     }
     state.schedBeat = to;
   }
 }
-function start() {
-  if (!ac) initAudio();
-  ac.resume();
-  state.startTime = ac.currentTime + 0.08; state.schedBeat = 0; hits.clear();
-  state.playing = true; timer = setInterval(tick, 25); tick();
-}
+function start() { ensureAudio(); state.startTime = ac.currentTime + 0.08; state.schedBeat = 0; hits.clear(); state.playing = true; timer = setInterval(tick, 25); tick(); }
 function stop() {
-  state.lastBeat = nowBeat();
-  state.playing = false; clearInterval(timer);
+  state.lastBeat = nowBeat(); state.playing = false; clearInterval(timer);
   const now = ac.currentTime;
   for (const v of active) { v.g.gain.cancelScheduledValues(now); v.g.gain.setTargetAtTime(0, now, 0.03); v.oscs.forEach(o => { try { o.stop(now + 0.25); } catch (e) {} }); }
 }
+function preview(ti, deg, key) {
+  ensureAudio(); const tr = tracks[ti], f = degFreq(deg, tr.oct), t = ac.currentTime + 0.01;
+  playNote(ti, f, t, 0.16, 0.7); if (!tr.mute) mark(ti, key, f, t);
+}
 function playChord() {
-  if (!ac) initAudio(); ac.resume();
-  const base = rootFreq() / 2, t = ac.currentTime + 0.05;
-  state.poly.t.forEach((p, i) => { playNote(i, base * p.n, t + i * 0.04, 2.4, 0.8); pcHits[pcOfFreq(base * p.n)] = t; });
+  ensureAudio(); const base = rootFreq() / 2, t = ac.currentTime + 0.05;
+  state.poly.t.forEach((p, i) => { playNote(i, base * p.n, t + i * 0.04, 2.4, 0.8); pcHits[pcOfFreq(base * p.n)] = t + i * 0.04; voiceHits[i] = t; });
 }
 
 /* ---------- UI helpers ---------- */
 const $ = s => document.querySelector(s);
 function h(tag, attrs = {}, ...kids) {
   const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v; else if (k === 'html') e.innerHTML = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v); }
   for (const k of kids) if (k != null) e.append(k);
   return e;
 }
 let uid = 0;
+const syncers = new Set();
+function syncAll() { syncers.forEach(f => { if (!f.el || f.el.isConnected) f(); else syncers.delete(f); }); }
 function slider({label, min, max, step, get, set, show}) {
-  const id = 'c' + (++uid), out = h('output', {for: id});
-  const inp = h('input', {type: 'range', id, min, max, step, value: get()});
+  const id = 'c' + (++uid), out = h('output', {for: id}), inp = h('input', {type: 'range', id, min, max, step, value: get()});
   const upd = () => { out.textContent = show ? show(get()) : get(); };
   inp.addEventListener('input', () => { set(parseFloat(inp.value)); upd(); });
   upd();
   const w = h('div', {class: 'ctl'}, h('label', {for: id}, label, out), inp);
-  w.refresh = () => { inp.value = get(); upd(); }; w.inp = inp;
-  return w;
+  const s = () => { if (document.activeElement !== inp) inp.value = get(); upd(); }; s.el = w; syncers.add(s);
+  w.refresh = s; w.inp = inp; return w;
 }
 function seg(options, get, set, label) {
   const g = h('div', {class: 'seg', role: 'group', 'aria-label': label || ''});
   const sync = () => g.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === String(get()))));
   for (const [v, l] of options) g.append(h('button', {type: 'button', 'data-v': v, onclick: () => { set(v); sync(); }}, l));
-  sync(); return g;
+  sync(); sync.el = g; syncers.add(sync); return g;
 }
+function labeled(label, el) { return h('div', {class: 'ctl'}, h('span', {class: 'lab'}, label), el); }
 function selectCtl(label, options, get, set) {
   const id = 'c' + (++uid), s = h('select', {id});
   options.forEach(([v, l]) => s.append(h('option', {value: v}, l)));
   s.value = get(); s.addEventListener('change', () => set(s.value));
+  const f = () => { s.value = get(); }; f.el = s; syncers.add(f);
   return h('div', {class: 'ctl'}, h('label', {for: id}, label), s);
 }
 
 /* ---------- globals ---------- */
-NOTE.forEach((n, i) => $('#root').append(h('option', {value: i}, n)));
+NOTE.forEach((n, i) => $('#root').append(h('option', {value: i}, 'Grundton ' + n)));
 SCALES.forEach((s, i) => $('#scale').append(h('option', {value: i}, s.name)));
 Object.entries(TUNINGS).forEach(([k, t]) => $('#tuning').append(h('option', {value: k}, t.name)));
 $('#root').value = state.root; $('#scale').value = state.scale; $('#tuning').value = state.tuning;
-$('#root').addEventListener('change', e => { state.root = +e.target.value; colorCache.clear(); buildLightStrip(); });
+$('#root').addEventListener('change', e => { state.root = +e.target.value; colorCache.clear(); });
 $('#scale').addEventListener('change', e => { state.scale = +e.target.value; });
-$('#tuning').addEventListener('change', e => { state.tuning = e.target.value; colorCache.clear(); buildLightStrip(); });
+$('#tuning').addEventListener('change', e => { state.tuning = e.target.value; colorCache.clear(); });
 $('#colors').addEventListener('change', e => { state.colors = e.target.value; colorCache.clear(); buildLightStrip(); });
 $('#play').addEventListener('click', () => {
   if (state.playing) stop(); else start();
   $('#play').setAttribute('aria-pressed', String(state.playing));
-  $('#play').textContent = state.playing ? 'Stoppa' : 'Starta ljud';
+  $('#play').textContent = state.playing ? 'Stoppa' : 'Spela';
 });
 $('#bpm').addEventListener('input', e => {
   const nb = +e.target.value;
@@ -652,234 +638,514 @@ $('#vol').addEventListener('input', e => { state.master = +e.target.value; $('#v
 document.querySelectorAll('#wheelOrder button').forEach(b => b.addEventListener('click', () => {
   state.wheel = b.dataset.v; document.querySelectorAll('#wheelOrder button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
 }));
-
 function buildLightStrip() {
-  const el = $('#lightstrip'); if (!el) return; el.textContent = '';
+  const el = $('#lightstrip'); el.textContent = '';
   for (let pc = 0; pc < 12; pc++) {
-    const f = 130.8128 * 2 ** (pc / 12), L = lightOf(f), nm = Math.round(299792.458 / (L / 1e12));
-    el.append(h('div', {title: `${NOTE[pc]}: ${Math.round(L / 1e12)} THz`}, h('span', {style: `background:${noteColor(f)}`}), h('b', {}, NOTE[pc]), h('i', {}, nm + ' nm')));
+    const f = 130.8128 * 2 ** (pc / 12), nm = Math.round(299792.458 / (lightOf(f) / 1e12));
+    el.append(h('div', {}, h('span', {style: `background:${noteColor(f)}`}), h('b', {}, NOTE[pc]), h('i', {}, nm + ' nm')));
   }
 }
 
-/* ---------- mode tabs & params ---------- */
-const modeTabs = $('#modeTabs');
-for (const [k, m] of Object.entries(MODES)) modeTabs.append(h('button', {type: 'button', 'data-v': k, onclick: () => setMode(k)}, m.label));
-function setMode(k) {
-  state.mode = k; hits.clear();
-  modeTabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === k)));
-  $('#modeDesc').textContent = MODES[k].desc;
-  buildParams();
-}
-function trackRow(i, ctls) {
-  return h('div', {class: 'prow', style: `--vc:var(--v${i + 1})`}, h('span', {class: 'badge'}, tracks[i].name), h('div', {class: 'grid'}, ...ctls));
-}
-function buildParams() {
-  const P = $('#modeParams'); P.textContent = '';
-  const k = state.mode;
-  if (k === 'poly') {
-    const p = state.poly;
-    state.poly.t.forEach((t, i) => P.append(trackRow(i, [
-      slider({label: 'Hörn', min: 1, max: 12, step: 1, get: () => t.n, set: v => t.n = v}),
-      slider({label: 'Kliv', min: -4, max: 5, step: 1, get: () => t.step, set: v => t.step = v, show: v => (v > 0 ? '+' : '') + v + ' steg'}),
-      slider({label: 'Startton', min: 0, max: 7, step: 1, get: () => t.base, set: v => t.base = v}),
-      slider({label: 'Vridning', min: 0, max: 0.99, step: 0.01, get: () => t.rot, set: v => t.rot = v, show: v => Math.round(v * 360 / t.n) + '°'}),
-    ])));
-    P.append(h('div', {style: 'display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end'},
-      h('div', {style: 'width:180px'}, slider({label: 'Cykel', min: 1, max: 4, step: 1, get: () => p.bars, set: v => p.bars = v, show: v => v + (v > 1 ? ' takter' : ' takt')})),
-      h('button', {class: 'btn', type: 'button', onclick: playChord}, 'Hör hörnen som ackord'),
-    ));
-  } else if (k === 'eucl') {
-    state.eucl.t.forEach((t, i) => {
-      let kS, rS;
-      const nS = slider({label: 'Steg n', min: 2, max: 16, step: 1, get: () => t.n, set: v => { t.n = v; t.k = Math.min(t.k, v); t.rot = Math.min(t.rot, v - 1); kS.inp.max = v; rS.inp.max = v - 1; kS.refresh(); rS.refresh(); }});
-      kS = slider({label: 'Slag k', min: 0, max: t.n, step: 1, get: () => t.k, set: v => t.k = v});
-      rS = slider({label: 'Vridning', min: 0, max: t.n - 1, step: 1, get: () => t.rot, set: v => t.rot = v});
-      P.append(trackRow(i, [nS, kS, rS, slider({label: 'Kliv', min: -3, max: 5, step: 1, get: () => t.step, set: v => t.step = v, show: v => (v > 0 ? '+' : '') + v})]));
-    });
-  } else if (k === 'fib') {
-    const f = state.fib;
-    let aS, bS;
-    const mS = slider({label: 'Modul m', min: 2, max: 16, step: 1, get: () => f.m, set: v => { f.m = v; f.a = Math.min(f.a, v - 1); f.b = Math.min(f.b, v - 1); aS.inp.max = bS.inp.max = v - 1; aS.refresh(); bS.refresh(); }, show: v => String(v)});
-    aS = slider({label: 'Startvärde a', min: 0, max: f.m - 1, step: 1, get: () => f.a, set: v => { f.a = v; mS.refresh(); }});
-    bS = slider({label: 'Startvärde b', min: 0, max: f.m - 1, step: 1, get: () => f.b, set: v => { f.b = v; mS.refresh(); }});
-    P.append(h('div', {class: 'ctls'}, mS, aS, bS));
-    P.append(h('p', {class: 'hint'}, 'Med m lika med skalans längd stannar melodin inom en oktav. Andra startvärden ger andra stjärnor: a = 2, b = 1 ger Lucastalen.'));
-  } else if (k === 'gold') {
-    const g = state.gold;
-    P.append(h('div', {class: 'ctls'},
-      slider({label: 'Täthet röst I', min: 0.1, max: 1, step: 0.01, get: () => g.density, set: v => g.density = v, show: v => Math.round(v * 100) + ' %'}),
-      slider({label: 'Omfång', min: 1, max: 3, step: 1, get: () => g.span, set: v => g.span = v, show: v => v + (v > 1 ? ' oktaver' : ' oktav')}),
-    ));
-  }
-}
-
-/* ---------- voice cards ---------- */
-const voicesEl = $('#voices');
-tracks.forEach((t, i) => {
-  const card = h('article', {class: 'panel voice', style: `--vc:var(--v${i + 1})`});
-  const canvas = h('canvas', {'aria-label': `Röst ${t.name}: form och vågform`});
-  t.canvas = canvas;
-  const muteBtn = h('button', {class: 'btn', type: 'button', 'aria-pressed': 'false', onclick: () => {
-    t.mute = !t.mute; muteBtn.setAttribute('aria-pressed', String(t.mute)); muteBtn.textContent = t.mute ? 'Tyst' : 'Ljud på';
-    card.classList.toggle('muted', t.mute); if (t.bus) t.bus.gain.setTargetAtTime(t.mute ? 0 : t.vol, ac.currentTime, 0.02);
-  }}, 'Ljud på');
-  const shapeC = h('div', {class: 'ctls'}), orbitC = h('div', {class: 'ctls'});
-  const showEngine = () => { shapeC.hidden = t.engine !== 'shape'; orbitC.hidden = t.engine !== 'orbit'; };
-  const s = t.shape, upS = () => { t.sd = computeShape(s); buildWaves(t); };
-  shapeC.append(
-    slider({label: 'Hörn', min: 3, max: 12, step: 1, get: () => s.n, set: v => { s.n = v; upS(); }}),
-    slider({label: 'Rundning', min: 0, max: 1, step: 0.01, get: () => s.round, set: v => { s.round = v; upS(); }, show: v => v >= 1 ? 'cirkel' : Math.round(v * 100) + ' %'}),
-    slider({label: 'Stjärna', min: 0, max: 0.85, step: 0.01, get: () => s.star, set: v => { s.star = v; upS(); }, show: v => Math.round(v * 100) + ' %'}),
-    slider({label: 'Vridning', min: 0, max: 360, step: 1, get: () => s.rot, set: v => { s.rot = v; upS(); }, show: v => v + '°'}),
-    slider({label: 'Sträckning', min: -1, max: 1, step: 0.01, get: () => s.stretch, set: v => { s.stretch = v; upS(); }, show: v => fmt(2 ** (2 * v)) + ' : 1'}),
-    slider({label: 'Excentricitet', min: 0, max: 0.95, step: 0.01, get: () => s.ecc, set: v => { s.ecc = v; if (v > 0 && s.trace !== 'angle') { s.trace = 'angle'; traceSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === 'angle'))); } upS(); }, show: v => Math.round(v * 100) + ' %'}),
-  );
-  const traceSeg = seg([['arc', 'Fart'], ['angle', 'Vinkel']], () => s.trace, v => { s.trace = v; upS(); }, 'Spårning');
-  shapeC.append(h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Spårning'), traceSeg),
-    h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Stereo'), seg([['false', 'Mono'], ['true', 'XY']], () => String(s.xy), v => { s.xy = v === 'true'; }, 'Stereo')));
-  const o = t.orbit, upO = () => { t.od = computeOrbit(o); };
-  const ratioOpts = RATIOS.map((r, k) => [k, r.l]);
-  orbitC.append(
-    h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Läge'), seg([['epi', 'Epicykel'], ['fm', 'FM']], () => o.mode, v => { o.mode = v; upO(); }, 'Läge')),
-    selectCtl('Cirkel 2: varvtal', ratioOpts, () => o.r2, v => { o.r2 = +v; upO(); }),
-    h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Cirkel 2: riktning'), seg([['1', 'Med'], ['-1', 'Mot']], () => String(o.d2), v => { o.d2 = +v; upO(); }, 'Riktning cirkel 2')),
-    slider({label: 'Cirkel 2: radie', min: 0, max: 1, step: 0.01, get: () => o.rad2, set: v => { o.rad2 = v; upO(); }, show: v => o.mode === 'fm' ? 'index ' + fmt(v * 6, 1) : fmt(v)}),
-    selectCtl('Cirkel 3: varvtal', ratioOpts, () => o.r3, v => { o.r3 = +v; upO(); }),
-    h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Cirkel 3: riktning'), seg([['1', 'Med'], ['-1', 'Mot']], () => String(o.d3), v => { o.d3 = +v; upO(); }, 'Riktning cirkel 3')),
-    slider({label: 'Cirkel 3: radie', min: 0, max: 1, step: 0.01, get: () => o.rad3, set: v => { o.rad3 = v; upO(); }, show: v => o.mode === 'fm' ? 'index ' + fmt(v * 6, 1) : fmt(v)}),
-    h('div', {class: 'ctl'}, h('span', {class: 'lab'}, 'Stereo'), seg([['false', 'Mono'], ['true', 'XY']], () => String(!!o.xy), v => { o.xy = v === 'true'; }, 'Stereo')),
-  );
-  const common = h('div', {class: 'ctls common'},
-    slider({label: 'Oktav', min: -2, max: 2, step: 1, get: () => t.oct, set: v => t.oct = v, show: v => (v > 0 ? '+' : '') + v}),
-    slider({label: 'Attack', min: 0.002, max: 0.5, step: 0.001, get: () => t.att, set: v => t.att = v, show: v => Math.round(v * 1000) + ' ms'}),
-    slider({label: 'Släpp', min: 0.05, max: 3, step: 0.01, get: () => t.rel, set: v => t.rel = v, show: v => fmt(v) + ' s'}),
-    slider({label: 'Volym', min: 0, max: 1, step: 0.01, get: () => t.vol, set: v => { t.vol = v; if (t.bus && !t.mute) t.bus.gain.setTargetAtTime(v, ac.currentTime, 0.03); }, show: v => Math.round(v * 100) + ' %'}),
-  );
-  const engineSeg = seg([['shape', 'Form'], ['orbit', 'Cirklar']], () => t.engine, v => { t.engine = v; showEngine(); }, 'Ljudmotor');
-  card.append(h('header', {}, h('span', {class: 'badge'}, t.name), h('h3', {}, 'Röst ' + t.name), engineSeg, muteBtn), canvas, shapeC, orbitC, common);
-  voicesEl.append(card);
-  t.sd = computeShape(s); t.od = computeOrbit(o); showEngine();
-});
-
-/* ---------- canvas plumbing ---------- */
-const cvs = new Map();
+/* ---------- canvas plumbing, gestures and the value HUD ---------- */
 function track2d(canvas) {
   const c = {canvas, g: canvas.getContext('2d'), w: 1, h: 1};
-  const ro = new ResizeObserver(() => {
+  new ResizeObserver(() => {
     const r = canvas.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
     c.w = Math.max(1, r.width); c.h = Math.max(1, r.height);
     canvas.width = Math.round(c.w * d); canvas.height = Math.round(c.h * d); c.g.setTransform(d, 0, 0, d, 0, 0);
-  });
-  ro.observe(canvas); cvs.set(canvas, c); return c;
+  }).observe(canvas);
+  c.hud = {name: '', value: '', sub: '', x: 0, y: 0, until: -1, live: false, color: null, born: 0};
+  return c;
 }
-const stageC = track2d($('#stage')), wheelC = track2d($('#wheel')), scopeC = track2d($('#scope'));
-tracks.forEach(t => t.c2 = track2d(t.canvas));
-const audioNow = () => ac ? ac.currentTime : 0;
-function glow(key) { const t = hits.get(key); if (t === undefined) return 0; const age = audioNow() - t; return age >= 0 && age < 0.45 ? 1 - age / 0.45 : 0; }
+const now = () => performance.now() / 1000;
+function gestures(c, hitFn) {
+  let drag = null;
+  const pos = e => { const r = c.canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const showHud = (t, x, y, lock, live) => {
+    const [name, value, sub] = t.label(lock); const hd = c.hud;
+    if (!hd.live && live) hd.born = now();
+    Object.assign(hd, {name, value, sub: sub || '', x, y, live, color: t.color || null, until: now() + (live ? 9 : 1.1)});
+  };
+  c.canvas.addEventListener('pointerdown', e => {
+    const [x, y] = pos(e), t = hitFn(x, y); if (!t) return;
+    e.preventDefault(); c.canvas.setPointerCapture(e.pointerId);
+    const d0 = Math.hypot(x - t.cx, y - t.cy);
+    drag = {t, x0: x, y0: y, d0, aPrev: Math.atan2(y - t.cy, x - t.cx), dth: 0, moved: false, lock: null};
+    t.start && t.start();
+    c.canvas.style.cursor = 'grabbing';
+    showHud(t, x, y, t.modes[0], true);
+  });
+  c.canvas.addEventListener('pointermove', e => {
+    const [x, y] = pos(e);
+    if (!drag) {
+      const t = hitFn(x, y); c.canvas.style.cursor = t ? 'grab' : 'default';
+      if (t && e.pointerType === 'mouse') showHud(t, x, y, t.modes[0], false);
+      return;
+    }
+    const t = drag.t, dx = x - drag.x0, dy = y - drag.y0;
+    const a = Math.atan2(y - t.cy, x - t.cx); let da = a - drag.aPrev; while (da > Math.PI) da -= TAU; while (da < -Math.PI) da += TAU;
+    drag.dth += da; drag.aPrev = a;
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    drag.moved = true;
+    if (!drag.lock) {
+      if (t.modes.length === 1 || drag.d0 < 8) drag.lock = t.modes[0];
+      else {
+        const ux = (drag.x0 - t.cx) / drag.d0, uy = (drag.y0 - t.cy) / drag.d0;
+        drag.lock = Math.abs(dx * ux + dy * uy) >= Math.abs(-dx * uy + dy * ux) ? 'r' : 't';
+        if (!t.modes.includes(drag.lock)) drag.lock = t.modes[0];
+      }
+    }
+    t.drag({lock: drag.lock, dr: Math.hypot(x - t.cx, y - t.cy) - drag.d0, dth: drag.dth, dx, dy, x, y});
+    syncAll(); showHud(t, x, y, drag.lock, true);
+  });
+  const end = e => {
+    if (!drag) return;
+    const [x, y] = pos(e);
+    if (!drag.moved && drag.t.tap) { drag.t.tap(); syncAll(); }
+    showHud(drag.t, x, y, drag.lock || drag.t.modes[0], false);
+    drag = null; c.canvas.style.cursor = 'grab';
+  };
+  c.canvas.addEventListener('pointerup', end); c.canvas.addEventListener('pointercancel', end);
+  c.canvas.addEventListener('pointerleave', () => { if (!drag && !c.hud.live) c.hud.until = Math.min(c.hud.until, now() + 0.3); });
+}
+function drawHud(c) {
+  const hd = c.hud, t = now(); if (t > hd.until + 0.6 || !hd.name) return;
+  const fadeIn = clamp((t - hd.born) / 0.18, 0, 1), fadeOut = hd.live ? 1 : clamp((hd.until - t) / 0.6 + 0.5, 0, 1);
+  const a = (hd.live ? fadeIn : Math.min(fadeIn, fadeOut) * 0.85);
+  if (a <= 0) return;
+  const g = c.g; g.save(); g.globalAlpha = a;
+  g.font = `500 22px ${MONO}`; const vw = g.measureText(hd.value).width;
+  g.font = `500 10px ${BODY}`; const nw = g.measureText(hd.name.toUpperCase()).width + hd.name.length * 1.4;
+  g.font = `400 11px ${MONO}`; const sw = hd.sub ? g.measureText(hd.sub).width : 0;
+  const bw = Math.max(vw, nw, sw) + 24, bh = hd.sub ? 70 : 54;
+  let bx = hd.x + 18, by = hd.y - bh - 14;
+  if (bx + bw > c.w - 6) bx = hd.x - bw - 18; if (by < 6) by = hd.y + 18; bx = clamp(bx, 6, c.w - bw - 6); by = clamp(by, 6, c.h - bh - 6);
+  g.fillStyle = theme.bg; g.globalAlpha = a * 0.82; roundRect(g, bx, by, bw, bh, 10); g.fill();
+  g.globalAlpha = a; g.strokeStyle = hd.color || theme.faint; g.lineWidth = 1; roundRect(g, bx + 0.5, by + 0.5, bw - 1, bh - 1, 10); g.stroke();
+  g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  g.fillStyle = theme.muted; g.font = `500 10px ${BODY}`; if ('letterSpacing' in g) g.letterSpacing = '1.4px';
+  g.fillText(hd.name.toUpperCase(), bx + 12, by + 19); if ('letterSpacing' in g) g.letterSpacing = '0px';
+  g.fillStyle = theme.ink; g.font = `500 22px ${MONO}`; g.shadowColor = hd.color || theme.ink; g.shadowBlur = 12;
+  g.fillText(hd.value, bx + 12, by + 44); g.shadowBlur = 0;
+  if (hd.sub) { g.fillStyle = theme.muted; g.font = `400 11px ${MONO}`; g.fillText(hd.sub, bx + 12, by + 61); }
+  g.restore();
+}
+function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+const MONO = '"IBM Plex Mono", ui-monospace, Menlo, monospace', BODY = 'Jost, system-ui, sans-serif';
 function dot(g, x, y, r, fill, stroke) { if (!(r > 0)) return; g.beginPath(); g.arc(x, y, r, 0, TAU); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.stroke(); } }
-function text(g, s, x, y, color, size = 11, align = 'left', base = 'alphabetic') { g.font = `${size}px ${getMono()}`; g.fillStyle = color; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
-let monoName = null; const getMono = () => monoName || (monoName = '"IBM Plex Mono", ui-monospace, Menlo, monospace');
+function text(g, s, x, y, color, size = 11, align = 'left', base = 'alphabetic', font = MONO) { g.font = `${size}px ${font}`; g.fillStyle = color; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
+function glowPath(g, path, col, k = 1, width = 1.6) {
+  g.strokeStyle = col; g.lineJoin = 'round'; g.lineCap = 'round';
+  g.globalAlpha = 0.07 * k; g.lineWidth = width + 9; g.stroke(path);
+  g.globalAlpha = 0.16 * k; g.lineWidth = width + 4; g.stroke(path);
+  g.globalAlpha = Math.min(1, 0.95 * k); g.lineWidth = width; g.stroke(path);
+  g.globalAlpha = 1;
+}
+function glowDot(g, x, y, r, col, k = 1) {
+  g.globalAlpha = 0.18 * k; dot(g, x, y, r * 3.2, col); g.globalAlpha = 0.35 * k; dot(g, x, y, r * 1.8, col); g.globalAlpha = 1; dot(g, x, y, r, col);
+}
+const hitAge = (t, win = 0.45) => { const a = audioNow() - t; return a >= 0 && a < win ? 1 - a / win : 0; };
+const glow = key => { const t = hits.get(key); return t === undefined ? 0 : hitAge(t); };
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
-/* ---------- stage drawings ---------- */
+/* ---------- KLANG: all voices stacked ---------- */
+const klangC = track2d($('#klang'));
+function kGeo() { const {w, h: H2} = klangC; return {cx: w / 2, cy: H2 / 2, Rmax: Math.min(w, H2) * 0.4}; }
+const voiceR = (t, G) => G.Rmax * (0.14 + 0.86 * t.vol);
+function voiceK(t, G) { const R = voiceR(t, G); return t.engine === 'shape' ? R / Math.max(1e-6, t.sd.ext) : R; }
+function pathOf(t) { return t.engine === 'shape' ? [t.sd.px, t.sd.py] : [t.od.px, t.od.py]; }
+function toScr(t, G, x, y) { const k = voiceK(t, G); return [G.cx + x * k, G.cy - y * k]; }
+const ARM_ANG = [0, -0.62, -2.52];
+function armHandle(t, G, a) { const R = voiceR(t, G), rad = a === 2 ? t.orbit.rad2 : t.orbit.rad3, d = R * (0.16 + 0.84 * rad); return [G.cx + d * Math.cos(ARM_ANG[a]), G.cy + d * Math.sin(ARM_ANG[a])]; }
+function shapeHandles(t, G) {
+  const d = t.sd, s = t.shape, R = voiceR(t, G), P = i => toScr(t, G, d.px[i], d.py[i]);
+  const hub = d.pivot ? toScr(t, G, d.pivot[0], d.pivot[1]) : [G.cx, G.cy];
+  const color = theme.voice[tracks.indexOf(t)];
+  return [
+    {id: 'corner', glyph: 'diamond', at: P(d.iV1), cx: G.cx, cy: G.cy, color, modes: ['t'],
+      start() { this.n0 = s.n; const [x0, y0] = P(d.iV0); this.a0 = Math.atan2(y0 - G.cy, x0 - G.cx); },
+      drag({x, y}) { let da = Math.abs(Math.atan2(y - G.cy, x - G.cx) - this.a0); if (da > Math.PI) da = TAU - da; const n = clamp(Math.round(TAU / Math.max(0.3, da)), 3, 12); if (n !== s.n) { s.n = n; updateShape(t); } },
+      label: () => ['Hörn', String(s.n), s.round >= 0.98 ? 'formen är en cirkel nu' : ['', '', '', 'triangel', 'kvadrat', 'pentagon', 'hexagon', 'heptagon', 'oktagon', 'nonagon', 'dekagon', 'hendekagon', 'dodekagon'][s.n]]},
+    {id: 'edge', glyph: 'ring', at: P(d.iMid), cx: G.cx, cy: G.cy, color, modes: ['r'],
+      start() { this.v0 = s.round > 0 ? s.round : -s.star; },
+      drag({dr}) { const v = clamp(this.v0 + dr / (R * 0.7), -0.85, 1); s.round = Math.max(0, v); s.star = Math.max(0, -v); updateShape(t); },
+      label: () => s.star > 0 ? ['Stjärna', Math.round(s.star * 100) + ' %', 'dra utåt för rundare'] : ['Rundning', s.round >= 0.99 ? 'cirkel' : Math.round(s.round * 100) + ' %', 'dra inåt för stjärna']},
+    {id: 'hub', glyph: 'plus', at: hub, cx: hub[0], cy: hub[1], color, modes: ['x'],
+      start() { this.e0 = s.ecc; },
+      drag({dx}) { s.ecc = clamp(this.e0 + dx / (R * 0.8), 0, 0.95); if (s.ecc > 0 && s.trace !== 'angle') s.trace = 'angle'; updateShape(t); },
+      label: () => ['Excentricitet', Math.round(s.ecc * 100) + ' %', s.ecc > 0.4 ? 'närmar sig sågtand' : 'dra navet åt sidan']},
+    {id: 'stretch', glyph: 'square', at: P(d.i0), cx: G.cx, cy: G.cy, color, modes: ['r'],
+      start() { this.s0 = s.stretch; },
+      drag({dr}) { s.stretch = clamp(this.s0 + dr / (R * 0.8), -1, 1); updateShape(t); },
+      label: () => ['Sträckning', fmt(2 ** (2 * s.stretch)) + ' : 1', 'formen blir en ellips/romb']},
+  ];
+}
+function orbitHandles(t, G) {
+  const o = t.orbit, color = theme.voice[tracks.indexOf(t)], R = voiceR(t, G);
+  return [2, 3].map(a => ({id: 'arm' + a, glyph: 'arm', arm: a, at: armHandle(t, G, a), cx: G.cx, cy: G.cy, color, modes: ['r', 't'],
+    start() { this.r0 = a === 2 ? o.rad2 : o.rad3; this.i0 = a === 2 ? o.r2 : o.r3; },
+    drag({lock, dr, dth}) {
+      if (lock === 'r') { const v = clamp(this.r0 + dr / (R * 0.84), 0, 1); if (a === 2) o.rad2 = v; else o.rad3 = v; }
+      else { const i = clamp(this.i0 + Math.round(dth / (TAU / 28)), 0, RATIOS.length - 1); if (a === 2) o.r2 = i; else o.r3 = i; }
+      updateOrbit(t);
+    },
+    label: lock => {
+      const rad = a === 2 ? o.rad2 : o.rad3, ri = a === 2 ? o.r2 : o.r3;
+      return lock === 't' ? [`Cirkel ${a} · varvtal`, ratioName(ri), t.od.K ? `figuren sluter sig efter ${t.od.K} varv` : 'figuren sluter sig aldrig']
+        : [`Cirkel ${a} · ${o.mode === 'fm' ? 'FM-index' : 'radie'}`, o.mode === 'fm' ? fmt(rad * 6, 1) : fmt(rad), 'utåt/inåt · runt = varvtal'];
+    }}));
+}
+function bodyTarget(t, G) {
+  const color = theme.voice[tracks.indexOf(t)];
+  return {id: 'body', cx: G.cx, cy: G.cy, color, modes: ['r', 't'],
+    start() { select(tracks.indexOf(t)); this.v0 = t.vol; this.r0 = t.shape.rot; this.i0 = t.orbit.r2; },
+    drag({lock, dr, dth}) {
+      if (lock === 'r') { t.vol = clamp(this.v0 + dr / (0.86 * G.Rmax), 0, 1); setVol(t); }
+      else if (t.engine === 'shape') { t.shape.rot = mod(Math.round(this.r0 - dth * 180 / Math.PI), 360); updateShape(t); }
+      else { t.orbit.r2 = clamp(this.i0 + Math.round(-dth / (TAU / 28)), 0, RATIOS.length - 1); updateOrbit(t); }
+    },
+    label: lock => lock === 'r' ? [`Röst ${t.name} · volym`, Math.round(t.vol * 100) + ' %', 'storleken är volymen']
+      : t.engine === 'shape' ? [`Röst ${t.name} · vridning`, t.shape.rot + '°', t.shape.round >= 0.99 && !t.shape.stretch ? 'en cirkel låter likadant åt alla håll' : 'vridningen ändrar övertonerna']
+      : [`Röst ${t.name} · varvtal 2`, ratioName(t.orbit.r2), '']};
+}
+function distToPath(t, G, x, y) {
+  const [px, py] = pathOf(t), k = voiceK(t, G), step = Math.max(1, Math.floor(px.length / 500)); let best = 1e9;
+  for (let i = 0; i < px.length; i += step) { const d = Math.hypot(G.cx + px[i] * k - x, G.cy - py[i] * k - y); if (d < best) best = d; }
+  return best;
+}
+function klangHit(x, y) {
+  const G = kGeo(), sel = tracks[state.sel];
+  const hs = sel.engine === 'shape' ? shapeHandles(sel, G) : orbitHandles(sel, G);
+  let best = null, bd = 16;
+  for (const hd of hs) { const d = Math.hypot(hd.at[0] - x, hd.at[1] - y); if (d < bd) { bd = d; best = hd; } }
+  if (best) return best;
+  const order = [state.sel, ...[0, 1, 2].filter(i => i !== state.sel)];
+  for (const i of order) if (distToPath(tracks[i], G, x, y) < 12) return bodyTarget(tracks[i], G);
+  if (Math.hypot(x - G.cx, y - G.cy) < voiceR(sel, G)) return bodyTarget(sel, G);
+  return null;
+}
+gestures(klangC, klangHit);
+
+function drawHandle(g, hd, hot) {
+  const [x, y] = hd.at, r = hot ? 7 : 5.5;
+  g.save(); g.lineWidth = 1.5; g.strokeStyle = hd.color; g.fillStyle = theme.bg;
+  g.shadowColor = hd.color; g.shadowBlur = hot ? 14 : 8;
+  g.beginPath();
+  if (hd.glyph === 'diamond') { g.moveTo(x, y - r - 1.5); g.lineTo(x + r + 1.5, y); g.lineTo(x, y + r + 1.5); g.lineTo(x - r - 1.5, y); g.closePath(); }
+  else if (hd.glyph === 'square') g.rect(x - r, y - r, r * 2, r * 2);
+  else g.arc(x, y, r, 0, TAU);
+  g.fill(); g.stroke(); g.shadowBlur = 0;
+  if (hd.glyph === 'plus') { g.beginPath(); g.moveTo(x - r + 2, y); g.lineTo(x + r - 2, y); g.moveTo(x, y - r + 2); g.lineTo(x, y + r - 2); g.stroke(); }
+  if (hd.glyph === 'ring') dot(g, x, y, 2, hd.color);
+  if (hd.glyph === 'arm') text(g, String(hd.arm), x, y + 0.5, hd.color, 9, 'center', 'middle');
+  g.restore();
+}
+function drawKlang(time) {
+  const c = klangC, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2);
+  if (w < 40) return;
+  const G = kGeo();
+  g.setLineDash([2, 6]); g.strokeStyle = theme.line; g.lineWidth = 1; dot(g, G.cx, G.cy, G.Rmax, null, theme.line); g.setLineDash([]);
+  g.strokeStyle = theme.line; g.beginPath(); g.moveTo(0, G.cy); g.lineTo(w, G.cy); g.stroke();
+  const order = [0, 1, 2].filter(i => i !== state.sel).concat(state.sel);
+  g.globalCompositeOperation = 'lighter';
+  for (const i of order) {
+    const t = tracks[i], col = theme.voice[i], sel = i === state.sel;
+    const pulse = state.playing ? hitAge(voiceHits[i], 0.5) : 0;
+    const dim = (t.mute ? 0.25 : sel ? 1 : 0.6) * (1 + pulse * 0.6);
+    const k = voiceK(t, G) * (1 + pulse * 0.025);
+    const speed = 0.12 * 2 ** t.oct, p = reduced.matches ? 0.12 : frac(time * speed + i * 0.17);
+    // the wave that draws the shape, behind it
+    let yAt, ptX, ptY;
+    if (t.engine === 'shape') { const d = t.sd; yAt = s => d.ys[mod(Math.floor(s * N), N)] * k; const ix = Math.floor(p * N) % N; ptX = G.cx + d.xs[ix] * k; ptY = G.cy - d.ys[ix] * k; }
+    else if (t.orbit.mode === 'epi') { const d = t.od; yAt = s => { let y = 0; for (const a of d.arms) y += a.rad / d.tot * Math.sin(a.ratio * TAU * s); return y * k; }; ptX = G.cx; ptY = G.cy - yAt(p); let x = 0; for (const a of d.arms) x += a.rad / d.tot * Math.cos(a.ratio * TAU * p); ptX = G.cx + x * k; }
+    else { const o = t.orbit; yAt = s => fmY(o, TAU * s) * k * 0.62; const th = TAU * p, r = 0.62 + 0.32 * fmY(o, th); ptX = G.cx + r * k * Math.cos(th); ptY = G.cy - r * k * Math.sin(th); }
+    const cyc = G.Rmax * 1.5, wave = new Path2D();
+    for (let x = 0; x <= w; x += 2) { const s = p - (x - ptX) / cyc, Y = G.cy - yAt(s); x ? wave.lineTo(x, Y) : wave.moveTo(x, Y); }
+    g.strokeStyle = col; g.lineWidth = 1.4; g.globalAlpha = 0.16 * dim; g.stroke(wave);
+    g.lineWidth = 5; g.globalAlpha = 0.04 * dim; g.stroke(wave); g.globalAlpha = 1;
+    // the shape itself, glowing
+    const [px, py] = pathOf(t), path = new Path2D();
+    for (let j = 0; j < px.length; j++) { const X = G.cx + px[j] * k, Y = G.cy - py[j] * k; j ? path.lineTo(X, Y) : path.moveTo(X, Y); }
+    if (t.mute) g.setLineDash([3, 5]);
+    glowPath(g, path, col, dim, sel ? 1.8 : 1.3);
+    g.setLineDash([]);
+    if (t.engine === 'orbit' && t.orbit.mode === 'epi') {
+      let ax = G.cx, ay = G.cy; g.globalAlpha = 0.5 * dim; g.lineWidth = 1;
+      for (const a of t.od.arms) { const r = a.rad / t.od.tot * k; dot(g, ax, ay, r, null, theme.faint); const nx = ax + r * Math.cos(a.ratio * TAU * p), ny = ay - r * Math.sin(a.ratio * TAU * p); g.strokeStyle = col; g.beginPath(); g.moveTo(ax, ay); g.lineTo(nx, ny); g.stroke(); ax = nx; ay = ny; }
+      g.globalAlpha = 1;
+    }
+    // tracing point and its link to the wave
+    g.globalAlpha = 0.35 * dim; g.strokeStyle = col; g.lineWidth = 1; g.beginPath(); g.moveTo(ptX, ptY); g.lineTo(w, ptY); g.stroke(); g.globalAlpha = 1;
+    glowDot(g, ptX, ptY, sel ? 3.6 : 2.8, col, dim);
+  }
+  g.globalCompositeOperation = 'source-over';
+  const sel = tracks[state.sel];
+  const hs = sel.engine === 'shape' ? shapeHandles(sel, G) : orbitHandles(sel, G);
+  for (const hd of hs) {
+    if (hd.glyph === 'arm') { g.save(); g.setLineDash([2, 4]); g.strokeStyle = hd.color; g.globalAlpha = 0.5; g.beginPath(); g.moveTo(G.cx, G.cy); g.lineTo(hd.at[0], hd.at[1]); g.stroke(); g.restore(); }
+    drawHandle(g, hd, c.hud.live && c.hud.color === hd.color);
+  }
+  drawHud(c);
+}
+
+/* ---------- voice chips and inspector ---------- */
+const chipsEl = $('#chips');
+tracks.forEach((t, i) => {
+  const b = h('button', {class: 'chip', type: 'button', style: `--vc:var(--v${i + 1})`, onclick: () => select(i)}, h('span', {class: 'dotb'}, t.name), h('span', {}, 'Röst ' + t.name), h('small', {}));
+  t.chip = b; chipsEl.append(b);
+});
+function syncChips() {
+  tracks.forEach((t, i) => {
+    t.chip.setAttribute('aria-pressed', String(i === state.sel)); t.chip.classList.toggle('muted', t.mute);
+    t.chip.querySelector('small').textContent = t.engine === 'shape' ? (t.shape.round >= 0.99 ? '○' : ['', '', '', '△', '□', '⬠', '⬡'][t.shape.n] || t.shape.n + '-hörn') : t.orbit.mode === 'fm' ? 'FM' : '∞';
+  });
+}
+syncChips.el = null; syncers.add(syncChips);
+function select(i) { if (state.sel === i) return; state.sel = i; buildInspector(); syncChips(); }
+function buildInspector() {
+  const t = tracks[state.sel], i = state.sel, el = $('#inspector'); el.textContent = ''; el.style.setProperty('--vc', `var(--v${i + 1})`);
+  const s = t.shape, o = t.orbit;
+  const engineRow = h('div', {class: 'row'});
+  const render = () => {
+    engineRow.textContent = '';
+    engineRow.append(seg([['shape', 'Form'], ['orbit', 'Cirklar']], () => t.engine, v => { t.engine = v; buildInspector(); syncChips(); }, 'Ljudmotor'));
+    if (t.engine === 'shape') {
+      engineRow.append(seg([['arc', 'Jämn fart'], ['angle', 'Jämn vinkel']], () => s.trace, v => { s.trace = v; updateShape(t); }, 'Spårning'));
+      engineRow.append(seg([['false', 'Mono'], ['true', 'XY']], () => String(s.xy), v => { s.xy = v === 'true'; }, 'Stereo'));
+    } else {
+      engineRow.append(seg([['epi', 'Epicykel'], ['fm', 'FM']], () => o.mode, v => { o.mode = v; updateOrbit(t); }, 'Läge'));
+      engineRow.append(seg([['1', '2 med'], ['-1', '2 mot']], () => String(o.d2), v => { o.d2 = +v; updateOrbit(t); }, 'Riktning cirkel 2'));
+      engineRow.append(seg([['false', 'Mono'], ['true', 'XY']], () => String(!!o.xy), v => { o.xy = v === 'true'; }, 'Stereo'));
+    }
+    const mute = h('button', {class: 'btn', type: 'button', 'aria-pressed': String(t.mute), onclick: () => { t.mute = !t.mute; mute.setAttribute('aria-pressed', String(t.mute)); mute.textContent = t.mute ? 'Tyst' : 'Tysta'; setVol(t); syncChips(); }}, t.mute ? 'Tyst' : 'Tysta');
+    engineRow.append(mute);
+  };
+  render();
+  const basics = h('div', {class: 'grid'},
+    slider({label: 'Oktav', min: -2, max: 2, step: 1, get: () => t.oct, set: v => t.oct = v, show: v => (v > 0 ? '+' : '') + v}),
+    slider({label: 'Attack', min: 0.002, max: 0.5, step: 0.001, get: () => t.att, set: v => t.att = v, show: v => Math.round(v * 1000) + ' ms'}),
+    slider({label: 'Släpp', min: 0.05, max: 3, step: 0.01, get: () => t.rel, set: v => t.rel = v, show: v => fmt(v) + ' s'}),
+  );
+  const all = h('div', {class: 'grid'}, slider({label: 'Volym', min: 0, max: 1, step: 0.01, get: () => t.vol, set: v => { t.vol = v; setVol(t); }, show: v => Math.round(v * 100) + ' %'}));
+  if (t.engine === 'shape') {
+    const up = () => updateShape(t);
+    all.append(
+      slider({label: 'Hörn', min: 3, max: 12, step: 1, get: () => s.n, set: v => { s.n = v; up(); }}),
+      slider({label: 'Rundning', min: 0, max: 1, step: 0.01, get: () => s.round, set: v => { s.round = v; if (v > 0) s.star = 0; up(); }, show: v => v >= 0.99 ? 'cirkel' : Math.round(v * 100) + ' %'}),
+      slider({label: 'Stjärna', min: 0, max: 0.85, step: 0.01, get: () => s.star, set: v => { s.star = v; if (v > 0) s.round = 0; up(); }, show: v => Math.round(v * 100) + ' %'}),
+      slider({label: 'Vridning', min: 0, max: 359, step: 1, get: () => s.rot, set: v => { s.rot = v; up(); }, show: v => v + '°'}),
+      slider({label: 'Sträckning', min: -1, max: 1, step: 0.01, get: () => s.stretch, set: v => { s.stretch = v; up(); }, show: v => fmt(2 ** (2 * v)) + ' : 1'}),
+      slider({label: 'Excentricitet', min: 0, max: 0.95, step: 0.01, get: () => s.ecc, set: v => { s.ecc = v; if (v > 0) s.trace = 'angle'; up(); }, show: v => Math.round(v * 100) + ' %'}),
+    );
+  } else {
+    const up = () => updateOrbit(t), opts = RATIOS.map((r, k) => [k, ratioName(k)]);
+    all.append(
+      selectCtl('Cirkel 2 varvtal', opts, () => o.r2, v => { o.r2 = +v; up(); }),
+      slider({label: 'Cirkel 2 radie', min: 0, max: 1, step: 0.01, get: () => o.rad2, set: v => { o.rad2 = v; up(); }, show: v => o.mode === 'fm' ? 'index ' + fmt(v * 6, 1) : fmt(v)}),
+      selectCtl('Cirkel 3 varvtal', opts, () => o.r3, v => { o.r3 = +v; up(); }),
+      slider({label: 'Cirkel 3 radie', min: 0, max: 1, step: 0.01, get: () => o.rad3, set: v => { o.rad3 = v; up(); }, show: v => o.mode === 'fm' ? 'index ' + fmt(v * 6, 1) : fmt(v)}),
+      labeled('Cirkel 3 riktning', seg([['1', 'Med'], ['-1', 'Mot']], () => String(o.d3), v => { o.d3 = +v; up(); }, 'Riktning cirkel 3')),
+    );
+  }
+  const det = h('details', {}, h('summary', {}, 'Alla värden för röst ' + t.name), all);
+  el.append(engineRow, basics, det);
+  $('#klangHint').innerHTML = t.engine === 'shape'
+    ? 'Dra i en form: <b>utåt/inåt</b> ändrar volym, <b>runt</b> vrider den. Handtagen på vald röst: <kbd>◆</kbd> antal hörn, <kbd>●</kbd> rundning/stjärna, <kbd>✚</kbd> nav, <kbd>■</kbd> sträckning.'
+    : 'Dra i formen: <b>utåt/inåt</b> ändrar volym. Handtagen <kbd>2</kbd> och <kbd>3</kbd> är cirklarna: dra <b>utåt</b> för radie (FM-index), <b>runt</b> för varvtal.';
+}
+
+/* ---------- SEQUENCER stage ---------- */
+const stageC = track2d($('#stage'));
+function sGeo() { const {w, h: H2} = stageC; return {cx: w / 2, cy: H2 / 2 + 8, R: Math.min(w, H2) * 0.37}; }
+const pitchPx = G => G.R * 0.032;
+function scrub(id, x, y, label, get, set, min, max, color, sub) {
+  return {id, kind: 'scrub', rect: [x, y, 0, 18], cx: x, cy: y, color, modes: ['y'], get, txt: label,
+    start() { this.v0 = get(); },
+    drag({dy, dx}) { set(clamp(this.v0 + Math.round((-dy + dx) / 16), min, max)); },
+    tap() { const v = get() + 1; set(v > max ? min : v); },
+    label: () => [label, String(get()), sub ? sub() : 'dra upp/ner eller tryck']};
+}
+function stageTargets(G) {
+  const T = [], m = state.mode, pad = 12;
+  if (m === 'poly') {
+    state.poly.t.forEach((p, i) => T.push(scrub('pn' + i, pad, pad + i * 24, `Röst ${tracks[i].name} · hörn`, () => p.n, v => { p.n = v; p.rot = Math.min(p.rot, v - 0.001); }, 1, 12, theme.voice[i])));
+    T.push(scrub('bars', pad, pad + 3 * 24 + 6, 'Cykel · takter', () => state.poly.bars, v => state.poly.bars = v, 1, 4, theme.muted, () => `${state.poly.bars * 4} slag per varv`));
+    state.poly.t.forEach((p, i) => {
+      const r = G.R * (1 - i * 0.22);
+      for (let j = 0; j < p.n; j++) {
+        const a = -Math.PI / 2 + TAU * (j + p.rot) / p.n, rr = r + (p.degs[j] - 2) * pitchPx(G);
+        T.push({id: `pv${i}.${j}`, at: [G.cx + rr * Math.cos(a), G.cy + rr * Math.sin(a)], cx: G.cx, cy: G.cy, color: theme.voice[i], modes: ['r', 't'],
+          start() { this.d0 = p.degs[j]; this.r0 = p.rot; },
+          drag({lock, dr, dth}) {
+            if (lock === 'r') { const d = clamp(this.d0 + Math.round(dr / pitchPx(G)), -4, 12); if (d !== p.degs[j]) { p.degs[j] = d; preview(i, d, j); } }
+            else p.rot = mod(this.r0 + dth * p.n / TAU, p.n);
+          },
+          tap() { preview(i, p.degs[j], j); },
+          label: lock => lock === 't' ? [`Röst ${tracks[i].name} · vridning`, Math.round(mod(p.rot, p.n) * 360 / p.n) + '°', 'förskjuter rytmen'] : [`Röst ${tracks[i].name} · hörn ${j + 1}`, noteName(degFreq(p.degs[j], tracks[i].oct)), `skalsteg ${p.degs[j]}`]});
+      }
+    });
+  } else if (m === 'eucl') {
+    state.eucl.t.forEach((e, i) => {
+      const regen = () => { for (let j = 0; j < 16; j++) e.pat[j] = j < e.n && bjork(j, e.k, e.n); };
+      T.push(scrub('en' + i, pad, pad + i * 24, `Röst ${tracks[i].name} · steg n`, () => e.n, v => { e.n = v; e.k = Math.min(e.k, v); e.rot = Math.min(e.rot, v - 1); regen(); }, 2, 16, theme.voice[i], () => `E(${e.k},${e.n})`));
+      T.push(scrub('ek' + i, pad + 86, pad + i * 24, `Röst ${tracks[i].name} · slag k`, () => e.k, v => { e.k = v; regen(); }, 0, e.n, theme.voice[i], () => `E(${e.k},${e.n})${EUCL_NAMES[e.k + ',' + e.n] ? ' ' + EUCL_NAMES[e.k + ',' + e.n] : ''}`));
+      T[T.length - 2].txt = 'n'; T[T.length - 1].txt = 'k';
+      const r = G.R * (1 - i * 0.27);
+      for (let idx = 0; idx < e.n; idx++) {
+        const pos = mod(idx + e.rot, e.n), a = -Math.PI / 2 + TAU * pos / e.n, rr = r + (e.pat[idx] ? (e.degs[idx] - 3) * pitchPx(G) * 0.8 : 0);
+        T.push({id: `ev${i}.${idx}`, at: [G.cx + rr * Math.cos(a), G.cy + rr * Math.sin(a)], cx: G.cx, cy: G.cy, color: theme.voice[i], modes: e.pat[idx] ? ['r', 't'] : ['t'],
+          start() { this.d0 = e.degs[idx]; this.r0 = e.rot; },
+          drag({lock, dr, dth}) {
+            if (lock === 'r') { const d = clamp(this.d0 + Math.round(dr / (pitchPx(G) * 0.8)), -3, 12); if (d !== e.degs[idx]) { e.degs[idx] = d; preview(i, d, idx); } }
+            else e.rot = mod(this.r0 + Math.round(dth * e.n / TAU), e.n);
+          },
+          tap() { e.pat[idx] = !e.pat[idx]; e.k = e.pat.slice(0, e.n).filter(Boolean).length; if (e.pat[idx]) preview(i, e.degs[idx], idx); },
+          label: lock => lock === 't' ? [`Röst ${tracks[i].name} · vridning`, e.rot + ' steg', ''] : e.pat[idx] ? [`Röst ${tracks[i].name} · steg ${idx + 1}`, noteName(degFreq(e.degs[idx], tracks[i].oct)), 'tryck för att ta bort'] : [`Röst ${tracks[i].name} · steg ${idx + 1}`, 'paus', 'tryck för att lägga till ett slag']});
+      }
+    });
+  } else if (m === 'fib') {
+    const f = state.fib;
+    T.push(scrub('fm', pad, pad, 'Modul m', () => f.m, v => { f.m = v; f.a = Math.min(f.a, v - 1); f.b = Math.min(f.b, v - 1); }, 2, 16, theme.v1, () => `Pisanoperiod ${fibCycle(f.a, f.b, f.m).length}`));
+    for (const key of ['a', 'b']) {
+      const v = f[key], a = -Math.PI / 2 + TAU * v / f.m, rr = G.R + 30;
+      T.push({id: 'fs' + key, at: [G.cx + rr * Math.cos(a), G.cy + rr * Math.sin(a)], cx: G.cx, cy: G.cy, color: theme.ink, modes: ['t'], key,
+        start() { this.v0 = f[key]; },
+        drag({dth}) { f[key] = mod(this.v0 + Math.round(dth * f.m / TAU), f.m); },
+        label: () => [`Startvärde ${key}`, String(f[key]), `period ${fibCycle(f.a, f.b, f.m).length} · ${f.a === 2 && f.b === 1 ? 'Lucastalen' : f.a === 0 && f.b === 1 ? 'Fibonacci' : 'egen följd'}`]});
+    }
+    for (let v = 0; v < f.m; v++) { const a = -Math.PI / 2 + TAU * v / f.m; T.push({id: 'fp' + v, at: [G.cx + G.R * Math.cos(a), G.cy + G.R * Math.sin(a)], cx: G.cx, cy: G.cy, color: theme.v1, modes: ['t'], drag() {}, tap() { preview(0, v, v); }, label: () => [`Värde ${v}`, noteName(degFreq(v, tracks[0].oct)), 'tryck för att höra']}); }
+  } else if (m === 'gold') {
+    const g = state.gold;
+    T.push(scrub('gs', pad, pad, 'Omfång · oktaver', () => g.span, v => g.span = v, 1, 3, theme.v1));
+    T.push({id: 'gold', whole: true, cx: G.cx, cy: G.cy, color: theme.v3, modes: ['t', 'r'],
+      start() { this.a0 = g.angle; this.d0 = g.density; },
+      drag({lock, dth, dr}) {
+        if (lock === 't') { let a = clamp(this.a0 + dth / TAU * 0.08, 0.02, 0.98); if (Math.abs(a - GOLD) < 0.0016) a = GOLD; if (Math.abs(a - (1 - GOLD)) < 0.0016) a = 1 - GOLD; g.angle = a; }
+        else g.density = clamp(this.d0 + dr / G.R, 0.05, 1);
+      },
+      label: lock => lock === 'r' ? ['Täthet röst I', Math.round(g.density * 100) + ' %', ''] : ['Vridning per frö', fmt(g.angle * 360, 2) + '°', angleNote(g.angle)]});
+  }
+  return T;
+}
+function angleNote(a) {
+  if (a === GOLD || a === 1 - GOLD) return 'gyllene vinkeln: 360° / φ²';
+  for (let q = 1; q <= 13; q++) { const p = Math.round(a * q); if (p > 0 && Math.abs(a - p / q) < 0.004 && gcd(p, q) === 1) return `≈ ${p}/${q} varv: ${q} armar`; }
+  return 'irrationell: fyller blomman';
+}
+function stageHit(x, y) {
+  const G = sGeo(), T = stageTargets(G);
+  for (const t of T) if (t.kind === 'scrub') { stageC.g.font = `11px ${MONO}`; const w = stageC.g.measureText(t.txt.split(' · ').pop() + ' 00').width + 26; if (x >= t.rect[0] - 4 && x <= t.rect[0] + w && y >= t.rect[1] - 2 && y <= t.rect[1] + 20) return t; }
+  let best = null, bd = 15;
+  for (const t of T) if (t.at) { const d = Math.hypot(t.at[0] - x, t.at[1] - y); if (d < bd) { bd = d; best = t; } }
+  if (best) return best;
+  return T.find(t => t.whole) || null;
+}
+gestures(stageC, stageHit);
+function drawScrub(g, t, live) {
+  const [x, y] = t.rect, v = String(t.get()), name = t.txt.split(' · ').pop();
+  g.save(); g.font = `11px ${MONO}`;
+  const nameW = g.measureText(name).width, w = nameW + g.measureText(v).width + 24;
+  g.globalAlpha = live ? 1 : 0.9; g.fillStyle = theme.raise; roundRect(g, x, y, w, 20, 10); g.fill();
+  g.strokeStyle = t.color; g.globalAlpha = live ? 1 : 0.5; g.lineWidth = 1; roundRect(g, x + 0.5, y + 0.5, w - 1, 19, 9.5); g.stroke(); g.globalAlpha = 1;
+  text(g, name, x + 9, y + 10.5, theme.muted, 11, 'left', 'middle');
+  text(g, v, x + 15 + nameW, y + 10.5, theme.ink, 11, 'left', 'middle');
+  g.restore();
+}
 function drawStage() {
-  const {g, w, h: H2} = stageC; g.clearRect(0, 0, w, H2);
-  const cx = w / 2, cy = H2 / 2, R = Math.min(w, H2) * 0.43;
-  const B = state.playing ? nowBeat() : state.lastBeat;
+  const c = stageC, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2);
+  if (w < 40) return;
+  const G = sGeo(), {cx, cy, R} = G, B = state.playing ? nowBeat() : state.lastBeat, T = stageTargets(G);
+  const liveId = c.hud.live ? c.hud.name : null;
   let read = '';
   g.lineWidth = 1;
   if (state.mode === 'poly') {
     const C = state.poly.bars * 4, ph = mod(B, C) / C;
-    dot(g, cx, cy, R, null, theme.line);
+    g.setLineDash([2, 6]); dot(g, cx, cy, R, null, theme.line); g.setLineDash([]);
+    g.globalCompositeOperation = 'lighter';
     state.poly.t.forEach((p, i) => {
-      const r = R * (1 - i * 0.2), col = theme.voice[i], pts = [];
-      for (let j = 0; j < p.n; j++) { const a = -Math.PI / 2 + TAU * (j + p.rot) / p.n; pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
-      g.strokeStyle = col; g.lineWidth = 1.6; g.globalAlpha = 0.85; g.beginPath();
-      pts.forEach(([x, y], j) => j ? g.lineTo(x, y) : g.moveTo(x, y)); if (p.n > 2) g.closePath(); g.stroke(); g.globalAlpha = 1;
-      if (i > 0) { g.setLineDash([2, 5]); dot(g, cx, cy, r, null, theme.line); g.setLineDash([]); }
+      const r = R * (1 - i * 0.22), col = theme.voice[i], pts = [];
+      for (let j = 0; j < p.n; j++) { const a = -Math.PI / 2 + TAU * (j + p.rot) / p.n, rr = r + (p.degs[j] - 2) * pitchPx(G); pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]); }
+      const path = new Path2D(); pts.forEach(([x, y], j) => j ? path.lineTo(x, y) : path.moveTo(x, y)); if (p.n > 2) path.closePath();
+      glowPath(g, path, col, 0.85 + hitAge(voiceHits[i], 0.4) * 0.5, 1.5);
       pts.forEach(([x, y], j) => {
-        const k = glow(i + ':' + j), f = degFreq(p.base + j * p.step, tracks[i].oct);
-        if (k > 0) { g.globalAlpha = k * 0.35; dot(g, x, y, 10 + 16 * k, noteColor(f)); g.globalAlpha = 1; }
-        g.lineWidth = 1.5; dot(g, x, y, 5.5 + 3 * k, noteColor(f), theme.surface);
+        const k = glow(i + ':' + j), f = degFreq(p.degs[j], tracks[i].oct);
+        glowDot(g, x, y, 4.5 + 3 * k, noteColor(f), 0.7 + k);
       });
     });
+    g.globalCompositeOperation = 'source-over';
     const a = -Math.PI / 2 + TAU * ph;
-    g.strokeStyle = theme.ink; g.lineWidth = 1.5; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + R * 1.06 * Math.cos(a), cy + R * 1.06 * Math.sin(a)); g.stroke();
-    dot(g, cx, cy, 3, theme.ink);
+    g.strokeStyle = theme.ink; g.globalAlpha = 0.8; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + R * 1.12 * Math.cos(a), cy + R * 1.12 * Math.sin(a)); g.stroke(); g.globalAlpha = 1;
+    dot(g, cx, cy, 2.5, theme.ink);
     const ns = state.poly.t.map(p => p.n);
-    read = `${ns.join(' : ')} · ${ns.reduce(lcm)} delar per cykel på ${state.poly.bars * 4} slag`;
+    read = `${ns.join(' : ')} · ${ns.reduce(lcm)} delar per varv på ${C} slag`;
   } else if (state.mode === 'eucl') {
     const s = Math.floor(B * 4);
+    g.globalCompositeOperation = 'lighter';
     state.eucl.t.forEach((e, i) => {
-      const r = R * (1 - i * 0.26), col = theme.voice[i], pos = mod(s, e.n), act = [];
-      dot(g, cx, cy, r, null, theme.line);
-      for (let j = 0; j < e.n; j++) {
-        const a = -Math.PI / 2 + TAU * j / e.n, x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
-        if (bjork(mod(j - e.rot, e.n), e.k, e.n)) act.push([x, y, j]);
+      const r = R * (1 - i * 0.27), col = theme.voice[i], pos = mod(s, e.n), act = [];
+      g.globalAlpha = 0.5; dot(g, cx, cy, r, null, theme.line); g.globalAlpha = 1;
+      for (let idx = 0; idx < e.n; idx++) if (e.pat[idx]) {
+        const a = -Math.PI / 2 + TAU * mod(idx + e.rot, e.n) / e.n, rr = r + (e.degs[idx] - 3) * pitchPx(G) * 0.8;
+        act.push([mod(idx + e.rot, e.n), cx + rr * Math.cos(a), cy + rr * Math.sin(a), idx]);
       }
-      if (act.length > 1) { g.strokeStyle = col; g.lineWidth = 1.6; g.globalAlpha = 0.8; g.beginPath(); act.forEach(([x, y], q) => q ? g.lineTo(x, y) : g.moveTo(x, y)); g.closePath(); g.stroke(); g.globalAlpha = 1; }
-      for (let j = 0; j < e.n; j++) {
-        const a = -Math.PI / 2 + TAU * j / e.n, x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
-        const on = bjork(mod(j - e.rot, e.n), e.k, e.n), k = glow(i + ':' + j);
-        if (k > 0) { g.globalAlpha = k * 0.35; dot(g, x, y, 9 + 14 * k, col); g.globalAlpha = 1; }
-        g.lineWidth = 1.4; dot(g, x, y, on ? 5 + 2 * k : 3, on ? col : theme.surface, on ? theme.surface : theme.muted);
-        if (state.playing && j === pos) { g.lineWidth = 1.2; dot(g, x, y, 9, null, theme.ink); }
+      act.sort((p, q) => p[0] - q[0]);
+      if (act.length > 1) { const path = new Path2D(); act.forEach(([, x, y], q) => q ? path.lineTo(x, y) : path.moveTo(x, y)); path.closePath(); glowPath(g, path, col, 0.75 + hitAge(voiceHits[i], 0.4) * 0.5, 1.4); }
+      for (let q = 0; q < e.n; q++) {
+        const idx = mod(q - e.rot, e.n), a = -Math.PI / 2 + TAU * q / e.n;
+        if (e.pat[idx]) { const rr = r + (e.degs[idx] - 3) * pitchPx(G) * 0.8, k = glow(i + ':' + idx); glowDot(g, cx + rr * Math.cos(a), cy + rr * Math.sin(a), 4.2 + 3 * k, noteColor(degFreq(e.degs[idx], tracks[i].oct)), 0.7 + k); }
+        else { g.globalAlpha = 0.8; g.lineWidth = 1; dot(g, cx + r * Math.cos(a), cy + r * Math.sin(a), 2.6, null, theme.faint); g.globalAlpha = 1; }
+        if (state.playing && q === pos) { g.lineWidth = 1; g.globalAlpha = 0.9; dot(g, cx + r * Math.cos(a), cy + r * Math.sin(a), 9, null, col); g.globalAlpha = 1; }
       }
     });
-    read = state.eucl.t.map(e => `E(${e.k},${e.n})` + (EUCL_NAMES[e.k + ',' + e.n] ? ' ' + EUCL_NAMES[e.k + ',' + e.n] : '')).join(' · ');
+    g.globalCompositeOperation = 'source-over';
+    read = state.eucl.t.map(e => { const isE = e.pat.slice(0, e.n).every((v, j) => v === bjork(j, e.k, e.n)); return isE ? `E(${e.k},${e.n})` + (EUCL_NAMES[e.k + ',' + e.n] ? ' ' + EUCL_NAMES[e.k + ',' + e.n] : '') : `egen ${e.k}/${e.n}`; }).join(' · ');
   } else if (state.mode === 'fib') {
     const f = state.fib, F = fibCycle(f.a, f.b, f.m), Lu = fibCycle(2, 1, f.m), m = f.m;
     const P = v => { const a = -Math.PI / 2 + TAU * v / m; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; };
-    // golden spiral backdrop
-    g.save(); g.globalAlpha = 0.5; g.strokeStyle = theme.soft; g.lineWidth = 1; drawGoldenSpiral(g, cx, cy, R * 0.98); g.restore();
-    dot(g, cx, cy, R, null, theme.line);
-    const chords = (seq, col, alpha, dash) => {
-      g.strokeStyle = col; g.globalAlpha = alpha; g.lineWidth = 1.2; g.setLineDash(dash || []); g.beginPath();
-      seq.forEach((v, q) => { const [x, y] = P(v); q ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
-    };
-    chords(Lu, theme.v2, 0.45, [3, 4]); chords(F, theme.v1, 0.7);
+    g.save(); g.globalAlpha = 0.35; g.strokeStyle = theme.line; drawGoldenSpiral(g, cx, cy, R * 0.98); g.restore();
+    g.setLineDash([2, 6]); dot(g, cx, cy, R, null, theme.line); g.setLineDash([]);
+    g.globalCompositeOperation = 'lighter';
+    const chord = seq => { const p = new Path2D(); seq.forEach((v, q) => { const [x, y] = P(v); q ? p.lineTo(x, y) : p.moveTo(x, y); }); p.closePath(); return p; };
+    g.setLineDash([3, 5]); glowPath(g, chord(Lu), theme.v2, 0.45, 1); g.setLineDash([]);
+    glowPath(g, chord(F), theme.v1, 0.8 + hitAge(voiceHits[0], 0.3) * 0.4, 1.3);
     const n = Math.max(0, Math.floor(B * 2));
-    if (state.playing) {
-      const a = F[mod(n, F.length)], b = F[mod(n + 1, F.length)], [x1, y1] = P(a), [x2, y2] = P(b);
-      g.strokeStyle = theme.ink; g.lineWidth = 2.2; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
-    }
+    if (state.playing) { const [x1, y1] = P(F[mod(n, F.length)]), [x2, y2] = P(F[mod(n + 1, F.length)]); const p = new Path2D(); p.moveTo(x1, y1); p.lineTo(x2, y2); glowPath(g, p, theme.ink, 1, 2); }
     for (let v = 0; v < m; v++) {
-      const [x, y] = P(v), fr = degFreq(v, tracks[0].oct), k = Math.max(glow('0:' + v), glow('1:' + v) * 0.7);
-      if (k > 0) { g.globalAlpha = k * 0.35; dot(g, x, y, 10 + 16 * k, noteColor(fr)); g.globalAlpha = 1; }
-      g.lineWidth = 1.5; dot(g, x, y, 7 + 2 * k, noteColor(fr), theme.surface);
-      const [lx, ly] = [cx + (R + 20) * Math.cos(-Math.PI / 2 + TAU * v / m), cy + (R + 20) * Math.sin(-Math.PI / 2 + TAU * v / m)];
-      text(g, String(v), lx, ly, theme.muted, 11, 'center', 'middle');
+      const [x, y] = P(v), k = Math.max(glow('0:' + v), glow('1:' + v) * 0.7);
+      glowDot(g, x, y, 6 + 3 * k, noteColor(degFreq(v, tracks[0].oct)), 0.75 + k);
+      const a = -Math.PI / 2 + TAU * v / m; text(g, String(v), cx + (R + 15) * Math.cos(a), cy + (R + 15) * Math.sin(a), theme.muted, 10, 'center', 'middle');
     }
+    g.globalCompositeOperation = 'source-over';
+    for (const t of T) if (t.key) { const [x, y] = t.at; g.save(); g.fillStyle = theme.bg; g.strokeStyle = theme.ink; g.shadowColor = theme.ink; g.shadowBlur = 8; dot(g, x, y, 10, theme.bg, theme.ink); g.restore(); text(g, t.key, x, y + 0.5, theme.ink, 12, 'center', 'middle', BODY); }
     const big = n < 70 ? fibBig(f.a, f.b, n) : null;
     read = `n = ${n}` + (big !== null ? ` · F(n) = ${big.toLocaleString('sv-SE')}` : '') + ` · mod ${m} = ${F[mod(n, F.length)]} · Pisanoperiod ${F.length}`;
   } else if (state.mode === 'gold') {
-    const S = 144, s = Math.max(0, Math.floor(B * 4)), n0 = Math.floor(s / S) * S, L = scalePcs().length;
+    const S = 144, s = Math.max(0, Math.floor(B * 4)), n0 = Math.floor(s / S) * S, L = scalePcs().length, gd = state.gold;
+    const editing = c.hud.live && !state.playing, upto = state.playing ? s : n0 + S - 1;
+    g.globalCompositeOperation = 'lighter';
     for (let q = 0; q < S; q++) {
-      const k = n0 + q, a = -Math.PI / 2 + TAU * frac(k * GOLD), r = R * Math.sqrt((q + 0.5) / S);
-      const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a), past = k <= s;
-      const hit = frac(k * PHI) < state.gold.density;
-      if (!past && state.playing) { dot(g, x, y, 1.5, theme.line); continue; }
-      if (hit) {
-        const fr = degFreq(Math.floor(frac(k * GOLD) * L * state.gold.span), tracks[0].oct), gl = glow('0:' + k);
-        if (gl > 0) { g.globalAlpha = gl * 0.4; dot(g, x, y, 8 + 16 * gl, noteColor(fr)); g.globalAlpha = 1; }
-        dot(g, x, y, 3 + 3.5 * Math.sqrt((q + 1) / S) + 2 * gl, noteColor(fr));
-      } else dot(g, x, y, 2, theme.muted);
+      const k = n0 + q, a = -Math.PI / 2 + TAU * frac(k * gd.angle), r = R * 1.08 * Math.sqrt((q + 0.5) / S);
+      const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+      if (k > upto) { g.globalAlpha = 0.5; dot(g, x, y, 1.3, theme.faint); g.globalAlpha = 1; continue; }
+      if (frac(k * PHI) < gd.density) {
+        const fr = degFreq(Math.floor(frac(k * gd.angle) * L * gd.span), tracks[0].oct), gl = glow('0:' + k);
+        glowDot(g, x, y, 2.4 + 3 * Math.sqrt((q + 1) / S) + 2 * gl, noteColor(fr), 0.6 + gl);
+      } else { g.globalAlpha = 0.7; dot(g, x, y, 1.6, theme.muted); g.globalAlpha = 1; }
     }
-    if (state.playing) {
-      const a = -Math.PI / 2 + TAU * frac(s * GOLD);
-      g.strokeStyle = theme.ink; g.lineWidth = 1.3; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + R * 1.05 * Math.cos(a), cy + R * 1.05 * Math.sin(a)); g.stroke();
-    }
-    read = `frö ${s - n0 + 1} av ${S} · vridning ${fmt(mod(s * GOLD * 360, 360), 1)}° · 360° / φ² = 137,5°`;
+    g.globalCompositeOperation = 'source-over';
+    if (state.playing) { const a = -Math.PI / 2 + TAU * frac(s * gd.angle); g.strokeStyle = theme.ink; g.globalAlpha = 0.7; g.lineWidth = 1.2; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + R * 1.12 * Math.cos(a), cy + R * 1.12 * Math.sin(a)); g.stroke(); g.globalAlpha = 1; }
+    read = `frö ${s - n0 + 1} av ${S} · ${fmt(gd.angle * 360, 2)}° per frö · ${angleNote(gd.angle)}` + (editing ? '' : '');
   }
+  for (const t of T) if (t.kind === 'scrub') drawScrub(g, t, c.hud.live && c.hud.name === t.label()[0]);
+  drawHud(c);
   $('#readout').textContent = read;
 }
 function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 function lcm(a, b) { return a * b / gcd(a, b); }
 function fibBig(a, b, n) { let x = a, y = b; for (let i = 0; i < n; i++) { const z = x + y; x = y; y = z; } return x; }
 function drawGoldenSpiral(g, cx, cy, R) {
-  // squares of Fibonacci sizes laid in a spiral, plus quarter arcs
-  const fib = [1, 1, 2, 3, 5, 8, 13, 21, 34]; const unit = R * 2 / (21 + 34) * 1.0;
-  let x = 0, y = 0; const rects = [];
-  let minx = 0, miny = 0, maxx = unit, maxy = unit; rects.push([0, 0, unit, 0]);
+  const fib = [1, 1, 2, 3, 5, 8, 13, 21, 34], unit = R * 2 / 55;
+  let x = 0, y = 0, minx = 0, miny = 0, maxx = unit, maxy = unit; const rects = [[0, 0, unit, 0]];
   for (let i = 1; i < fib.length; i++) {
     const s = fib[i] * unit, d = i % 4;
     if (d === 1) { x = maxx; y = miny; } else if (d === 2) { x = maxx - s; y = maxy; } else if (d === 3) { x = minx - s; y = maxy - s; } else { x = minx; y = miny - s; }
@@ -889,117 +1155,104 @@ function drawGoldenSpiral(g, cx, cy, R) {
   g.beginPath();
   for (const [rx, ry, s, d] of rects) {
     g.rect(ox + rx, oy + ry, s, s);
-    const corners = [[rx, ry + s, -Math.PI / 2, 0], [rx, ry, 0, Math.PI / 2], [rx + s, ry, Math.PI / 2, Math.PI], [rx + s, ry + s, Math.PI, Math.PI * 1.5]];
-    const [ax, ay, a0, a1] = corners[d];
+    const [ax, ay, a0, a1] = [[rx, ry + s, -Math.PI / 2, 0], [rx, ry, 0, Math.PI / 2], [rx + s, ry, Math.PI / 2, Math.PI], [rx + s, ry + s, Math.PI, Math.PI * 1.5]][d];
     g.moveTo(ox + ax + s * Math.cos(a0), oy + ay + s * Math.sin(a0)); g.arc(ox + ax, oy + ay, s, a0, a1);
   }
   g.stroke();
 }
 
-/* ---------- voice drawings ---------- */
-const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-function drawVoice(t, i, time) {
-  const {g, w, h: H2} = t.c2; g.clearRect(0, 0, w, H2);
-  const S = Math.min(H2, w * 0.42), cx = S / 2, cy = H2 / 2, rad = S / 2 - 10;
-  const p = reduced.matches ? 0.125 : frac(time * 0.22), col = theme.voice[i];
-  const x0 = S + 10, x1 = w - 6, cycles = 2;
-  g.lineWidth = 1; g.strokeStyle = theme.line; g.beginPath(); g.moveTo(cx - rad, cy); g.lineTo(cx + rad, cy); g.moveTo(cx, cy - rad); g.lineTo(cx, cy + rad); g.moveTo(x0, cy); g.lineTo(x1, cy); g.stroke();
-  let yAt, ptX, ptY, sc, label = '';
-  if (t.engine === 'shape') {
-    const d = t.sd; sc = rad / Math.max(1e-6, d.ext);
-    g.strokeStyle = theme.ink; g.lineWidth = 1.6; g.beginPath();
-    for (let k = 0; k <= M; k++) { const X = cx + d.px[k] * sc, Y = cy - d.py[k] * sc; k ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke();
-    const idx = Math.floor(p * N) % N; ptX = cx + d.xs[idx] * sc; ptY = cy - d.ys[idx] * sc;
-    const hub = d.pivot ? [cx + d.pivot[0] * sc, cy - d.pivot[1] * sc] : [cx, cy];
-    g.strokeStyle = col; g.lineWidth = 1; g.globalAlpha = 0.6; g.beginPath(); g.moveTo(hub[0], hub[1]); g.lineTo(ptX, ptY); g.stroke(); g.globalAlpha = 1;
-    if (d.pivot) dot(g, hub[0], hub[1], 3, col);
-    yAt = s => d.ys[mod(Math.floor(s * N), N)] * sc;
-    label = d.traced === 'angle' ? 'jämn vinkel' : 'jämn fart';
-  } else {
-    const o = t.orbit, d = t.od;
-    if (o.mode === 'epi') {
-      sc = rad;
-      g.strokeStyle = col; g.lineWidth = 1.1; g.globalAlpha = 0.75; g.beginPath();
-      for (let k = 0; k < d.px.length; k++) { const X = cx + d.px[k] * sc, Y = cy - d.py[k] * sc; k ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke(); g.globalAlpha = 1;
-      let ax = cx, ay = cy; const th = TAU * p;
-      g.lineWidth = 1;
-      for (const a of d.arms) {
-        const r = a.rad / d.tot * sc; dot(g, ax, ay, r, null, theme.muted);
-        const nx = ax + r * Math.cos(a.ratio * th), ny = ay - r * Math.sin(a.ratio * th);
-        g.strokeStyle = theme.ink; g.beginPath(); g.moveTo(ax, ay); g.lineTo(nx, ny); g.stroke(); ax = nx; ay = ny;
-      }
-      ptX = ax; ptY = ay;
-      yAt = s => { let y = 0; for (const a of d.arms) y += a.rad / d.tot * Math.sin(a.ratio * TAU * s); return y * sc; };
-      label = d.K ? `sluter sig efter ${d.K} varv` : 'sluter sig aldrig';
-    } else {
-      sc = rad;
-      g.strokeStyle = col; g.lineWidth = 1.1; g.globalAlpha = 0.8; g.beginPath();
-      for (let k = 0; k < d.px.length; k++) { const X = cx + d.px[k] * sc, Y = cy - d.py[k] * sc; k ? g.lineTo(X, Y) : g.moveTo(X, Y); } g.stroke(); g.globalAlpha = 1;
-      dot(g, cx, cy, 0.6 * sc, null, theme.line);
-      const th = TAU * p, r = 0.6 + 0.32 * fmY(o, th);
-      ptX = cx + r * sc * Math.cos(th); ptY = cy - r * sc * Math.sin(th);
-      g.strokeStyle = theme.ink; g.lineWidth = 1; g.beginPath(); g.moveTo(cx, cy); g.lineTo(ptX, ptY); g.stroke();
-      yAt = s => fmY(o, TAU * s) * rad * 0.8;
-      label = `1 : ${RATIOS[o.r2].l.split(' ')[0]} · ${d.K ? 'sluter sig' : 'sluter sig aldrig'}`;
-    }
+/* ---------- mode tabs, notes and slider drawer ---------- */
+const modeTabs = $('#modeTabs');
+for (const [k, m] of Object.entries(MODES)) modeTabs.append(h('button', {type: 'button', 'data-v': k, onclick: () => setMode(k)}, m.label));
+function setMode(k) {
+  state.mode = k; hits.clear(); stageC.hud.until = -1;
+  modeTabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === k)));
+  $('#modeHint').innerHTML = MODES[k].hint;
+  const ex = $('#modeExtra'); ex.textContent = '';
+  if (k === 'poly') ex.append(h('button', {class: 'btn', type: 'button', onclick: playChord}, 'Hör hörnen som ackord'));
+  if (k === 'gold') ex.append(h('button', {class: 'btn', type: 'button', onclick: () => { state.gold.angle = GOLD; syncAll(); }}, 'Tillbaka till 137,5°'));
+  ex.hidden = !ex.childElementCount;
+  buildParams();
+}
+function trk(i, ...kids) { return h('div', {class: 'trk', style: `--vc:var(--v${i + 1})`}, h('span', {class: 'dotb'}, tracks[i].name), h('div', {class: 'grid'}, ...kids)); }
+function buildParams() {
+  const P = $('#modeParams'); P.textContent = ''; const k = state.mode;
+  if (k === 'poly') {
+    state.poly.t.forEach((t, i) => P.append(trk(i,
+      slider({label: 'Hörn', min: 1, max: 12, step: 1, get: () => t.n, set: v => { t.n = v; t.rot = Math.min(t.rot, v - 0.001); }}),
+      slider({label: 'Vridning', min: 0, max: 0.99, step: 0.01, get: () => frac(t.rot), set: v => t.rot = Math.floor(t.rot) + v, show: v => Math.round(v * 360 / t.n) + '°'}))));
+    P.append(h('div', {class: 'grid'}, slider({label: 'Cykel', min: 1, max: 4, step: 1, get: () => state.poly.bars, set: v => state.poly.bars = v, show: v => v + (v > 1 ? ' takter' : ' takt')})));
+  } else if (k === 'eucl') {
+    state.eucl.t.forEach((e, i) => {
+      const regen = () => { for (let j = 0; j < 16; j++) e.pat[j] = j < e.n && bjork(j, e.k, e.n); };
+      P.append(trk(i,
+        slider({label: 'Steg n', min: 2, max: 16, step: 1, get: () => e.n, set: v => { e.n = v; e.k = Math.min(e.k, v); e.rot = Math.min(e.rot, v - 1); regen(); }}),
+        slider({label: 'Slag k', min: 0, max: 16, step: 1, get: () => e.k, set: v => { e.k = Math.min(v, e.n); regen(); }}),
+        slider({label: 'Vridning', min: 0, max: 15, step: 1, get: () => e.rot, set: v => { e.rot = Math.min(v, e.n - 1); }})));
+    });
+  } else if (k === 'fib') {
+    const f = state.fib;
+    P.append(h('div', {class: 'grid'},
+      slider({label: 'Modul m', min: 2, max: 16, step: 1, get: () => f.m, set: v => { f.m = v; f.a = Math.min(f.a, v - 1); f.b = Math.min(f.b, v - 1); }}),
+      slider({label: 'Startvärde a', min: 0, max: 15, step: 1, get: () => f.a, set: v => { f.a = Math.min(v, f.m - 1); }}),
+      slider({label: 'Startvärde b', min: 0, max: 15, step: 1, get: () => f.b, set: v => { f.b = Math.min(v, f.m - 1); }})));
+  } else if (k === 'gold') {
+    const g = state.gold;
+    P.append(h('div', {class: 'grid'},
+      slider({label: 'Vridning', min: 0.02, max: 0.98, step: 0.0001, get: () => g.angle, set: v => { g.angle = Math.abs(v - GOLD) < 0.0016 ? GOLD : v; }, show: v => fmt(v * 360, 2) + '°'}),
+      slider({label: 'Täthet röst I', min: 0.05, max: 1, step: 0.01, get: () => g.density, set: v => g.density = v, show: v => Math.round(v * 100) + ' %'}),
+      slider({label: 'Omfång', min: 1, max: 3, step: 1, get: () => g.span, set: v => g.span = v, show: v => v + (v > 1 ? ' oktaver' : ' oktav')})));
   }
-  // waveform: newest sample at x0, older to the right
-  g.strokeStyle = col; g.lineWidth = 1.7; g.beginPath();
-  const W = x1 - x0;
-  for (let x = 0; x <= W; x += 1) { const s = p - (x / W) * cycles, Y = cy - yAt(s); x ? g.lineTo(x0 + x, Y) : g.moveTo(x0, Y); }
-  g.stroke();
-  const yNow = cy - yAt(p);
-  g.setLineDash([3, 4]); g.strokeStyle = theme.muted; g.lineWidth = 1; g.beginPath(); g.moveTo(ptX, ptY); g.lineTo(x0, yNow); g.stroke(); g.setLineDash([]);
-  dot(g, ptX, ptY, 4.5, col, theme.surface); dot(g, x0, yNow, 3.5, col);
-  text(g, label, w - 6, 12, theme.muted, 10.5, 'right');
 }
 
 /* ---------- tone wheel ---------- */
+const wheelC = track2d($('#wheel'));
 function drawWheel() {
-  const {g, w, h: H2} = wheelC; g.clearRect(0, 0, w, H2);
+  const {g, w, h: H2} = wheelC; g.clearRect(0, 0, w, H2); if (w < 40) return;
   const cx = w / 2, cy = H2 / 2, R = Math.min(w, H2) * 0.36;
   const order = state.wheel === 'fifths' ? [...Array(12)].map((_, i) => (i * 7) % 12) : [...Array(12)].map((_, i) => i);
   const pos = pc => { const i = order.indexOf(mod(pc, 12)), a = -Math.PI / 2 + TAU * i / 12; return [cx + R * Math.cos(a), cy + R * Math.sin(a), a]; };
-  dot(g, cx, cy, R, null, theme.line);
+  g.setLineDash([2, 6]); dot(g, cx, cy, R, null, theme.line); g.setLineDash([]);
   const sc = scalePcs().map(p => mod(p + state.root, 12)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  g.fillStyle = theme.soft; g.strokeStyle = theme.ink; g.lineWidth = 1.4; g.beginPath();
-  sc.forEach((pc, q) => { const [x, y] = pos(pc); q ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.globalAlpha = 0.6; g.fill(); g.globalAlpha = 1; g.stroke();
-  const now = audioNow();
+  const path = new Path2D(); sc.forEach((pc, q) => { const [x, y] = pos(pc); q ? path.lineTo(x, y) : path.moveTo(x, y); }); path.closePath();
+  g.fillStyle = theme.raise; g.fill(path);
+  g.globalCompositeOperation = 'lighter'; glowPath(g, path, theme.ink, 0.55, 1.2);
+  const t0 = audioNow();
   for (let pc = 0; pc < 12; pc++) {
-    const [x, y, a] = pos(pc), semi = mod(pc - state.root, 12), f = rootFreq() * ratioOf(semi), inScale = sc.includes(pc);
-    const age = now - pcHits[pc], k = age >= 0 && age < 0.5 ? 1 - age / 0.5 : 0;
-    if (k > 0) { g.globalAlpha = k * 0.4; dot(g, x, y, 10 + 14 * k, noteColor(f)); g.globalAlpha = 1; }
-    g.lineWidth = 1.5; dot(g, x, y, inScale ? 8 + 2 * k : 4, inScale ? noteColor(f) : theme.surface, inScale ? theme.surface : theme.muted);
-    text(g, NOTE[pc], cx + (R + 22) * Math.cos(a), cy + (R + 22) * Math.sin(a), pc === state.root ? theme.ink : theme.muted, 12, 'center', 'middle');
+    const [x, y, a] = pos(pc), f = rootFreq() * ratioOf(mod(pc - state.root, 12)), inScale = sc.includes(pc);
+    const age = t0 - pcHits[pc], k = age >= 0 && age < 0.5 ? 1 - age / 0.5 : 0;
+    if (inScale) glowDot(g, x, y, 6 + 2 * k, noteColor(f), 0.7 + k); else { g.lineWidth = 1; dot(g, x, y, 3, null, theme.faint); }
+    text(g, NOTE[pc], cx + (R + 22) * Math.cos(a), cy + (R + 22) * Math.sin(a), pc === state.root ? theme.ink : theme.muted, 12, 'center', 'middle', BODY);
   }
+  g.globalCompositeOperation = 'source-over';
   text(g, `${sc.length} toner`, cx, cy, theme.muted, 11, 'center', 'middle');
 }
 
 /* ---------- XY scope ---------- */
+const scopeC = track2d($('#scope'));
 let bufL = null, bufR = null;
 function drawScope() {
-  const {g, w, h: H2} = scopeC; g.clearRect(0, 0, w, H2);
-  const cx = w / 2, cy = H2 / 2, R = Math.min(w, H2) * 0.46;
+  const {g, w, h: H2} = scopeC; g.clearRect(0, 0, w, H2); if (w < 40) return;
+  const cx = w / 2, cy = H2 / 2, R = Math.min(w, H2) * 0.44;
   g.strokeStyle = theme.line; g.lineWidth = 1; g.beginPath(); g.moveTo(cx - R, cy); g.lineTo(cx + R, cy); g.moveTo(cx, cy - R); g.lineTo(cx, cy + R); g.stroke();
-  g.strokeRect(cx - R, cy - R, 2 * R, 2 * R);
-  if (!ac) { text(g, 'tyst', cx, cy + R - 10, theme.muted, 11, 'center'); return; }
+  if (!ac) { text(g, 'tryck Spela', cx, cy + R - 4, theme.muted, 11, 'center'); return; }
   if (!bufL) { bufL = new Float32Array(anL.fftSize); bufR = new Float32Array(anR.fftSize); }
   anL.getFloatTimeDomainData(bufL); anR.getFloatTimeDomainData(bufR);
   let peak = 0.02; for (let i = 0; i < bufL.length; i++) peak = Math.max(peak, Math.abs(bufL[i]), Math.abs(bufR[i]));
-  const k = R * 0.92 / peak;
-  g.strokeStyle = theme.v1; g.lineWidth = 1.2; g.globalAlpha = 0.85; g.beginPath();
-  for (let i = 0; i < bufL.length; i++) { const X = cx + bufL[i] * k, Y = cy - bufR[i] * k; i ? g.lineTo(X, Y) : g.moveTo(X, Y); }
-  g.stroke(); g.globalAlpha = 1;
+  const k = R * 0.92 / peak, path = new Path2D();
+  for (let i = 0; i < bufL.length; i++) { const X = cx + bufL[i] * k, Y = cy - bufR[i] * k; i ? path.lineTo(X, Y) : path.moveTo(X, Y); }
+  g.globalCompositeOperation = 'lighter'; glowPath(g, path, theme.v2, 0.8, 1); g.globalCompositeOperation = 'source-over';
 }
 
-/* ---------- loop ---------- */
+/* ---------- boot & loop ---------- */
+readTheme();
+tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode);
 function frame(ms) {
   requestAnimationFrame(frame);
-  const time = ms / 1000;
-  const safe = f => { try { f(); } catch (e) { console.error(e); } };
-  safe(drawStage); tracks.forEach((t, i) => safe(() => { if (t.c2.w > 40) drawVoice(t, i, time); })); safe(drawWheel); safe(drawScope);
+  const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope);
 }
-readTheme(); setMode(state.mode);
 requestAnimationFrame(frame);
 })();
 </script>

@@ -2,6 +2,14 @@
 
 En fristående prototyp (en enda HTML-fil, ingen build) av en synt/sequencer som utforskar sambanden mellan geometri och musik. Öppna `index.html` i en webbläsare och tryck **Starta ljud**.
 
+## Gränssnitt
+
+Allt styrs helst genom att dra direkt i formerna. Värdet du ändrar tonas fram vid pekaren.
+
+- **Klang**: alla tre röster ligger ovanpå varandra. Formens storlek är volymen och vågen som ritar formen syns halvgenomskinlig bakom. Dra utåt/inåt för volym, runt för vridning. Vald röst har handtag: ◆ antal hörn, ● rundning/stjärna, ✚ nav (excentricitet), ■ sträckning. För Cirklar är handtagen 2 och 3 cirklarna (utåt = radie/FM-index, runt = varvtal).
+- **Sequencer**: dra hörn utåt/inåt för tonhöjd och runt för vridning, tryck på euklidiska steg för att slå av/på, dra Fibonaccis startvärden runt cirkeln och dra solrosens vinkel (snäpper vid 137,5°). Siffermärkena i hörnet scrubbas upp/ner.
+- Reglage finns kvar för oktav, attack och släpp, och för exakta värden under "Alla värden" och "Reglage".
+
 ## Ljudmotorer (per röst, tre röster samtidigt)
 
 - **Form**: en punkt åker runt en form (polygon, rundning, stjärna, vridning, sträckning). Punktens höjd blir vågformen. Formen räknas om till övertonsspektrum (Fourier → `PeriodicWave`), så ljudet blir bandbegränsat.
