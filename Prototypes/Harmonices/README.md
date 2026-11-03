@@ -21,6 +21,10 @@ npm start
 
 Bryggan lyssnar bara på 127.0.0.1 och tar bara emot WebSocket-anslutningar från localhost.
 
+## Inspelning
+
+Tryck **Spela in** bredvid Spela. Allt som hörs spelas in efter kompressorn, med eko och rymd: sequencern, keyboardet och arpeggiot. Tagningarna hamnar i panelen *Inspelningar*, där de ritas som en spiral med två takter per varv, så att rytmerna lägger sig som ekrar. Du kan lyssna, exportera och ta bort tagningar. Export ger WebM/Opus (MP4 i Safari) överallt och okomprimerad 16-bitars WAV i den fristående versionen. En tagning är högst 10 minuter, och tagningarna finns bara i minnet tills sidan laddas om.
+
 ## Modulering (LFO)
 
 Två LFO:er rör formerna i takt med tempot. Varje LFO har en form (Cirkel, Diamant, Kvadrat, Sågtand, Slump eller Gyllene, där Gyllene är en sample-and-hold som stegar med φ), en takt från 8 takter till 1/16, djup, mål och röst (I, II, III eller alla med fasförskjutning mellan rösterna). Målen är vridning, rundning/stjärna, sträckning, excentricitet, cirkel 2/3:s radie (FM-index), lågpass och volym/storlek. Eftersom formen är ljudet räknas vågformen om löpande (FFT) och spelande toner byter våg medan de klingar. Dra utåt i en LFO för djup och runt för takt. LFO-inställningarna sparas i patchen.

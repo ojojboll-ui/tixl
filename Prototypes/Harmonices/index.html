@@ -88,6 +88,23 @@ details > .grid,details > .stack{margin-top:10px}
 .stack{display:grid;gap:10px}
 .trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
 .trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* recording */
+.recbtn{font:500 .9rem var(--font-body);letter-spacing:.04em;color:var(--ink);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;font-variant-numeric:tabular-nums}
+.recbtn::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--warn)}
+.recbtn:hover{border-color:var(--warn)}
+.recbtn[aria-pressed="true"]{border-color:var(--warn);box-shadow:0 0 22px -6px var(--warn)}
+.recbtn[aria-pressed="true"]::before{border-radius:2px;animation:recpulse 1s ease-in-out infinite}
+@keyframes recpulse{50%{opacity:.35}}
+@media (prefers-reduced-motion: reduce){.recbtn[aria-pressed="true"]::before{animation:none}}
+.recbox{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.recbox{grid-template-columns:minmax(0,1fr)}}
+.recwrap{position:relative;width:100%;max-width:340px;aspect-ratio:1;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
+.recwrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;border-radius:14px}
+.takes{display:grid;gap:8px;min-width:0}
+.take{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--raise);cursor:pointer}
+.take[aria-current="true"]{border-color:var(--v2);box-shadow:0 0 18px -8px var(--v2)}
+.take b{font-weight:500;margin-right:auto;min-width:0;overflow-wrap:anywhere}
+.take small{font-family:var(--font-mono);font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
 /* lfo */
 .lfohead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
 .lfo.off .padwrap{opacity:.45}
@@ -181,6 +198,7 @@ details > .grid,details > .stack{margin-top:10px}
     </div>
     <div class="transport">
       <button id="play" class="play" aria-pressed="false">Spela</button>
+      <button id="rec" class="recbtn" type="button" aria-pressed="false">Spela in</button>
       <div class="ctl"><label for="bpm">Tempo <output id="bpmOut">84 bpm</output></label><input id="bpm" type="range" min="40" max="180" step="0.1" value="84"></div>
       <div class="ctl"><label for="vol">Volym <output id="volOut">80 %</output></label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"></div>
     </div>
@@ -277,6 +295,17 @@ details > .grid,details > .stack{margin-top:10px}
       </div>
     </div>
     <details><summary>Exakta värden</summary><div class="grid" id="fxParams"></div></details>
+  </section>
+
+  <section class="pane" aria-label="Inspelningar">
+    <div class="pane-head"><h2>Inspelningar</h2><span class="pmsg" id="recMsg" role="status"></span></div>
+    <div class="recbox">
+      <div class="recwrap"><canvas id="recCanvas" aria-label="Inspelningen ritad som en spiral, två takter per varv"></canvas></div>
+      <div class="stack">
+        <div class="takes" id="takes"></div>
+        <p class="hint" id="recHint"></p>
+      </div>
+    </div>
   </section>
 
   <div class="lower">
@@ -1877,6 +1906,208 @@ function drawPiano() {
   g.globalAlpha = 0.5; text(g, 'A', ks.find(k => k.n === kbOff)?.x + 6 || 6, 14, theme.muted, 9.5, 'left', 'alphabetic', BODY); g.globalAlpha = 1;
 }
 
+/* ---------- RECORDING: tap the master, draw the take as a spiral, export ---------- */
+const REC_MAX = 600, REC_BEATS_PER_TURN = 8;
+const rec = {on: false, tap: null, mr: null, mrChunks: [], mime: '', cur: null, takes: [], sel: null, n: 0, playing: null, startedAt: 0, img: null, imgKey: ''};
+const REC_WORKLET = `class HarmonicesRec extends AudioWorkletProcessor {
+  constructor() { super(); this.on = false; this.n = 0; this.L = new Float32Array(4096); this.R = new Float32Array(4096); this.port.onmessage = e => { this.on = e.data; if (!this.on) this.flush(); }; }
+  flush() { if (this.n) { this.port.postMessage([this.L.slice(0, this.n), this.R.slice(0, this.n)]); this.n = 0; } }
+  process(inputs) {
+    if (this.on) {
+      const inp = inputs[0], l = inp && inp[0], r = inp && (inp[1] || inp[0]), len = l ? l.length : 128;
+      for (let i = 0; i < len; i++) { this.L[this.n] = l ? l[i] : 0; this.R[this.n] = r ? r[i] : 0; if (++this.n === 4096) this.flush(); }
+    }
+    return true;
+  }
+}
+registerProcessor('harmonices-rec', HarmonicesRec);`;
+async function recSetup() {
+  if (rec.tap) return;
+  const sink = ac.createGain(); sink.gain.value = 0; sink.connect(ac.destination);
+  try {
+    if (!ac.audioWorklet) throw new Error('no worklet');
+    const url = URL.createObjectURL(new Blob([REC_WORKLET], {type: 'text/javascript'}));
+    await ac.audioWorklet.addModule(url); URL.revokeObjectURL(url);
+    const node = new AudioWorkletNode(ac, 'harmonices-rec', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1], channelCount: 2, channelCountMode: 'explicit'});
+    node.port.onmessage = e => recChunk(e.data[0], e.data[1]);
+    comp.connect(node); node.connect(sink);
+    rec.tap = {set: on => node.port.postMessage(on)};
+  } catch (e) {
+    const sp = ac.createScriptProcessor(4096, 2, 1);
+    sp.onaudioprocess = ev => { if (rec.on) recChunk(ev.inputBuffer.getChannelData(0).slice(0), ev.inputBuffer.getChannelData(1).slice(0)); };
+    comp.connect(sp); sp.connect(sink);
+    rec.tap = {set: () => {}};
+  }
+  if (window.MediaRecorder && ac.createMediaStreamDestination) {
+    rec.dest = ac.createMediaStreamDestination(); comp.connect(rec.dest);
+    rec.mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find(m => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+  }
+}
+function recChunk(L, R) {
+  const t = rec.cur; if (!t) return;
+  t.L.push(L); t.R.push(R);
+  const sr = t.sr, B = 1024;
+  for (let i = 0; i < L.length; i += B) {
+    let a = 0; const e = Math.min(L.length, i + B);
+    for (let j = i; j < e; j++) { const v = Math.max(Math.abs(L[j]), Math.abs(R[j])); if (v > a) a = v; }
+    const s = (t.frames + i) / sr, absBeat = (t.t0 + s - state.startTime) * state.bpm / 60;
+    t.peaks.push({s, b: Math.max(0, absBeat - t.b0), a});
+  }
+  t.frames += L.length; t.dur = t.frames / sr;
+  if (t.dur >= REC_MAX) recStop(true);
+}
+async function recStart() {
+  ensureAudio(); await recSetup();
+  const absBeat = (ac.currentTime - state.startTime) * state.bpm / 60;
+  rec.n++;
+  rec.cur = {id: 't' + Date.now(), name: 'Tagning ' + rec.n, patch: $('#patchName').value.trim() || 'Harmonices', sr: ac.sampleRate, L: [], R: [], frames: 0, dur: 0, peaks: [],
+    t0: ac.currentTime, b0: Math.floor(absBeat / 4) * 4, bpm: state.bpm, blob: null, mime: rec.mime};
+  rec.mrChunks = [];
+  if (rec.dest && rec.mime) {
+    try { rec.mr = new MediaRecorder(rec.dest.stream, {mimeType: rec.mime, audioBitsPerSecond: 192000}); rec.mr.ondataavailable = e => { if (e.data && e.data.size) rec.mrChunks.push(e.data); }; rec.mr.start(1000); }
+    catch (e) { rec.mr = null; }
+  }
+  rec.on = true; rec.tap.set(true); rec.sel = rec.cur.id; rec.imgKey = '';
+  syncRecBtn(); renderTakes(); recMsg('');
+}
+function recStop(auto) {
+  if (!rec.on) return;
+  rec.on = false; rec.tap.set(false);
+  const t = rec.cur, mr = rec.mr; rec.mr = null;
+  const finish = () => {
+    if (mr) t.blob = new Blob(rec.mrChunks, {type: t.mime});
+    rec.cur = null;
+    if (t.frames < t.sr * 0.2) { recMsg('Inspelningen blev för kort och sparades inte.'); renderTakes(); syncRecBtn(); return; }
+    rec.takes.unshift(t); rec.sel = t.id; rec.imgKey = '';
+    renderTakes(); syncRecBtn();
+    recMsg(auto ? `Inspelningen stoppades vid ${REC_MAX / 60} minuter.` : `${t.name} sparad, ${fmtDur(t.dur)}.`, 'ok');
+  };
+  if (mr && mr.state !== 'inactive') { mr.onstop = () => setTimeout(finish, 120); mr.stop(); } else setTimeout(finish, 150);
+}
+const fmtDur = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+function recMsg(text, tone) { const el = $('#recMsg'); el.textContent = text; el.dataset.tone = tone || ''; }
+function syncRecBtn() {
+  const b = $('#rec'); b.setAttribute('aria-pressed', String(rec.on));
+  b.textContent = rec.on ? fmtDur(rec.cur ? rec.cur.dur : 0) : 'Spela in';
+  b.setAttribute('aria-label', rec.on ? 'Stoppa inspelningen' : 'Spela in');
+}
+$('#rec').addEventListener('click', () => { if (rec.on) recStop(); else recStart(); });
+setInterval(() => { if (rec.on) syncRecBtn(); }, 250);
+
+/* playback through Web Audio, so it works wherever the page runs */
+function takeBuffer(t) {
+  if (t.buf) return t.buf;
+  const b = ac.createBuffer(2, t.frames, t.sr), L = b.getChannelData(0), R = b.getChannelData(1); let o = 0;
+  t.L.forEach((c, i) => { L.set(c, o); R.set(t.R[i], o); o += c.length; });
+  return (t.buf = b);
+}
+function playTake(t) {
+  ensureAudio(); stopTake();
+  const src = ac.createBufferSource(); src.buffer = takeBuffer(t); src.connect(ac.destination);
+  const at = ac.currentTime + 0.03; src.start(at);
+  rec.playing = {t, src, at}; src.onended = () => { if (rec.playing && rec.playing.src === src) { rec.playing = null; renderTakes(); } };
+  rec.sel = t.id; renderTakes();
+}
+function stopTake() { if (rec.playing) { try { rec.playing.src.stop(); } catch (e) {} rec.playing = null; renderTakes(); } }
+
+/* export: compressed (WebM/Opus or MP4) everywhere, WAV in the standalone page */
+function wavBlob(t) {
+  const n = t.frames, buf = new ArrayBuffer(44 + n * 4), v = new DataView(buf);
+  const w = (o, str) => { for (let i = 0; i < str.length; i++) v.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + n * 4, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true);
+  v.setUint32(24, t.sr, true); v.setUint32(28, t.sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 4, true);
+  let o = 44;
+  t.L.forEach((c, i) => { const r = t.R[i]; for (let j = 0; j < c.length; j++) { v.setInt16(o, clamp(c[j], -1, 1) * 32767, true); v.setInt16(o + 2, clamp(r[j], -1, 1) * 32767, true); o += 4; } });
+  return new Blob([buf], {type: 'audio/wav'});
+}
+const takeFile = (t, ext) => `${t.patch} ${t.name}`.replace(/[^\p{L}\p{N} _-]+/gu, '').trim() + '.' + ext;
+async function exportTake(t, kind) {
+  const blob = kind === 'wav' ? wavBlob(t) : t.blob, ext = kind === 'wav' ? 'wav' : (t.mime.includes('mp4') ? 'mp4' : 'webm'), filename = takeFile(t, ext);
+  if (!blob) { recMsg('Den här webbläsaren kan inte spela in komprimerat ljud. Använd WAV i den fristående versionen.', 'error'); return; }
+  let dl = null; try { if (window.claude && typeof window.claude.use === 'function' && embedded()) dl = await window.claude.use('downloads'); } catch (e) {}
+  if (dl) {
+    try { await dl.save({filename, data: blob}); recMsg(`Exporterade ${filename}.`, 'ok'); }
+    catch (e) { recMsg(e && e.code === 'declined' ? 'Exporten avbröts.' : e && e.code === 'rejected_extension' ? 'Det filformatet går inte att spara här. Välj WebM.' : 'Det gick inte att exportera just nu.', e && e.code === 'declined' ? '' : 'error'); }
+    return;
+  }
+  if (embedded()) { recMsg('Export är inte tillgänglig i den här vyn. Öppna Harmonices via bryggan för att spara filer.', 'error'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  recMsg(`Exporterade ${filename} (${(blob.size / 1048576).toFixed(1).replace('.', ',')} MB).`, 'ok');
+}
+function renderTakes() {
+  const el = $('#takes'); el.textContent = '';
+  const list = (rec.cur ? [rec.cur] : []).concat(rec.takes);
+  if (!list.length) el.append(h('p', {class: 'empty'}, 'Inga inspelningar än. Tryck Spela in uppe till höger.'));
+  for (const t of list) {
+    const live = t === rec.cur, playing = rec.playing && rec.playing.t === t;
+    const row = h('div', {class: 'take', 'aria-current': String(rec.sel === t.id), onclick: e => { if (e.target.closest('button')) return; rec.sel = t.id; rec.imgKey = ''; renderTakes(); }},
+      h('b', {}, t.name + (live ? ' · spelar in' : '')), h('small', {}, `${t.patch} · ${Math.round(t.bpm)} bpm`));
+    if (!live) {
+      row.append(h('button', {class: 'btn', type: 'button', onclick: () => playing ? stopTake() : playTake(t)}, playing ? 'Stoppa' : 'Lyssna'));
+      if (t.blob) row.append(h('button', {class: 'btn', type: 'button', onclick: () => exportTake(t, 'comp')}, t.mime.includes('mp4') ? 'Exportera MP4' : 'Exportera WebM'));
+      if (!embedded()) row.append(h('button', {class: 'btn', type: 'button', onclick: () => exportTake(t, 'wav')}, 'Exportera WAV'));
+      if (t.confirm) row.append(h('span', {class: 'pmsg'}, 'Ta bort?'),
+        h('button', {class: 'btn', type: 'button', onclick: () => { if (playing) stopTake(); rec.takes = rec.takes.filter(x => x !== t); if (rec.sel === t.id) rec.sel = rec.takes[0] ? rec.takes[0].id : null; rec.imgKey = ''; renderTakes(); }}, 'Ta bort'),
+        h('button', {class: 'btn', type: 'button', onclick: () => { t.confirm = false; renderTakes(); }}, 'Avbryt'));
+      else row.append(h('button', {class: 'btn', type: 'button', 'aria-label': `Ta bort ${t.name}`, onclick: () => { t.confirm = true; renderTakes(); }}, 'Ta bort'));
+    }
+    el.append(row);
+  }
+  $('#recHint').innerHTML = 'Allt du hör spelas in: sequencern, keyboardet, arpeggiot, eko och rymd. Spiralen gör två takter per varv, så rytmerna lägger sig som ekrar.' +
+    (embedded() ? ' Här exporteras WebM. WAV finns i den fristående versionen.' : ' WebM är komprimerat, WAV är okomprimerat i 16 bitar.') + ` Max ${REC_MAX / 60} minuter per tagning, och tagningarna försvinner när sidan laddas om.`;
+}
+
+/* the take as a spiral: radius grows with time, angle follows the beat */
+const recC = track2d($('#recCanvas'));
+function spiralGeo(c, maxBeat) {
+  const S = Math.min(c.w, c.h), R0 = S * 0.07, R1 = S * 0.45, turns = Math.max(2, Math.ceil(maxBeat / REC_BEATS_PER_TURN)), sp = (R1 - R0) / turns;
+  return {cx: c.w / 2, cy: c.h / 2, R0, sp, turns, at: (b, off = 0) => { const a = -Math.PI / 2 + TAU * b / REC_BEATS_PER_TURN, r = R0 + sp * b / REC_BEATS_PER_TURN + off; return [c.w / 2 + r * Math.cos(a), c.h / 2 + r * Math.sin(a)]; }};
+}
+function renderSpiral(t, c) {
+  const d = Math.min(2, window.devicePixelRatio || 1), cv = document.createElement('canvas'); cv.width = Math.round(c.w * d); cv.height = Math.round(c.h * d);
+  const g = cv.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0);
+  const last = t.peaks.length ? t.peaks[t.peaks.length - 1].b : 0, G = spiralGeo(c, last);
+  g.strokeStyle = theme.line; g.lineWidth = 1;
+  for (let k = 0; k < REC_BEATS_PER_TURN; k++) { const a = -Math.PI / 2 + TAU * k / REC_BEATS_PER_TURN, r = G.R0 + G.sp * G.turns; g.globalAlpha = k % 4 ? 0.35 : 0.8; g.beginPath(); g.moveTo(G.cx + G.R0 * 0.6 * Math.cos(a), G.cy + G.R0 * 0.6 * Math.sin(a)); g.lineTo(G.cx + r * Math.cos(a), G.cy + r * Math.sin(a)); g.stroke(); }
+  g.globalAlpha = 1; g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+  const amp = G.sp * 0.48;
+  for (const [w, al] of [[3.2, 0.12], [1.2, 0.7]]) {
+    g.lineWidth = w; g.strokeStyle = theme.v2; g.globalAlpha = al; g.beginPath();
+    for (const p of t.peaks) { const a = Math.min(1, p.a * 1.4) ** 0.85 * amp, [x1, y1] = G.at(p.b, -a), [x2, y2] = G.at(p.b, a); g.moveTo(x1, y1); g.lineTo(x2, y2); }
+    g.stroke();
+  }
+  g.globalAlpha = 1;
+  return {img: cv, G};
+}
+function drawRec() {
+  const c = recC, {g, w, h: H2} = c; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const t = rec.cur && rec.sel === rec.cur.id ? rec.cur : rec.takes.find(x => x.id === rec.sel);
+  if (!t) {
+    const G = spiralGeo(c, 16); g.strokeStyle = theme.line; g.setLineDash([2, 5]); g.beginPath();
+    for (let b = 0; b <= 16; b += 0.1) { const [x, y] = G.at(b); b ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.setLineDash([]);
+    text(g, 'Ingen inspelning', w / 2, H2 / 2, theme.muted, 11, 'center', 'middle', BODY); return;
+  }
+  const key = t.id + ':' + t.peaks.length + ':' + Math.round(w) + 'x' + Math.round(H2) + ':' + theme.v2;
+  const stale = t === rec.cur ? (performance.now() - (rec.imgAt || 0) > 200) : true;
+  if (rec.imgKey !== key && stale) { rec.img = renderSpiral(t, c); rec.imgKey = key; rec.imgAt = performance.now(); }
+  if (!rec.img) return;
+  g.drawImage(rec.img.img, 0, 0, w, H2);
+  const G = rec.img.G; let head = null;
+  if (t === rec.cur && t.peaks.length) head = t.peaks[t.peaks.length - 1];
+  else if (rec.playing && rec.playing.t === t) {
+    const s = ac.currentTime - rec.playing.at; let lo = 0, hi = t.peaks.length - 1;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (t.peaks[m].s <= s) lo = m; else hi = m - 1; }
+    head = t.peaks[lo];
+  }
+  if (head) {
+    g.globalCompositeOperation = 'lighter'; const [x, y] = G.at(head.b); glowDot(g, x, y, 4 + 6 * Math.sqrt(head.a), t === rec.cur ? theme.v3 : theme.ink, 1.2); g.globalCompositeOperation = 'source-over';
+    const lab = t === rec.cur ? 'spelar in ' + fmtDur(t.dur) : fmtDur(head.s) + ' / ' + fmtDur(t.dur);
+    text(g, lab, w - 10, H2 - 10, theme.muted, 10.5, 'right');
+  } else text(g, fmtDur(t.dur), w - 10, H2 - 10, theme.muted, 10.5, 'right');
+  text(g, t.name, 10, 16, theme.ink, 11, 'left', 'alphabetic', BODY);
+}
+
 /* ---------- LFO: slow circles that move the shapes ---------- */
 const LFO_WAVES = [['sine', 'Cirkel'], ['tri', 'Diamant'], ['square', 'Kvadrat'], ['saw', 'Sågtand'], ['sh', 'Slump'], ['gold', 'Gyllene']];
 const LFO_TARGETS = [['rot', 'Vridning'], ['edge', 'Rundning/stjärna'], ['stretch', 'Sträckning'], ['ecc', 'Excentricitet'], ['rad2', 'Cirkel 2 radie/FM-index'], ['rad3', 'Cirkel 3 radie'], ['lp', 'Lågpass'], ['vol', 'Volym/storlek']];
@@ -2156,7 +2387,7 @@ function buildArp() {
 /* ---------- boot & loop ---------- */
 readTheme();
 tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
-buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow(); buildArp(); buildLfos(); lfoTick();
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow(); buildArp(); buildLfos(); lfoTick(); renderTakes();
 
 /* ---------- PATCHES: serialize, validate, apply, library, storage, export/import ---------- */
 function serialize() {
@@ -2421,7 +2652,7 @@ function frame(ms) {
   requestAnimationFrame(frame);
   const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
   updateV(); if (play.needSync) { play.needSync = false; syncAll(); }
-  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano); safe(drawArp); safe(() => drawLfo(0)); safe(() => drawLfo(1));
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano); safe(drawArp); safe(() => drawLfo(0)); safe(() => drawLfo(1)); safe(drawRec);
 }
 requestAnimationFrame(frame);
 })();
