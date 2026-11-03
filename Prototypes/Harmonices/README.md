@@ -1,6 +1,25 @@
 # Harmonices
 
-En fristående prototyp (en enda HTML-fil, ingen build) av en synt/sequencer som utforskar sambanden mellan geometri och musik. Öppna `index.html` i en webbläsare och tryck **Starta ljud**.
+En fristående prototyp (en enda HTML-fil, ingen build) av en synt/sequencer som utforskar sambanden mellan geometri och musik. Öppna `index.html` i en webbläsare och tryck **Spela**.
+
+## Starta med MIDI, Bluetooth och Ableton Link
+
+Webbläsare kan inte prata Ableton Link direkt, och MIDI/Bluetooth kräver att sidan körs från en säker adress. Den lilla bryggan i `bridge/` löser båda:
+
+```
+cd Prototypes/Harmonices/bridge
+npm install        # bygger Link-modulen (kräver Node 18+ och byggverktyg: Xcode på Mac, Build Tools på Windows)
+npm start
+```
+
+Öppna sedan **http://localhost:20809** i Chrome eller Edge.
+
+- **MIDI**: tryck *MIDI* och tillåt åtkomst. Kanal 1–3 spelar röst I–III (eller välj *Vald röst* / *Alla röster*). Pitch bend (±2 halvtoner), sustain (CC64), modhjul/CC74 (lågpass), CC71 (resonans) och CC7 (volym) fungerar. *Följ MIDI-klocka* synkar tempo, start och stopp mot en DAW.
+- **Bluetooth-MIDI**: tryck *Bluetooth-MIDI* och välj ditt keyboard (Web Bluetooth, Chrome/Edge på dator eller Android). På Mac kan du också para keyboardet i Ljud-MIDI-konfiguration och sedan använda *MIDI*.
+- **Ableton Link**: tryck *Ableton Link*. Tempo synkas åt båda hållen, takterna ligger i fas och start/stopp följer sessionen (aktivera Start Stop Sync i Live).
+- Utan keyboard: spela på klaviaturen på sidan eller med datorns tangenter (A W S E D F T G Y H U J K, Z/X byter oktav).
+
+Bryggan lyssnar bara på 127.0.0.1 och tar bara emot WebSocket-anslutningar från localhost.
 
 ## Gränssnitt
 
