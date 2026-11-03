@@ -1,0 +1,15 @@
+{
+  "name": "harmonices-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Serves Harmonices on localhost and relays Ableton Link to it over a WebSocket.",
+  "main": "harmonices-bridge.cjs",
+  "scripts": {
+    "start": "node harmonices-bridge.cjs"
+  },
+  "dependencies": {
+    "abletonlink": "0.2.0-beta.0",
+    "ws": "^8.18.0"
+  },
+  "license": "MIT"
+}

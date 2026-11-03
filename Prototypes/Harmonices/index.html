@@ -18,6 +18,7 @@
   --muted:#8a91a7;
   --faint:#4a5167;
   --line:#222837;
+  --warn:#ef7f97;
   --v1:#959bff;
   --v2:#4fd8c6;
   --v3:#f4a75c;
@@ -87,6 +88,21 @@ details > .grid,details > .stack{margin-top:10px}
 .stack{display:grid;gap:10px}
 .trk{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center}
 .trk .dotb{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.72rem;color:var(--vc);border:1.5px solid var(--vc)}
+/* play pane */
+.conn{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.conn .btn{display:inline-flex;align-items:center;gap:8px}
+.conn .btn::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.conn .btn[data-state="on"]{border-color:var(--v2);color:var(--ink);box-shadow:0 0 16px -6px var(--v2)}
+.conn .btn[data-state="on"]::before{background:var(--v2);box-shadow:0 0 8px var(--v2)}
+.conn .btn[data-state="wait"]::before{background:var(--v3)}
+.conn .btn[data-state="error"]{border-color:var(--warn)}
+.conn .btn[data-state="error"]::before{background:var(--warn)}
+.pianowrap{position:relative;width:100%;height:132px}
+.pianowrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.status{font-family:var(--font-mono);font-size:.74rem;color:var(--muted);margin:0;min-height:1.2em}
+.status[data-tone="error"]{color:var(--warn)}
+.oct{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.78rem;color:var(--muted)}
+.oct .btn{padding:4px 11px}
 /* fx & filter pads */
 .fxrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 @media (max-width:620px){.fxrow{grid-template-columns:minmax(0,1fr)}}
@@ -131,7 +147,7 @@ details > .grid,details > .stack{margin-top:10px}
     </div>
     <div class="transport">
       <button id="play" class="play" aria-pressed="false">Spela</button>
-      <div class="ctl"><label for="bpm">Tempo <output id="bpmOut">96 bpm</output></label><input id="bpm" type="range" min="40" max="180" step="1" value="96"></div>
+      <div class="ctl"><label for="bpm">Tempo <output id="bpmOut">84 bpm</output></label><input id="bpm" type="range" min="40" max="180" step="0.1" value="84"></div>
       <div class="ctl"><label for="vol">Volym <output id="volOut">80 %</output></label><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"></div>
     </div>
   </header>
@@ -169,6 +185,20 @@ details > .grid,details > .stack{margin-top:10px}
       <details id="modeDetails"><summary>Reglage</summary><div class="stack" id="modeParams"></div></details>
     </section>
   </div>
+
+  <section class="pane" aria-label="Spela">
+    <div class="pane-head">
+      <h2>Spela</h2>
+      <div class="conn">
+        <button class="btn" id="btnMidi" type="button">MIDI</button>
+        <button class="btn" id="btnBle" type="button">Bluetooth-MIDI</button>
+        <button class="btn" id="btnLink" type="button">Ableton Link</button>
+      </div>
+    </div>
+    <div class="row" id="playRow"></div>
+    <div class="pianowrap"><canvas id="piano" aria-label="Klaviatur: tryck eller dra för att spela"></canvas></div>
+    <p class="status" id="connStatus">Spela på klaviaturen eller med datorns tangenter (A W S E D F T G Y H U J K, Z och X byter oktav). De spelar vald röst. Anslut ett MIDI-keyboard för att spela alla tre.</p>
+  </section>
 
   <section class="pane" aria-label="Eko och rymd">
     <div class="pane-head"><h2>Eko och rymd</h2></div>
@@ -267,32 +297,33 @@ const RATIOS = [
 const ratioName = i => RATIOS[i].l + (RATIOS[i].n ? ' ' + RATIOS[i].n : '');
 
 const state = {
-  bpm: 96, master: 0.8, root: 9, scale: 0, tuning: 'just', colors: 'light', mode: 'poly',
+  bpm: 84, master: 0.8, root: 2, scale: 1, tuning: 'just', colors: 'light', mode: 'poly',
   wheel: 'fifths', playing: false, startTime: 0, schedBeat: 0, lastBeat: 0, sel: 0,
   poly: {bars: 2, t: [
-    {n:3, rot:0, degs:[0,2,4,6,8,10,12,14,16,18,20,22].map(v => v % 9)},
-    {n:4, rot:0, degs:[2,3,4,5,6,7,8,9,10,11,12,13].map(v => v % 9)},
-    {n:5, rot:0, degs:[4,3,2,1,0,4,3,2,1,0,4,3]}]},
+    {n:5, rot:0, degs:[4,6,5,8,7,9,6,5,4,3,2,1]},
+    {n:3, rot:0.5, degs:[7,5,9,8,6,4,7,5,9,8,6,4]},
+    {n:4, rot:0, degs:[0,3,0,4,0,3,0,4,0,3,0,4]}]},
   eucl: {t: [{n:8, k:3, rot:0}, {n:12, k:7, rot:0}, {n:16, k:5, rot:0}]},
   fib:  {m: 5, a: 0, b: 1},
   gold: {density: 0.5, span: 2, angle: GOLD},
-  fx: {div: 0.75, fb: 0.38, dmix: 0.35, size: 2.6, rmix: 0.3},
+  fx: {div: 0.75, fb: 0.42, dmix: 0.3, size: 3.6, rmix: 0.36},
 };
 state.eucl.t.forEach((e, i) => { e.pat = [...Array(16)].map((_, j) => bjork(j, e.k, e.n)); e.degs = [...Array(16)].map((_, j) => mod(j * [2, 1, 3][i], 8)); });
 const tracks = [
-  {name:'I', engine:'shape', vol:0.62, mute:false, oct:1, att:0.004, rel:0.35,
-    shape:{n:4, round:0.06, star:0, rot:0, stretch:0, ecc:0, trace:'arc', xy:true},
+  {name:'I', engine:'shape', vol:0.55, mute:false, oct:1, att:0.008, rel:0.9,
+    shape:{n:5, round:0.3, star:0, rot:0, stretch:0, ecc:0, trace:'arc', xy:true},
     orbit:{mode:'epi', r2:5, d2:-1, rad2:0.42, r3:1, d3:1, rad3:0, xy:false}},
-  {name:'II', engine:'orbit', vol:0.78, mute:false, oct:0, att:0.012, rel:0.9,
+  {name:'II', engine:'orbit', vol:0.5, mute:false, oct:1, att:0.003, rel:2.2,
     shape:{n:6, round:0, star:0.3, rot:0, stretch:0, ecc:0, trace:'arc', xy:false},
-    orbit:{mode:'fm', r2:3, d2:1, rad2:0.32, r3:11, d3:1, rad3:0, xy:false}},
-  {name:'III', engine:'shape', vol:0.92, mute:false, oct:-1, att:0.006, rel:0.5,
+    orbit:{mode:'fm', r2:11, d2:1, rad2:0.24, r3:3, d3:1, rad3:0, xy:false}},
+  {name:'III', engine:'orbit', vol:0.85, mute:false, oct:-1, att:0.01, rel:0.8,
     shape:{n:3, round:0.12, star:0, rot:0, stretch:0, ecc:0.5, trace:'angle', xy:false},
-    orbit:{mode:'epi', r2:4, d2:1, rad2:0.3, r3:1, d3:1, rad3:0, xy:false}},
+    orbit:{mode:'epi', r2:3, d2:-1, rad2:0.35, r3:1, d3:1, rad3:0, xy:false}},
 ];
-
 tracks.forEach(t => Object.assign(t, {lp: 20000, lpQ: 0.707, hp: 20, hpQ: 0.707, ver: 0}));
-tracks[2].lp = 2400; tracks[2].lpQ = 2.2;
+Object.assign(tracks[0], {lp: 4200, lpQ: 1.3});
+Object.assign(tracks[1], {lp: 7000, hp: 120});
+Object.assign(tracks[2], {lp: 900, lpQ: 2});
 const scalePcs = () => SCALES[state.scale].pcs;
 const rootFreq = () => 130.8128 * 2 ** (state.root / 12);
 function ratioOf(semi) { const t = TUNINGS[state.tuning].t; return t[mod(semi, 12)] * 2 ** Math.floor(semi / 12); }
@@ -494,21 +525,19 @@ function buildWaves(t) {
 let waveTimer = 0;
 function updateShape(t) { t.sd = computeShape(t.shape); t.ver++; if (!waveTimer) waveTimer = requestAnimationFrame(() => { waveTimer = 0; tracks.forEach(x => { if (x._dirty) { x._dirty = false; buildWaves(x); } }); }); t._dirty = true; }
 function updateOrbit(t) { t.od = computeOrbit(t.orbit); t.ver++; }
-function playNote(ti, freq, time, dur, vel = 0.9) {
-  const t = tracks[ti]; if (!ac || t.mute) return;
+function startNote(ti, freq, time, vel = 0.9, opt = {}) {
+  const t = tracks[ti]; if (!ac || t.mute) return null;
   const g = ac.createGain(), peak = 0.3 * vel, att = t.att, rel = t.rel;
   g.gain.setValueAtTime(0, time);
   g.gain.linearRampToValueAtTime(peak, time + att);
-  g.gain.setTargetAtTime(peak * 0.55, time + att, Math.max(0.03, dur * 0.6));
-  const off = time + Math.max(dur, att + 0.01);
-  g.gain.setTargetAtTime(0, off, rel / 4);
-  const end = off + rel * 1.7 + 0.05;
+  g.gain.setTargetAtTime(peak * (opt.sustain ?? 0.55), time + att, opt.decay ?? 0.45);
   g.connect(t.hpN);
-  const v = {t, g, oscs: [], end, engine: t.engine};
+  const v = {t, g, oscs: [], engine: t.engine, kb: !!opt.kb, released: false};
   const osc = (wave, f, dest, k) => {
     const o = ac.createOscillator();
     if (wave) o.setPeriodicWave(wave); else o.type = 'sine';
-    o.frequency.value = f; o.connect(dest); o.start(time); o.stop(end); o._k = k; v.oscs.push(o); return o;
+    o.frequency.value = f; if (opt.bend) o.detune.value = opt.bend;
+    o.connect(dest); o.start(time); o._k = k; v.oscs.push(o); return o;
   };
   const pan = p => { const n = ac.createStereoPanner(); n.pan.value = p; n.connect(g); return n; };
   if (t.engine === 'shape') {
@@ -538,8 +567,20 @@ function playNote(ti, freq, time, dur, vel = 0.9) {
       }
     }
   }
+  v.release = at => {
+    if (v.released) return; v.released = true;
+    at = Math.max(at, time + att + 0.005);
+    g.gain.cancelScheduledValues(at); g.gain.setTargetAtTime(0, at, rel / 4);
+    const end = at + rel * 1.7 + 0.05; v.oscs.forEach(o => { try { o.stop(end); } catch (e) {} });
+  };
   active.push(v);
   v.oscs[0].onended = () => { g.disconnect(); const i = active.indexOf(v); if (i >= 0) active.splice(i, 1); };
+  return v;
+}
+function playNote(ti, freq, time, dur, vel = 0.9) {
+  const v = startNote(ti, freq, time, vel, {decay: Math.max(0.03, dur * 0.6)});
+  if (v) v.release(time + Math.max(dur, tracks[ti].att + 0.01));
+  return v;
 }
 
 /* ---------- sequencer modes ---------- */
@@ -637,12 +678,20 @@ function tick() {
     state.schedBeat = to;
   }
 }
-function start() { ensureAudio(); state.startTime = ac.currentTime + 0.08; state.schedBeat = 0; hits.clear(); state.playing = true; timer = setInterval(tick, 25); tick(); }
+function start(opt = {}) {
+  ensureAudio(); hits.clear();
+  if (opt.startTime !== undefined) { state.startTime = opt.startTime; state.schedBeat = opt.beat || 0; }
+  else if (linkLive()) { state.schedBeat = Math.ceil((nowBeat() + 0.05) / 4) * 4; }
+  else { state.startTime = ac.currentTime + 0.08; state.schedBeat = 0; }
+  state.playing = true; clearInterval(timer); timer = setInterval(tick, 25); tick(); syncPlayBtn();
+}
 function stop() {
   state.lastBeat = nowBeat(); state.playing = false; clearInterval(timer);
   const now = ac.currentTime;
-  for (const v of active) { v.g.gain.cancelScheduledValues(now); v.g.gain.setTargetAtTime(0, now, 0.03); v.oscs.forEach(o => { try { o.stop(now + 0.25); } catch (e) {} }); }
+  for (const v of active) { if (v.kb) continue; v.released = true; v.g.gain.cancelScheduledValues(now); v.g.gain.setTargetAtTime(0, now, 0.03); v.oscs.forEach(o => { try { o.stop(now + 0.25); } catch (e) {} }); }
+  syncPlayBtn();
 }
+function syncPlayBtn() { $('#play').setAttribute('aria-pressed', String(state.playing)); $('#play').textContent = state.playing ? 'Stoppa' : 'Spela'; }
 function preview(ti, deg, key) {
   ensureAudio(); const tr = tracks[ti], f = degFreq(deg, tr.oct), t = ac.currentTime + 0.01;
   playNote(ti, f, t, 0.16, 0.7); if (!tr.mute) mark(ti, key, f, t);
@@ -698,14 +747,14 @@ $('#tuning').addEventListener('change', e => { state.tuning = e.target.value; co
 $('#colors').addEventListener('change', e => { state.colors = e.target.value; colorCache.clear(); buildLightStrip(); });
 $('#play').addEventListener('click', () => {
   if (state.playing) stop(); else start();
-  $('#play').setAttribute('aria-pressed', String(state.playing));
-  $('#play').textContent = state.playing ? 'Stoppa' : 'Spela';
+  linkSend({type: 'play', playing: state.playing});
 });
-$('#bpm').addEventListener('input', e => {
-  const nb = +e.target.value;
-  if (ac && state.playing) { const b = nowBeat(); state.startTime = ac.currentTime - b * 60 / nb; state.schedBeat = Math.ceil(b * 4) / 4; }
-  state.bpm = nb; $('#bpmOut').textContent = nb + ' bpm'; setDelay();
-});
+function setBpm(nb, remote) {
+  if (ac) { const b = nowBeat(); state.startTime = ac.currentTime - b * 60 / nb; if (state.playing) state.schedBeat = Math.max(state.schedBeat, Math.ceil(b * 4) / 4); }
+  state.bpm = nb; $('#bpmOut').textContent = (Math.round(nb * 10) / 10).toString().replace('.', ',') + ' bpm'; setDelay();
+  if (remote) { if (document.activeElement !== $('#bpm')) $('#bpm').value = nb; } else linkSend({type: 'bpm', bpm: nb});
+}
+$('#bpm').addEventListener('input', e => setBpm(+e.target.value, false));
 $('#vol').addEventListener('input', e => { state.master = +e.target.value; $('#volOut').textContent = Math.round(state.master * 100) + ' %'; if (master) master.gain.setTargetAtTime(state.master, ac.currentTime, 0.03); });
 document.querySelectorAll('#wheelOrder button').forEach(b => b.addEventListener('click', () => {
   state.wheel = b.dataset.v; document.querySelectorAll('#wheelOrder button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -1528,15 +1577,227 @@ function drawScope() {
   g.globalCompositeOperation = 'lighter'; glowPath(g, path, theme.v2, 0.8, 1); g.globalCompositeOperation = 'source-over';
 }
 
+/* ---------- PLAY: on-screen keys, computer keys, MIDI, Bluetooth MIDI, MIDI clock, Ableton Link ---------- */
+const play = {route: 'channel', input: 'all', clock: 'off', base: 48, held: new Map(), sustain: false, sustained: new Set(),
+  bend: [0, 0, 0], pressed: new Map(), midi: null, ws: null, link: null, needSync: false, lastStatus: ''};
+const KB_CH = 15;
+function setStatus(msg, tone) { const el = $('#connStatus'); if (play.lastStatus === msg) return; play.lastStatus = msg; el.textContent = msg; el.dataset.tone = tone || ''; }
+function setBtn(id, st) { $('#' + id).dataset.state = st || ''; }
+const midiFreq = n => rootFreq() * ratioOf(n - (48 + state.root));
+const evToAc = ts => ac ? ac.currentTime - clamp((performance.now() - ts) / 1000, 0, 0.1) : 0;
+function targetsFor(ch) { if (play.route === 'all') return [0, 1, 2]; if (play.route === 'channel' && ch < 3) return [ch]; return [state.sel]; }
+function noteOn(note, vel, ch = KB_CH) {
+  ensureAudio(); const f = midiFreq(note), t = ac.currentTime, key = ch + ':' + note;
+  if (play.held.has(key)) releaseKey(key);
+  const vs = [];
+  for (const ti of targetsFor(ch)) { const v = startNote(ti, f, t, 0.25 + 0.75 * vel / 127, {kb: true, bend: play.bend[ti]}); if (v) { vs.push(v); mark(ti, 'k' + note, f, t); } }
+  play.held.set(key, vs); play.pressed.set(note, {t, vel});
+}
+function releaseKey(key) { const vs = play.held.get(key); if (!vs) return; play.held.delete(key); vs.forEach(v => play.sustain ? play.sustained.add(v) : v.release(ac.currentTime)); }
+function noteOff(note, ch = KB_CH) { releaseKey(ch + ':' + note); if (![...play.held.keys()].some(k => k.endsWith(':' + note))) play.pressed.delete(note); }
+function allNotesOff() { [...play.held.keys()].forEach(releaseKey); if (ac) play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); play.pressed.clear(); }
+function pitchBend(ch, v) {
+  const cents = v / 8192 * 200;
+  for (const ti of targetsFor(ch)) { play.bend[ti] = cents; for (const a of active) if (a.kb && a.t === tracks[ti]) a.oscs.forEach(o => o.detune.setTargetAtTime(cents, ac.currentTime, 0.008)); }
+}
+function controlChange(ch, num, val) {
+  const ts = targetsFor(ch).map(i => tracks[i]);
+  if (num === 64) { play.sustain = val >= 64; if (!play.sustain) { play.sustained.forEach(v => v.release(ac.currentTime)); play.sustained.clear(); } }
+  else if (num === 1 || num === 74) { ts.forEach(t => { t.lp = clamp(uToF(0.3 + 0.7 * val / 127), 40, 20000); setFilter(t); }); play.needSync = true; }
+  else if (num === 71) { ts.forEach(t => { t.lpQ = 0.5 + 11.5 * (val / 127) ** 2; setFilter(t); }); play.needSync = true; }
+  else if (num === 7) { ts.forEach(t => { t.vol = val / 127; setVol(t); }); play.needSync = true; }
+  else if (num === 120 || num === 123) allNotesOff();
+}
+function midiMessage(d, t) {
+  const st = d[0];
+  if (st >= 0xF8) { clockMessage(st, t); return; }
+  if (st === 0xF2) { clock.count = ((d[2] << 7) | d[1]) * 6; return; }
+  const type = st & 0xF0, ch = st & 0x0F;
+  if (type === 0x90 && d[2] > 0) noteOn(d[1], d[2], ch);
+  else if (type === 0x80 || type === 0x90) noteOff(d[1], ch);
+  else if (type === 0xB0) controlChange(ch, d[1], d[2]);
+  else if (type === 0xE0) pitchBend(ch, ((d[2] << 7) | d[1]) - 8192);
+}
+/* MIDI clock in: 24 pulses per quarter note, Start/Continue/Stop and Song Position */
+const clock = {times: [], count: 0, pending: false};
+function clockMessage(st, t) {
+  if (play.clock !== 'midi') return;
+  if (st === 0xF8) {
+    clock.times.push(t); if (clock.times.length > 49) clock.times.shift();
+    if (clock.times.length >= 13) {
+      const n = clock.times.length - 1, bpm = 60 / ((clock.times[n] - clock.times[0]) / n * 24);
+      if (bpm > 20 && bpm < 400 && Math.abs(bpm - state.bpm) > 0.3) setBpm(Math.round(bpm * 10) / 10, true);
+    }
+    if (clock.pending) { clock.pending = false; clock.count = 0; start({startTime: t, beat: 0}); return; }
+    clock.count++;
+    if (state.playing) {
+      const desired = t - clock.count / 24 * 60 / state.bpm, err = desired - state.startTime;
+      if (Math.abs(err) > 0.08) { state.startTime = desired; state.schedBeat = Math.ceil(nowBeat() * 4) / 4; } else state.startTime += err * 0.1;
+    }
+  } else if (st === 0xFA) clock.pending = true;
+  else if (st === 0xFB) { const b = clock.count / 24; start({startTime: t - b * 60 / state.bpm, beat: Math.ceil(b * 4) / 4}); }
+  else if (st === 0xFC) { if (state.playing) stop(); }
+}
+async function connectMidi() {
+  if (play.midi) { setStatus(`MIDI: ${play.midi.inputs.size} ingång(ar) anslutna.`); return; }
+  if (!navigator.requestMIDIAccess) { setBtn('btnMidi', 'error'); setStatus('Den här webbläsaren saknar Web MIDI. Använd Chrome eller Edge, eller Firefox med MIDI tillåtet.', 'error'); return; }
+  ensureAudio(); setBtn('btnMidi', 'wait');
+  try { play.midi = await navigator.requestMIDIAccess({sysex: false}); }
+  catch (e) { setBtn('btnMidi', 'error'); setStatus(embedded() ? 'MIDI är blockerat i den här inbäddade vyn. Öppna Harmonices via bryggan på din dator (se README) så fungerar MIDI.' : 'MIDI nekades. Tillåt MIDI för sidan i webbläsarens inställningar och försök igen.', 'error'); return; }
+  const attach = () => {
+    play.midi.inputs.forEach(inp => { inp.onmidimessage = e => { if (play.input !== 'all' && inp.id !== play.input) return; midiMessage(e.data, evToAc(e.timeStamp)); }; });
+    buildPlayRow();
+    const names = [...play.midi.inputs.values()].map(i => i.name);
+    setBtn('btnMidi', names.length ? 'on' : 'wait');
+    setStatus(names.length ? `MIDI: ${names.join(', ')}` : 'MIDI är på men inga ingångar hittades. Koppla in ett keyboard, det dyker upp här direkt.');
+  };
+  play.midi.onstatechange = attach; attach();
+}
+/* Bluetooth LE MIDI straight from the browser (Web Bluetooth) */
+const BLE_SVC = '03b80e5a-ede8-4b33-a751-6ce34ec4c700', BLE_CHR = '7772e5db-3868-4112-a1a9-f2669d106bf3';
+function parseBleMidi(b, emit) {
+  const dlen = s => { const h = s & 0xF0; if (h === 0xC0 || h === 0xD0) return 1; if (h >= 0x80 && h < 0xF0) return 2; if (s === 0xF1 || s === 0xF3) return 1; if (s === 0xF2) return 2; return 0; };
+  let i = 1, status = 0;
+  while (i < b.length) {
+    let x = b[i];
+    if (x & 0x80) {
+      i++; if (i >= b.length) break; x = b[i];
+      if (x & 0x80) {
+        if (x === 0xF0) { while (i < b.length && b[i] !== 0xF7) i++; i++; continue; }
+        i++;
+        if (x >= 0xF8) { emit([x]); continue; }
+        status = x;
+      }
+    }
+    if (!status) { i++; continue; }
+    const n = dlen(status); if (i + n > b.length) break;
+    const m = [status]; for (let k = 0; k < n; k++) m.push(b[i + k]); i += n; emit(m);
+    if (status >= 0xF0) status = 0;
+  }
+}
+async function connectBle() {
+  if (!navigator.bluetooth) { setBtn('btnBle', 'error'); setStatus(embedded() ? 'Bluetooth är blockerat i den här inbäddade vyn. Öppna Harmonices via bryggan i Chrome eller Edge.' : 'Den här webbläsaren saknar Web Bluetooth. Använd Chrome eller Edge på dator eller Android. På Mac kan du också para keyboardet i Ljud-MIDI-konfiguration och välja MIDI.', 'error'); return; }
+  ensureAudio(); setBtn('btnBle', 'wait'); setStatus('Välj ditt Bluetooth-MIDI-keyboard i listan…');
+  try {
+    const dev = await navigator.bluetooth.requestDevice({filters: [{services: [BLE_SVC]}]});
+    const server = await dev.gatt.connect(), svc = await server.getPrimaryService(BLE_SVC), chr = await svc.getCharacteristic(BLE_CHR);
+    chr.addEventListener('characteristicvaluechanged', e => { const v = e.target.value, t = audioNow(); parseBleMidi(new Uint8Array(v.buffer, v.byteOffset, v.byteLength), m => midiMessage(m, t)); });
+    await chr.startNotifications();
+    dev.addEventListener('gattserverdisconnected', () => { setBtn('btnBle', ''); allNotesOff(); setStatus(`${dev.name || 'Bluetooth-keyboardet'} kopplades från.`); });
+    setBtn('btnBle', 'on'); setStatus(`Bluetooth-MIDI: ${dev.name || 'enhet'} ansluten.`);
+  } catch (e) {
+    setBtn('btnBle', e.name === 'NotFoundError' ? '' : 'error');
+    setStatus(e.name === 'NotFoundError' ? 'Ingen enhet valdes.' : embedded() ? 'Bluetooth är blockerat i den här inbäddade vyn. Öppna Harmonices via bryggan i Chrome eller Edge.' : 'Kunde inte ansluta: ' + e.message, e.name === 'NotFoundError' ? '' : 'error');
+  }
+}
+/* Ableton Link via the local bridge (bridge/harmonices-bridge.cjs) over a WebSocket */
+const linkLive = () => play.link && ac && ac.currentTime - play.link.at < 1;
+function linkSend(m) { if (play.ws && play.ws.readyState === 1) play.ws.send(JSON.stringify(m)); }
+function connectLink() {
+  if (play.ws) { play.ws.close(); return; }
+  const local = location.protocol === 'http:' && /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  let ws; try { ws = new WebSocket(`ws://${local ? location.host : 'localhost:20809'}/link`); }
+  catch (e) { setBtn('btnLink', 'error'); setStatus('Link kräver bryggan. Starta den med "npm start" i bridge-mappen och öppna http://localhost:20809.', 'error'); return; }
+  ensureAudio(); setBtn('btnLink', 'wait'); setStatus('Ansluter till Link-bryggan…');
+  let opened = false;
+  ws.onopen = () => { opened = true; play.ws = ws; setStatus('Ansluten till bryggan, väntar på Link…'); };
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } if (m.type === 'hello' && !m.link) { setBtn('btnLink', 'error'); setStatus('Bryggan körs men Link-modulen kunde inte laddas. Kör "npm install" i bridge-mappen.', 'error'); } if (m.type === 'link') onLink(m); };
+  ws.onclose = () => { play.ws = null; play.link = null; play.linkKey = ''; setBtn('btnLink', opened ? '' : 'error'); setStatus(opened ? 'Link kopplades från.' : 'Hittar ingen Link-brygga. Starta den med "npm start" i bridge-mappen och öppna http://localhost:20809.', opened ? '' : 'error'); };
+}
+function onLink(m) {
+  const now = ac.currentTime, lat = (ac.outputLatency || 0) + (ac.baseLatency || 0), prev = play.link;
+  if (!prev && m.peers === 0 && Math.abs(m.bpm - state.bpm) > 0.01) { play.link = Object.assign({}, m, {at: now, bpm: state.bpm}); linkSend({type: 'bpm', bpm: state.bpm}); return; }
+  play.link = Object.assign({}, m, {at: now});
+  const lk = Math.round(m.bpm * 10) + ':' + m.peers;
+  if (play.linkKey !== lk) { play.linkKey = lk; setBtn('btnLink', 'on'); setStatus(`Ableton Link · ${fmt(m.bpm, 1)} bpm · ${m.peers} ${m.peers === 1 ? 'annan app' : 'andra appar'} i sessionen`); }
+  if (Math.abs(m.bpm - state.bpm) > 0.01) setBpm(m.bpm, true);
+  const desired = now - m.beat * 60 / m.bpm - lat;
+  if (state.playing) { const err = desired - state.startTime; if (Math.abs(err) > 0.06) { state.startTime = desired; state.schedBeat = Math.ceil(nowBeat() * 4) / 4; } else state.startTime += err * 0.15; }
+  else state.startTime = desired;
+  if (prev && m.playing !== prev.playing) { if (m.playing && !state.playing) start(); else if (!m.playing && state.playing) stop(); }
+}
+const embedded = () => { try { return window.self !== window.top; } catch (e) { return true; } };
+$('#btnMidi').addEventListener('click', connectMidi);
+$('#btnBle').addEventListener('click', connectBle);
+$('#btnLink').addEventListener('click', connectLink);
+function buildPlayRow() {
+  const row = $('#playRow'); row.textContent = '';
+  if (play.midi) {
+    const opts = [['all', 'Alla MIDI-ingångar'], ...[...play.midi.inputs.values()].map(i => [i.id, i.name])];
+    if (!opts.some(o => o[0] === play.input)) play.input = 'all';
+    row.append(selectCtl('Ingång', opts, () => play.input, v => { play.input = v; }));
+  }
+  row.append(labeled('Keyboardet spelar', seg([['channel', 'Kanal 1–3 → röst I–III'], ['selected', 'Vald röst'], ['all', 'Alla röster']], () => play.route, v => { allNotesOff(); play.route = v; }, 'Vilka röster keyboardet spelar')));
+  row.append(labeled('Tempo', seg([['off', 'Eget'], ['midi', 'Följ MIDI-klocka']], () => play.clock, v => { play.clock = v; clock.times = []; }, 'Tempokälla')));
+  const lab = h('span', {}, 'C' + (play.base / 12 - 1));
+  const shift = d => { allNotesOff(); play.base = clamp(play.base + d, 24, 84); lab.textContent = 'C' + (play.base / 12 - 1); };
+  row.append(labeled('Oktav', h('div', {class: 'oct'}, h('button', {class: 'btn', type: 'button', 'aria-label': 'Oktav ner', onclick: () => shift(-12)}, '−'), lab, h('button', {class: 'btn', type: 'button', 'aria-label': 'Oktav upp', onclick: () => shift(12)}, '+'))));
+  play.octLab = lab; play.shift = shift;
+}
+/* computer keys, layout independent (physical key codes) */
+const KEYS = ['KeyA', 'KeyW', 'KeyS', 'KeyE', 'KeyD', 'KeyF', 'KeyT', 'KeyG', 'KeyY', 'KeyH', 'KeyU', 'KeyJ', 'KeyK', 'KeyO', 'KeyL', 'KeyP', 'Semicolon'];
+const typing = e => /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.target.isContentEditable;
+addEventListener('keydown', e => {
+  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey || typing(e)) return;
+  if (e.code === 'KeyZ') { play.shift(-12); return; } if (e.code === 'KeyX') { play.shift(12); return; }
+  const i = KEYS.indexOf(e.code); if (i < 0) return; e.preventDefault(); noteOn(play.base + 12 + i, 100);
+});
+addEventListener('keyup', e => { const i = KEYS.indexOf(e.code); if (i >= 0) noteOff(play.base + 12 + i); });
+addEventListener('blur', allNotesOff);
+/* on-screen spectral keyboard */
+const pianoC = track2d($('#piano'));
+const isBlack = n => [1, 3, 6, 8, 10].includes(mod(n, 12));
+function pianoKeys() {
+  const {w, h: H2} = pianoC, lo = play.base, hi = play.base + 24, whites = [];
+  for (let n = lo; n <= hi; n++) if (!isBlack(n)) whites.push(n);
+  const ww = w / whites.length, keys = [];
+  whites.forEach((n, i) => keys.push({n, x: i * ww, y: 0, w: ww, h: H2, black: false}));
+  for (let n = lo; n <= hi; n++) if (isBlack(n)) { const i = whites.indexOf(n - 1); keys.push({n, x: (i + 1) * ww - ww * 0.31, y: 0, w: ww * 0.62, h: H2 * 0.6, black: true}); }
+  return keys;
+}
+function pianoHit(x, y) { const ks = pianoKeys(); return ks.find(k => k.black && x >= k.x && x <= k.x + k.w && y <= k.h) || ks.find(k => !k.black && x >= k.x && x <= k.x + k.w) || null; }
+const pianoPtr = new Map();
+pianoC.canvas.addEventListener('pointerdown', e => {
+  const r = pianoC.canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, k = pianoHit(x, y); if (!k) return;
+  e.preventDefault(); pianoC.canvas.setPointerCapture(e.pointerId);
+  const vel = Math.round(clamp(40 + 87 * y / k.h, 30, 127)); pianoPtr.set(e.pointerId, k.n); noteOn(k.n, vel);
+});
+pianoC.canvas.addEventListener('pointermove', e => {
+  if (!pianoPtr.has(e.pointerId)) return;
+  const r = pianoC.canvas.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, k = pianoHit(x, y), old = pianoPtr.get(e.pointerId);
+  if (k && k.n !== old) { noteOff(old); pianoPtr.set(e.pointerId, k.n); noteOn(k.n, Math.round(clamp(40 + 87 * y / k.h, 30, 127))); }
+});
+const pianoUp = e => { if (!pianoPtr.has(e.pointerId)) return; noteOff(pianoPtr.get(e.pointerId)); pianoPtr.delete(e.pointerId); };
+pianoC.canvas.addEventListener('pointerup', pianoUp); pianoC.canvas.addEventListener('pointercancel', pianoUp);
+function roundBottom(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x, y); g.lineTo(x + w, y); g.lineTo(x + w, y + h - r); g.arcTo(x + w, y + h, x + w - r, y + h, r); g.lineTo(x + r, y + h); g.arcTo(x, y + h, x, y + h - r, r); g.closePath(); }
+function drawPiano() {
+  const {g, w, h: H2} = pianoC; g.clearRect(0, 0, w, H2); if (w < 60) return;
+  const ks = pianoKeys(), n0 = audioNow();
+  const drawKey = k => {
+    const f = midiFreq(k.n), col = noteColor(f), p = play.pressed.get(k.n), on = !!p, x = k.x + 1, kw = k.w - 2;
+    const lit = on ? 1 : 0;
+    g.fillStyle = k.black ? theme.bg : theme.raise; roundBottom(g, x, k.y, kw, k.h, 6); g.fill();
+    if (on) { g.save(); const gr = g.createLinearGradient(0, k.y, 0, k.y + k.h); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.55, col); gr.addColorStop(1, col); g.globalAlpha = 0.8; g.fillStyle = gr; g.shadowColor = col; g.shadowBlur = 22 * Math.sqrt(V.bloom); roundBottom(g, x, k.y, kw, k.h, 6); g.fill(); g.restore(); }
+    g.strokeStyle = k.black ? theme.line : theme.bg; g.lineWidth = 1; roundBottom(g, x + 0.5, k.y, kw - 1, k.h - 0.5, 6); g.stroke();
+    g.globalAlpha = on ? 1 : 0.75; g.fillStyle = col; g.fillRect(x + 3, k.y + k.h - 7, kw - 6, 3); g.globalAlpha = 1;
+    if (!k.black && mod(k.n, 12) === 0) text(g, 'C' + (k.n / 12 - 1), x + kw / 2, k.h - 14, on ? theme.bg : theme.muted, 10, 'center', 'alphabetic');
+    if (mod(k.n - state.root, 12) === 0) dot(g, x + kw / 2, k.y + (k.black ? k.h - 16 : k.h - 30), 2.2, on ? theme.bg : col);
+    if (!scalePcs().includes(mod(k.n - state.root, 12)) && !on) { g.globalAlpha = 0.35; g.fillStyle = theme.bg; roundBottom(g, x, k.y, kw, k.h, 6); g.fill(); g.globalAlpha = 1; }
+  };
+  ks.filter(k => !k.black).forEach(drawKey); ks.filter(k => k.black).forEach(drawKey);
+  const kbOff = play.base + 12;
+  g.globalAlpha = 0.5; text(g, 'A', ks.find(k => k.n === kbOff)?.x + 6 || 6, 14, theme.muted, 9.5, 'left', 'alphabetic', BODY); g.globalAlpha = 1;
+}
+
 /* ---------- boot & loop ---------- */
 readTheme();
 tracks.forEach(t => { t.sd = computeShape(t.shape); t.od = computeOrbit(t.orbit); });
-buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx();
+buildLightStrip(); buildInspector(); syncChips(); setMode(state.mode); buildFx(); buildPlayRow();
 function frame(ms) {
   requestAnimationFrame(frame);
   const time = ms / 1000, safe = f => { try { f(); } catch (e) { console.error(e); } };
-  updateV();
-  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad);
+  updateV(); if (play.needSync) { play.needSync = false; syncAll(); }
+  safe(() => drawKlang(time)); safe(drawStage); safe(drawWheel); safe(drawScope); safe(drawFilterPad); safe(drawEchoPad); safe(drawRoomPad); safe(drawPiano);
 }
 requestAnimationFrame(frame);
 })();
