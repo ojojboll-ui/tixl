@@ -19,7 +19,7 @@ try {
   link = new AbletonLink(84, 4, true);
   link.enablePlayStateSync();
 } catch (e) {
-  console.warn('Ableton Link kunde inte laddas (' + e.message + '). Sidan och MIDI fungerar ändå.');
+  console.warn('Ableton Link could not load (' + e.message + '). The page and MIDI still work.');
 }
 
 const server = http.createServer((req, res) => {
@@ -60,6 +60,6 @@ if (link) {
 }
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`Harmonices: öppna http://localhost:${PORT} i Chrome eller Edge`);
-  console.log(`Ableton Link: ${link ? 'på (sessionen syns i Live och andra Link-appar)' : 'saknas'}`);
+  console.log(`Harmonices: open http://localhost:${PORT} in Chrome or Edge`);
+  console.log(`Ableton Link: ${link ? 'on (the session shows up in Live and other Link apps)' : 'not available'}`);
 });
